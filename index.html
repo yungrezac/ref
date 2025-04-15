@@ -3,189 +3,222 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Реферальная ссылка для Mini App</title>
+    <title>Реферальная ссылка</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
             margin: 0;
-            padding: 20px;
+            padding: 0;
             background-color: #f5f5f5;
             color: #333;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
         }
         .container {
-            max-width: 500px;
-            margin: 0 auto;
-            background: white;
-            padding: 20px;
-            border-radius: 12px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-        }
-        h1 {
-            font-size: 20px;
-            margin-top: 0;
-            color: #000;
-        }
-        .form-group {
-            margin-bottom: 15px;
-        }
-        label {
-            display: block;
-            margin-bottom: 5px;
-            font-weight: 500;
-        }
-        input {
+            text-align: center;
+            max-width: 400px;
             width: 100%;
-            padding: 10px;
-            border: 1px solid #ddd;
-            border-radius: 8px;
-            box-sizing: border-box;
-            font-size: 16px;
+            padding: 20px;
         }
-        button {
+        .card {
+            background: white;
+            border-radius: 16px;
+            padding: 30px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        }
+        .btn {
             background-color: #0088cc;
             color: white;
             border: none;
-            padding: 12px 20px;
-            border-radius: 8px;
+            padding: 14px 28px;
+            border-radius: 12px;
             font-size: 16px;
             font-weight: 500;
             cursor: pointer;
             width: 100%;
+            margin-top: 20px;
             transition: background-color 0.2s;
         }
-        button:hover {
+        .btn:hover {
             background-color: #0077b3;
         }
-        .result {
-            margin-top: 20px;
-            padding: 15px;
-            background-color: #f0f8ff;
-            border-radius: 8px;
-            display: none;
+        .title {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 10px;
         }
-        .copy-btn {
-            background-color: #34b7f1;
-            margin-top: 10px;
+        .subtitle {
+            font-size: 15px;
+            color: #666;
+            margin-bottom: 25px;
         }
-        .copy-btn:hover {
-            background-color: #2aa7e1;
+        
+        /* Стили для аватара */
+        .css_avatar_person {
+            object-fit: contain;
+            border-radius: 100px;
+            display: inline-flex;
         }
-        .preview {
-            margin-top: 20px;
-            padding: 15px;
-            background-color: #f9f9f9;
-            border-radius: 8px;
-            border: 1px solid #eee;
+        .css_avatar_person[initials]::before {
+            color:#fff;
+            content: attr(initials);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border-radius: 100px;
+            font-family: Ubuntu;
+            font-style: normal;
+            font-stretch: normal;
+            line-height: 1.13;
+            letter-spacing: normal;
+            width: 100%;
+            height: 100%;
+        }
+        .css_avatar_person.lk[initials]::before {
+            width: 40px;
+            height: 40px;
+            font-size: 16px;
+            font-weight: bold;
+        }
+        .css_avatar_person.landing[initials]::before {
+            width: 150px;
+            height: 150px;
+            font-size: 48px;
+            font-weight: normal;
+        }
+        .css_avatar_person.small[initials]::before {
+            width: 30px !important;
+            height: 30px !important;
+        }
+        .css_avatar_person.big[initials]::before {
+            width: 70px !important;
+            height: 70px !important;
+        }
+        .css_avatar_person.large[initials]::before {
+            width: 100px !important;
+            height: 100px !important;
+            font-size: 32px !important;
+        }
+        .css_avatar_person[initials][color_avatar="1"]::before {
+            background-image: linear-gradient(to bottom, #fdbcee, #e47ccd);
+        }
+        .css_avatar_person[initials][color_avatar="2"]::before {
+            background-image: linear-gradient(to bottom, #7be692, #4bb462);
+        }
+        .css_avatar_person[initials][color_avatar="3"]::before {
+            background-image: linear-gradient(to bottom, #af7eff, #782fef);
+        }
+        .css_avatar_person[initials][color_avatar="4"]::before {
+            background-image: linear-gradient(to bottom, #ffd7a8, #ffaf50);
+        }
+        .css_avatar_person[initials][color_avatar="5"]::before {
+            background-image: linear-gradient(to bottom, #a2c8ff, #5199ff);
+        }
+        .css_avatar_person[initials][color_avatar="6"]::before {
+            background-image: linear-gradient(to bottom, #bce7ff, #64c7ff);
+        }
+        .css_avatar_person[initials][color_avatar="7"]::before {
+            background-image: linear-gradient(to bottom, #c1f08c, #92c951);
+        }
+        .css_avatar_person[initials][color_avatar="8"]::before {
+            background-image: linear-gradient(to bottom, #ffb4a3, #ff6e4e);
+        }
+        .css_avatar_person[initials][color_avatar="9"]::before {
+            background-image: linear-gradient(to bottom, #58f2e7, #25c1b5);
+        }
+        .css_avatar_person[initials][color_avatar="0"]::before {
+            background-image: linear-gradient(to bottom, #ff8ee0, #e659c0);
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>Создать реферальную ссылку</h1>
-        
-        <div class="form-group">
-            <label for="miniAppUrl">Ссылка на ваш Mini App:</label>
-            <input type="text" id="miniAppUrl" placeholder="https://t.me/your_mini_app" />
-        </div>
-        
-        <div class="form-group">
-            <label for="refParam">Реферальный параметр (необязательно):</label>
-            <input type="text" id="refParam" placeholder="ref12345" />
-        </div>
-        
-        <button id="generateBtn">Создать ссылку</button>
-        
-        <div id="result" class="result">
-            <p>Ваша реферальная ссылка:</p>
-            <input type="text" id="refLink" readonly />
-            <button id="copyBtn" class="copy-btn">Копировать ссылку</button>
+        <div class="card">
+            <!-- Аватар с инициалами и градиентом -->
+            <div class="css_avatar_person landing" initials="UR" color_avatar="3"></div>
             
-            <div class="preview">
-                <p>Предпросмотр:</p>
-                <p>Пользователь увидит кнопку:</p>
-                <button id="previewBtn" style="background-color: #0088cc;">Перейти в приложение</button>
-            </div>
+            <h1 class="title">Присоединяйтесь к нам!</h1>
+            <p class="subtitle">Ваш друг приглашает вас в наше приложение</p>
+            
+            <button id="goToAppBtn" class="btn">Перейти в приложение</button>
         </div>
     </div>
 
     <script>
-        const generateBtn = document.getElementById('generateBtn');
-        const copyBtn = document.getElementById('copyBtn');
-        const resultDiv = document.getElementById('result');
-        const refLinkInput = document.getElementById('refLink');
-        const miniAppUrlInput = document.getElementById('miniAppUrl');
-        const refParamInput = document.getElementById('refParam');
-        const previewBtn = document.getElementById('previewBtn');
-        
-        generateBtn.addEventListener('click', function() {
-            const miniAppUrl = miniAppUrlInput.value.trim();
-            const refParam = refParamInput.value.trim();
-            
-            if (!miniAppUrl) {
-                alert('Пожалуйста, введите ссылку на ваш Mini App');
-                return;
-            }
-            
-            // Создаем URL для реферальной страницы
-            let refLink = `https://${window.location.hostname}${window.location.pathname}?redirect=${encodeURIComponent(miniAppUrl)}`;
-            
-            if (refParam) {
-                refLink += `&ref=${encodeURIComponent(refParam)}`;
-            }
-            
-            refLinkInput.value = refLink;
-            resultDiv.style.display = 'block';
-            
-            // Обновляем кнопку предпросмотра
-            previewBtn.onclick = function() {
-                if (window.Telegram && window.Telegram.WebApp) {
-                    window.Telegram.WebApp.openTelegramLink(miniAppUrl);
-                } else {
-                    window.open(miniAppUrl, '_blank');
-                }
-            };
-        });
-        
-        copyBtn.addEventListener('click', function() {
-            refLinkInput.select();
-            document.execCommand('copy');
-            copyBtn.textContent = 'Скопировано!';
-            setTimeout(() => {
-                copyBtn.textContent = 'Копировать ссылку';
-            }, 2000);
-        });
-        
-        // Проверяем параметры URL для редиректа
         const urlParams = new URLSearchParams(window.location.search);
         const redirectUrl = urlParams.get('redirect');
         const refCode = urlParams.get('ref');
         
+        // Если есть параметр redirect, это реферальная страница
         if (redirectUrl) {
-            // Это реферальная страница - показываем только кнопку
-            document.body.innerHTML = `
-                <div style="display: flex; justify-content: center; align-items: center; height: 100vh;">
-                    <button id="goToAppBtn" style="background-color: #0088cc; color: white; border: none; padding: 15px 30px; border-radius: 8px; font-size: 18px; cursor: pointer;">
-                        Перейти в приложение
-                    </button>
-                </div>
-            `;
-            
             document.getElementById('goToAppBtn').addEventListener('click', function() {
                 if (window.Telegram && window.Telegram.WebApp) {
-                    // Если в Mini App - используем Telegram WebApp для открытия
                     window.Telegram.WebApp.openTelegramLink(redirectUrl);
                 } else {
-                    // Если вне Telegram - обычная ссылка
                     window.open(redirectUrl, '_blank');
                 }
             });
             
-            // Здесь можно отправить реферальный код на сервер для учета
+            // Здесь можно добавить логику для работы с реферальным кодом
             if (refCode) {
                 console.log('Реферальный код:', refCode);
-                // Отправка реферального кода на сервер...
+                // Можно отправить на сервер или использовать для персонализации
             }
+        } else {
+            // Если нет параметра redirect, это страница генерации ссылки
+            document.body.innerHTML = `
+                <div class="container">
+                    <div class="card">
+                        <h1 class="title">Создать реферальную ссылку</h1>
+                        <p class="subtitle">Введите ссылку на ваш Mini App</p>
+                        
+                        <input type="text" id="miniAppUrl" placeholder="https://t.me/your_mini_app" style="width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; margin-bottom: 15px; box-sizing: border-box;">
+                        <input type="text" id="refParam" placeholder="Реферальный код (необязательно)" style="width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; margin-bottom: 15px; box-sizing: border-box;">
+                        
+                        <button id="generateBtn" class="btn">Создать ссылку</button>
+                        
+                        <div id="result" style="margin-top: 20px; display: none;">
+                            <p style="font-size: 14px; color: #666;">Ваша реферальная ссылка:</p>
+                            <input type="text" id="refLink" readonly style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 8px; margin-bottom: 10px; box-sizing: border-box;">
+                            <button id="copyBtn" class="btn" style="background-color: #34b7f1;">Копировать ссылку</button>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            document.getElementById('generateBtn').addEventListener('click', function() {
+                const miniAppUrl = document.getElementById('miniAppUrl').value.trim();
+                
+                if (!miniAppUrl) {
+                    alert('Пожалуйста, введите ссылку на ваш Mini App');
+                    return;
+                }
+                
+                const refParam = document.getElementById('refParam').value.trim();
+                let refLink = `${window.location.origin}${window.location.pathname}?redirect=${encodeURIComponent(miniAppUrl)}`;
+                
+                if (refParam) {
+                    refLink += `&ref=${encodeURIComponent(refParam)}`;
+                }
+                
+                document.getElementById('refLink').value = refLink;
+                document.getElementById('result').style.display = 'block';
+            });
+            
+            document.getElementById('copyBtn').addEventListener('click', function() {
+                const refLinkInput = document.getElementById('refLink');
+                refLinkInput.select();
+                document.execCommand('copy');
+                
+                const copyBtn = document.getElementById('copyBtn');
+                copyBtn.textContent = 'Скопировано!';
+                setTimeout(() => {
+                    copyBtn.textContent = 'Копировать ссылку';
+                }, 2000);
+            });
         }
     </script>
 </body>
