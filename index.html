@@ -149,7 +149,7 @@
             }
             
             // Создаем deep link для бота с параметрами
-            let refLink = `https://t.me/${BOT_USERNAME}?start=ref_${encodeURIComponent(btoa(miniAppUrl))}`;
+            let refLink = `https://t.me/${BOT_USERNAME}?startapp=ref_${encodeURIComponent(btoa(miniAppUrl))}`;
             
             if (refParam) {
                 refLink += `_${encodeURIComponent(refParam)}`;
