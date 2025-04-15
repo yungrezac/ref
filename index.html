@@ -85,12 +85,12 @@
         <h1>Создать реферальную ссылку</h1>
         
         <div class="form-group">
-            <label for="miniAppUrl">Ссылка на ваш Mini App:</label>
-            <input type="text" id="miniAppUrl" placeholder="https://t.me/your_mini_app" />
+            <label for="botUsername">Юзернейм бота (без @):</label>
+            <input type="text" id="botUsername" placeholder="your_bot_username" />
         </div>
         
         <div class="form-group">
-            <label for="refParam">Реферальный параметр (необязательно):</label>
+            <label for="refParam">Реферальный параметр:</label>
             <input type="text" id="refParam" placeholder="ref12345" />
         </div>
         
@@ -102,9 +102,7 @@
             <button id="copyBtn" class="copy-btn">Копировать ссылку</button>
             
             <div class="preview">
-                <p>Предпросмотр:</p>
-                <p>Пользователь увидит кнопку:</p>
-                <button id="previewBtn" style="background-color: #0088cc;">Перейти в приложение</button>
+                <p>Когда пользователь перейдет по этой ссылке, он увидит кнопку "Start" в Telegram, которая откроет ваш Mini App с переданным реферальным параметром.</p>
             </div>
         </div>
     </div>
@@ -114,37 +112,28 @@
         const copyBtn = document.getElementById('copyBtn');
         const resultDiv = document.getElementById('result');
         const refLinkInput = document.getElementById('refLink');
-        const miniAppUrlInput = document.getElementById('miniAppUrl');
+        const botUsernameInput = document.getElementById('botUsername');
         const refParamInput = document.getElementById('refParam');
-        const previewBtn = document.getElementById('previewBtn');
         
         generateBtn.addEventListener('click', function() {
-            const miniAppUrl = miniAppUrlInput.value.trim();
+            const botUsername = botUsernameInput.value.trim();
             const refParam = refParamInput.value.trim();
             
-            if (!miniAppUrl) {
-                alert('Пожалуйста, введите ссылку на ваш Mini App');
+            if (!botUsername) {
+                alert('Пожалуйста, введите юзернейм бота');
                 return;
             }
             
-            // Создаем URL для реферальной страницы
-            let refLink = `https://${window.location.hostname}${window.location.pathname}?redirect=${encodeURIComponent(miniAppUrl)}`;
-            
-            if (refParam) {
-                refLink += `&ref=${encodeURIComponent(refParam)}`;
+            if (!refParam) {
+                alert('Пожалуйста, введите реферальный параметр');
+                return;
             }
+            
+            // Создаем ссылку в формате https://t.me/bot_username?startapp=реферальный_код
+            const refLink = `https://t.me/${botUsername.replace('@', '')}?startapp=${encodeURIComponent(refParam)}`;
             
             refLinkInput.value = refLink;
             resultDiv.style.display = 'block';
-            
-            // Обновляем кнопку предпросмотра
-            previewBtn.onclick = function() {
-                if (window.Telegram && window.Telegram.WebApp) {
-                    window.Telegram.WebApp.openTelegramLink(miniAppUrl);
-                } else {
-                    window.open(miniAppUrl, '_blank');
-                }
-            };
         });
         
         copyBtn.addEventListener('click', function() {
@@ -155,37 +144,24 @@
                 copyBtn.textContent = 'Копировать ссылку';
             }, 2000);
         });
-        
-        // Проверяем параметры URL для редиректа
+
+        // Если открыта ссылка с startapp параметром (например, при переходе по реферальной ссылке)
         const urlParams = new URLSearchParams(window.location.search);
-        const redirectUrl = urlParams.get('redirect');
-        const refCode = urlParams.get('ref');
+        const startappParam = urlParams.get('startapp');
         
-        if (redirectUrl) {
-            // Это реферальная страница - показываем только кнопку
+        if (startappParam && window.Telegram && window.Telegram.WebApp) {
+            // Можно обработать реферальный код
+            console.log('Реферальный код:', startappParam);
+            // Здесь можно отправить код на сервер для учета рефералов
+            
+            // Показать основное приложение
             document.body.innerHTML = `
-                <div style="display: flex; justify-content: center; align-items: center; height: 100vh;">
-                    <button id="goToAppBtn" style="background-color: #0088cc; color: white; border: none; padding: 15px 30px; border-radius: 8px; font-size: 18px; cursor: pointer;">
-                        Перейти в приложение
-                    </button>
+                <div class="container">
+                    <h1>Добро пожаловать!</h1>
+                    <p>Вы перешли по реферальной ссылке с кодом: ${startappParam}</p>
+                    <!-- Здесь контент вашего Mini App -->
                 </div>
             `;
-            
-            document.getElementById('goToAppBtn').addEventListener('click', function() {
-                if (window.Telegram && window.Telegram.WebApp) {
-                    // Если в Mini App - используем Telegram WebApp для открытия
-                    window.Telegram.WebApp.openTelegramLink(redirectUrl);
-                } else {
-                    // Если вне Telegram - обычная ссылка
-                    window.open(redirectUrl, '_blank');
-                }
-            });
-            
-            // Здесь можно отправить реферальный код на сервер для учета
-            if (refCode) {
-                console.log('Реферальный код:', refCode);
-                // Отправка реферального кода на сервер...
-            }
         }
     </script>
 </body>
