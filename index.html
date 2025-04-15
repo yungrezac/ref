@@ -110,6 +110,9 @@
     </div>
 
     <script>
+        const BOT_USERNAME = 'your_bot_username'; // Замените на username вашего бота
+        const BOT_TOKEN = '7030085123:AAGxRwbTC-Kwr4TBpFxuhymfdDXKMzhIn6E';
+        
         const generateBtn = document.getElementById('generateBtn');
         const copyBtn = document.getElementById('copyBtn');
         const resultDiv = document.getElementById('result');
@@ -127,11 +130,11 @@
                 return;
             }
             
-            // Создаем URL для реферальной страницы
-            let refLink = `https://${window.location.hostname}${window.location.pathname}?redirect=${encodeURIComponent(miniAppUrl)}`;
+            // Создаем deep link для бота с параметрами
+            let refLink = `https://t.me/${BOT_USERNAME}?start=ref_${encodeURIComponent(btoa(miniAppUrl))}`;
             
             if (refParam) {
-                refLink += `&ref=${encodeURIComponent(refParam)}`;
+                refLink += `_${encodeURIComponent(refParam)}`;
             }
             
             refLinkInput.value = refLink;
@@ -139,11 +142,7 @@
             
             // Обновляем кнопку предпросмотра
             previewBtn.onclick = function() {
-                if (window.Telegram && window.Telegram.WebApp) {
-                    window.Telegram.WebApp.openTelegramLink(miniAppUrl);
-                } else {
-                    window.open(miniAppUrl, '_blank');
-                }
+                window.open(refLink, '_blank');
             };
         });
         
@@ -156,15 +155,21 @@
             }, 2000);
         });
         
-        // Проверяем параметры URL для редиректа
+        // Обработка стартовых параметров в боте
         const urlParams = new URLSearchParams(window.location.search);
-        const redirectUrl = urlParams.get('redirect');
-        const refCode = urlParams.get('ref');
+        const startParam = urlParams.get('start');
         
-        if (redirectUrl) {
-            // Это реферальная страница - показываем только кнопку
+        if (startParam && startParam.startsWith('ref_')) {
+            // Это реферальная страница - декодируем параметры
+            const params = startParam.substring(4).split('_');
+            const miniAppUrl = atob(decodeURIComponent(params[0]));
+            const refCode = params.length > 1 ? decodeURIComponent(params[1]) : null;
+            
+            // Показываем только кнопку перехода
             document.body.innerHTML = `
-                <div style="display: flex; justify-content: center; align-items: center; height: 100vh;">
+                <div style="display: flex; flex-direction: column; justify-content: center; align-items: center; height: 100vh; padding: 20px; text-align: center;">
+                    <h2 style="margin-bottom: 20px;">Добро пожаловать!</h2>
+                    <p style="margin-bottom: 30px;">Нажмите кнопку ниже, чтобы перейти в приложение</p>
                     <button id="goToAppBtn" style="background-color: #0088cc; color: white; border: none; padding: 15px 30px; border-radius: 8px; font-size: 18px; cursor: pointer;">
                         Перейти в приложение
                     </button>
@@ -173,19 +178,34 @@
             
             document.getElementById('goToAppBtn').addEventListener('click', function() {
                 if (window.Telegram && window.Telegram.WebApp) {
-                    // Если в Mini App - используем Telegram WebApp для открытия
-                    window.Telegram.WebApp.openTelegramLink(redirectUrl);
+                    window.Telegram.WebApp.openTelegramLink(miniAppUrl);
                 } else {
-                    // Если вне Telegram - обычная ссылка
-                    window.open(redirectUrl, '_blank');
+                    window.open(miniAppUrl, '_blank');
                 }
             });
             
-            // Здесь можно отправить реферальный код на сервер для учета
+            // Отправляем реферальный код на сервер (если есть)
             if (refCode) {
-                console.log('Реферальный код:', refCode);
-                // Отправка реферального кода на сервер...
+                sendRefDataToServer(refCode);
             }
+        }
+        
+        function sendRefDataToServer(refCode) {
+            // Здесь можно отправить данные о реферале на сервер
+            console.log('Реферальный код:', refCode);
+            // Пример отправки через fetch:
+            /*
+            fetch('https://your-server.com/track-ref', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    ref_code: refCode,
+                    user_id: window.Telegram.WebApp.initDataUnsafe.user?.id
+                })
+            });
+            */
         }
     </script>
 </body>
