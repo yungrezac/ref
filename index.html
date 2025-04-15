@@ -18,148 +18,289 @@
     <link href="https://cp.puzzlebot.top/images/puzzleBot_favicon.png" rel="shortcut icon" type="image/x-icon">
     <link href="https://cp.puzzlebot.top/images/puzzleBot_favicon.png" rel="apple-touch-icon">
     <link href="https://cp.puzzlebot.top/images/puzzleBot_favicon.png" rel="mask-icon">
-    <link href="https://puzzlebot.top/5f055c68c84aef5e75811c34\css\puzzlebot-2-0.webflow.f0d8d928b.css" rel="stylesheet" type="text/css">
-    <link rel="stylesheet" href="https://cp.puzzlebot.top/css/avatar.css" type="text/css">
-    <script src="https://ajax.googleapis.com/ajax/libs/webfont/1.6.26/webfont.js" type="text/javascript"></script>
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Ubuntu:300,300italic,400,400italic,500,500italic,700,700italic" media="all">
+    <link href="https://fonts.googleapis.com/css2?family=Ubuntu:wght@300;400;500;700&display=swap" rel="stylesheet">
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
-        body {
+        :root {
+            --primary-color: #0088cc;
+            --secondary-color: #34b7f1;
+            --accent-color: #6c5ce7;
+            --text-color: #2d3436;
+            --light-text: #636e72;
+            --bg-color: #f5f6fa;
+            --card-bg: #ffffff;
+            --border-radius: 16px;
+            --box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+            --transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+        }
+
+        * {
             margin: 0;
             padding: 0;
-            font-family: 'Ubuntu', sans-serif;
-            background-color: #f5f5f5;
+            box-sizing: border-box;
         }
-        .section.page_small {
+
+        body {
+            font-family: 'Ubuntu', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.6;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .container {
             display: flex;
             justify-content: center;
             align-items: center;
             min-height: 100vh;
             padding: 20px;
         }
-        .page_small_tg_inner {
-            max-width: 400px;
+
+        .card {
+            background: var(--card-bg);
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
             width: 100%;
-            background: white;
-            border-radius: 16px;
-            padding: 30px;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            max-width: 420px;
+            padding: 40px;
             text-align: center;
+            transition: var(--transition);
         }
-        .page_tg_img {
-            margin-bottom: 20px;
+
+        .avatar-container {
+            position: relative;
+            margin: 0 auto 20px;
+            width: 120px;
+            height: 120px;
         }
-        .page_tg_img_inner {
-            display: inline-block;
+
+        .avatar-border {
+            position: absolute;
+            top: -5px;
+            left: -5px;
+            right: -5px;
+            bottom: -5px;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
             border-radius: 50%;
-            padding: 5px;
-            background: linear-gradient(135deg, #0088cc, #34b7f1);
+            z-index: 0;
+            animation: rotate 6s linear infinite;
         }
-        .page_small_img img {
-            width: 100px;
-            height: 100px;
+
+        .avatar {
+            position: relative;
+            width: 100%;
+            height: 100%;
             border-radius: 50%;
+            overflow: hidden;
+            border: 4px solid white;
+            z-index: 1;
+        }
+
+        .avatar img {
+            width: 100%;
+            height: 100%;
             object-fit: cover;
-            border: 3px solid white;
         }
-        .page_small_title h1 {
-            font-size: 24px;
+
+        h1 {
+            font-size: 28px;
             font-weight: 700;
-            margin: 0 0 10px 0;
-            color: #333;
+            margin-bottom: 8px;
+            color: var(--text-color);
         }
-        .page_tg_link_username {
+
+        .username {
             display: inline-block;
             margin: 10px 0;
-            color: #0088cc;
-            text-decoration: none;
+            color: var(--primary-color);
             font-weight: 500;
+            text-decoration: none;
+            transition: var(--transition);
         }
-        .page_small_des {
+
+        .username:hover {
+            color: var(--secondary-color);
+            transform: translateY(-2px);
+        }
+
+        .description {
+            color: var(--light-text);
+            margin-bottom: 30px;
             font-size: 16px;
-            color: #666;
-            margin-bottom: 25px;
         }
-        .tg_button {
-            background: linear-gradient(135deg, #0088cc, #34b7f1);
+
+        .btn {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
             color: white;
             border: none;
-            padding: 12px 30px;
-            border-radius: 8px;
+            padding: 14px 28px;
+            border-radius: 50px;
             font-size: 16px;
             font-weight: 500;
             cursor: pointer;
             width: 100%;
-            transition: all 0.3s;
-            box-shadow: 0 4px 10px rgba(0, 136, 204, 0.2);
+            transition: var(--transition);
+            box-shadow: 0 4px 15px rgba(0, 136, 204, 0.3);
+            position: relative;
+            overflow: hidden;
         }
-        .tg_button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 15px rgba(0, 136, 204, 0.3);
+
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(0, 136, 204, 0.4);
         }
+
+        .btn:active {
+            transform: translateY(1px);
+        }
+
+        .btn::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, var(--secondary-color), var(--primary-color));
+            opacity: 0;
+            transition: var(--transition);
+            z-index: -1;
+        }
+
+        .btn:hover::after {
+            opacity: 1;
+        }
+
         .generator-form {
             display: none;
             margin-top: 30px;
-            padding-top: 20px;
-            border-top: 1px solid #eee;
+            padding-top: 25px;
+            border-top: 1px solid rgba(0, 0, 0, 0.05);
         }
+
         .form-group {
-            margin-bottom: 15px;
+            margin-bottom: 20px;
             text-align: left;
         }
+
         .form-group label {
             display: block;
-            margin-bottom: 5px;
+            margin-bottom: 8px;
             font-weight: 500;
-            color: #555;
+            color: var(--light-text);
+            font-size: 14px;
         }
-        .form-group input {
+
+        .form-control {
             width: 100%;
-            padding: 10px;
-            border: 1px solid #ddd;
+            padding: 12px 16px;
+            border: 1px solid #dfe6e9;
             border-radius: 8px;
             font-size: 14px;
-            box-sizing: border-box;
+            transition: var(--transition);
+        }
+
+        .form-control:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(0, 136, 204, 0.1);
+            outline: none;
+        }
+
+        .result {
+            display: none;
+            margin-top: 20px;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .result-input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #dfe6e9;
+            border-radius: 8px;
+            background: #f8f9fa;
+            margin-bottom: 15px;
+            font-size: 14px;
+        }
+
+        .copy-btn {
+            background: var(--accent-color);
+            color: white;
+        }
+
+        .copy-btn:hover {
+            background: #5649d6;
+        }
+
+        @keyframes rotate {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(52, 183, 241, 0.7); }
+            70% { box-shadow: 0 0 0 10px rgba(52, 183, 241, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(52, 183, 241, 0); }
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 480px) {
+            .card {
+                padding: 30px 20px;
+            }
+            
+            h1 {
+                font-size: 24px;
+            }
+            
+            .avatar-container {
+                width: 100px;
+                height: 100px;
+            }
         }
     </style>
 </head>
 <body>
-    <div class="section page_small">
-        <div class="page_small_tg_inner">
-            <div class="page_tg_img">
-                <div class="page_tg_img_inner">
-                    <div class="page_small_img"><img src="https://pbt.storage.yandexcloud.net/cp_avatars/AgACAgIAAxUAAWf-xKkXxvc7CxsIzRj6wWh-XE6XAAJn-jEbzNyZS8T7Ny2Bcmv1AQADAgADYQADNgQ.jpg"></div>
+    <div class="container">
+        <div class="card">
+            <div class="avatar-container">
+                <div class="avatar-border"></div>
+                <div class="avatar">
+                    <img id="avatarImage" src="https://pbt.storage.yandexcloud.net/cp_avatars/AgACAgIAAxUAAWf-xKkXxvc7CxsIzRj6wWh-XE6XAAJn-jEbzNyZS8T7Ny2Bcmv1AQADAgADYQADNgQ.jpg" alt="PuzzleRef Avatar">
                 </div>
             </div>
-            <div class="page_small_title">
-                <h1>PuzzleRef ://</h1>
-            </div>
-            <div id="usernameLink" class="page_tg_link_username w-inline-block">
-                <div id="usernameText">@PuzzlerefBot</div>
-            </div>
-            <div class="page_small_des">
-                Реферальная система для твоих Mini-App
-            </div>
             
-            <!-- Реферальная кнопка (показывается при открытии реферальной ссылки) -->
+            <h1 id="pageTitle">PuzzleRef ://</h1>
+            <a id="usernameLink" href="https://t.me/PuzzlerefBot" class="username">@PuzzlerefBot</a>
+            <p id="pageDescription" class="description">Реферальная система для твоих Mini-App</p>
+            
+            <!-- Реферальная кнопка -->
             <div id="refButtonContainer">
-                <button id="tgButton" class="tg_button">Перейти в приложение</button>
+                <button id="tgButton" class="btn pulse">Перейти в приложение</button>
             </div>
             
-            <!-- Форма генератора (показывается при прямом открытии страницы) -->
+            <!-- Форма генератора -->
             <div id="generatorForm" class="generator-form">
                 <div class="form-group">
-                    <label for="miniAppUrl">Ссылка на ваш Mini App:</label>
-                    <input type="text" id="miniAppUrl" placeholder="https://t.me/your_mini_app">
+                    <label for="miniAppUrl">Ссылка на Mini App</label>
+                    <input type="text" id="miniAppUrl" class="form-control" placeholder="https://t.me/your_mini_app">
                 </div>
                 <div class="form-group">
-                    <label for="refParam">Реферальный параметр (необязательно):</label>
-                    <input type="text" id="refParam" placeholder="ref12345">
+                    <label for="refParam">Реферальный параметр (необязательно)</label>
+                    <input type="text" id="refParam" class="form-control" placeholder="ref12345">
                 </div>
-                <button id="generateBtn" class="tg_button">Создать ссылку</button>
-                <div id="result" style="display: none; margin-top: 20px;">
-                    <input type="text" id="refLink" readonly style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px; margin-bottom: 10px;">
-                    <button id="copyBtn" class="tg_button" style="background: #34b7f1;">Копировать ссылку</button>
+                <button id="generateBtn" class="btn">Создать ссылку</button>
+                <div id="result" class="result">
+                    <input type="text" id="refLink" class="result-input" readonly>
+                    <button id="copyBtn" class="btn copy-btn">Копировать ссылку</button>
                 </div>
             </div>
         </div>
@@ -175,94 +316,97 @@
         const description = urlParams.get('description');
         const imageUrl = urlParams.get('image');
         
+        // Элементы DOM
         const tgButton = document.getElementById('tgButton');
         const refButtonContainer = document.getElementById('refButtonContainer');
         const generatorForm = document.getElementById('generatorForm');
-        const usernameText = document.getElementById('usernameText');
         const usernameLink = document.getElementById('usernameLink');
+        const pageTitle = document.getElementById('pageTitle');
+        const pageDescription = document.getElementById('pageDescription');
+        const avatarImage = document.getElementById('avatarImage');
         
         if (redirectUrl) {
-            // Это реферальная ссылка - показываем кнопку
-            refButtonContainer.style.display = 'block';
+            // Режим реферальной страницы
             generatorForm.style.display = 'none';
             
-            // Обновляем информацию, если переданы параметры
-            if (title) {
-                document.querySelector('.page_small_title h1').textContent = title;
-            }
-            if (description) {
-                document.querySelector('.page_small_des').textContent = description;
-            }
-            if (imageUrl) {
-                document.querySelector('.page_small_img img').src = imageUrl;
-            }
+            // Кастомизация контента
+            if (title) pageTitle.textContent = decodeURIComponent(title);
+            if (description) pageDescription.textContent = decodeURIComponent(description);
+            if (imageUrl) avatarImage.src = decodeURIComponent(imageUrl);
             if (username) {
-                usernameText.textContent = `@${username}`;
-                usernameLink.href = `https://t.me/${username}`;
+                usernameLink.textContent = `@${decodeURIComponent(username)}`;
+                usernameLink.href = `https://t.me/${decodeURIComponent(username)}`;
             }
             
             // Настройка кнопки
-            tgButton.onclick = function() {
-                if (window.Telegram && window.Telegram.WebApp) {
-                    window.Telegram.WebApp.openTelegramLink(redirectUrl);
+            tgButton.addEventListener('click', () => {
+                if (window.Telegram?.WebApp) {
+                    Telegram.WebApp.openTelegramLink(redirectUrl);
                 } else {
                     window.location.href = redirectUrl;
                 }
-            };
+            });
             
-            // Отправка реферального кода на сервер (если есть)
+            // Трекинг реферала
             if (refCode) {
-                console.log('Реферальный код:', refCode);
-                // Здесь можно отправить данные на ваш сервер
-                // fetch('/track-ref', { method: 'POST', body: JSON.stringify({ ref: refCode }) });
+                trackReferral(refCode);
             }
         } else {
-            // Это страница генератора - показываем форму
+            // Режим генератора ссылок
             refButtonContainer.style.display = 'none';
             generatorForm.style.display = 'block';
             
             // Логика генерации ссылки
-            const generateBtn = document.getElementById('generateBtn');
-            const copyBtn = document.getElementById('copyBtn');
-            const resultDiv = document.getElementById('result');
+            document.getElementById('generateBtn').addEventListener('click', generateReferralLink);
+            document.getElementById('copyBtn').addEventListener('click', copyToClipboard);
+        }
+        
+        function generateReferralLink() {
+            const miniAppUrl = document.getElementById('miniAppUrl').value.trim();
+            
+            if (!miniAppUrl) {
+                alert('Пожалуйста, введите ссылку на Mini App');
+                return;
+            }
+            
+            let refLink = `${window.location.origin}${window.location.pathname}?redirect=${encodeURIComponent(miniAppUrl)}`;
+            
+            const refParam = document.getElementById('refParam').value.trim();
+            if (refParam) {
+                refLink += `&ref=${encodeURIComponent(refParam)}`;
+            }
+            
+            // Добавляем параметры для кастомизации
+            refLink += `&title=${encodeURIComponent(pageTitle.textContent)}`;
+            refLink += `&description=${encodeURIComponent(pageDescription.textContent)}`;
+            refLink += `&image=${encodeURIComponent(avatarImage.src)}`;
+            refLink += `&username=${encodeURIComponent(usernameLink.textContent.substring(1))}`;
+            
+            document.getElementById('refLink').value = refLink;
+            document.getElementById('result').style.display = 'block';
+        }
+        
+        function copyToClipboard() {
             const refLinkInput = document.getElementById('refLink');
-            const miniAppUrlInput = document.getElementById('miniAppUrl');
-            const refParamInput = document.getElementById('refParam');
+            refLinkInput.select();
+            document.execCommand('copy');
             
-            generateBtn.addEventListener('click', function() {
-                const miniAppUrl = miniAppUrlInput.value.trim();
-                
-                if (!miniAppUrl) {
-                    alert('Пожалуйста, введите ссылку на ваш Mini App');
-                    return;
-                }
-                
-                // Создаем URL для реферальной страницы
-                let refLink = `${window.location.origin}${window.location.pathname}?redirect=${encodeURIComponent(miniAppUrl)}`;
-                
-                const refParam = refParamInput.value.trim();
-                if (refParam) {
-                    refLink += `&ref=${encodeURIComponent(refParam)}`;
-                }
-                
-                // Добавляем дополнительные параметры для кастомизации
-                refLink += `&title=${encodeURIComponent('PuzzleRef ://')}`;
-                refLink += `&description=${encodeURIComponent('Реферальная система для твоих Mini-App')}`;
-                refLink += `&image=${encodeURIComponent('https://pbt.storage.yandexcloud.net/cp_avatars/AgACAgIAAxUAAWf-xKkXxvc7CxsIzRj6wWh-XE6XAAJn-jEbzNyZS8T7Ny2Bcmv1AQADAgADYQADNgQ.jpg')}`;
-                refLink += `&username=${encodeURIComponent('PuzzlerefBot')}`;
-                
-                refLinkInput.value = refLink;
-                resultDiv.style.display = 'block';
-            });
-            
-            copyBtn.addEventListener('click', function() {
-                refLinkInput.select();
-                document.execCommand('copy');
-                copyBtn.textContent = 'Скопировано!';
-                setTimeout(() => {
-                    copyBtn.textContent = 'Копировать ссылку';
-                }, 2000);
-            });
+            const copyBtn = document.getElementById('copyBtn');
+            copyBtn.textContent = 'Скопировано!';
+            setTimeout(() => {
+                copyBtn.textContent = 'Копировать ссылку';
+            }, 2000);
+        }
+        
+        function trackReferral(refCode) {
+            // Здесь можно реализовать отправку данных на сервер
+            console.log('Реферал зарегистрирован:', refCode);
+            // Пример:
+            // fetch('/api/track', {
+            //     method: 'POST',
+            //     headers: { 'Content-Type': 'application/json' },
+            //     body: JSON.stringify({ referralCode: refCode })
+            // });
         }
     </script>
 </body>
