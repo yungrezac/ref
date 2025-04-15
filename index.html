@@ -53,6 +53,7 @@
             cursor: pointer;
             width: 100%;
             transition: background-color 0.2s;
+            margin-top: 5px;
         }
         button:hover {
             background-color: #0077b3;
@@ -66,10 +67,15 @@
         }
         .copy-btn {
             background-color: #34b7f1;
-            margin-top: 10px;
         }
         .copy-btn:hover {
             background-color: #2aa7e1;
+        }
+        .share-btn {
+            background-color: #4caf50;
+        }
+        .share-btn:hover {
+            background-color: #3e8e41;
         }
         .preview {
             margin-top: 20px;
@@ -77,6 +83,13 @@
             background-color: #f9f9f9;
             border-radius: 8px;
             border: 1px solid #eee;
+        }
+        .button-group {
+            display: flex;
+            gap: 10px;
+        }
+        .button-group button {
+            flex: 1;
         }
     </style>
 </head>
@@ -99,7 +112,11 @@
         <div id="result" class="result">
             <p>Ваша реферальная ссылка:</p>
             <input type="text" id="refLink" readonly />
-            <button id="copyBtn" class="copy-btn">Копировать ссылку</button>
+            
+            <div class="button-group">
+                <button id="copyBtn" class="copy-btn">Копировать ссылку</button>
+                <button id="shareBtn" class="share-btn">Поделиться</button>
+            </div>
             
             <div class="preview">
                 <p>Предпросмотр:</p>
@@ -110,11 +127,12 @@
     </div>
 
     <script>
-        const BOT_USERNAME = 'your_bot_username'; // Замените на username вашего бота
+        const BOT_USERNAME = 'furjufjru_bot'; // Замените на username вашего бота
         const BOT_TOKEN = '7030085123:AAGxRwbTC-Kwr4TBpFxuhymfdDXKMzhIn6E';
         
         const generateBtn = document.getElementById('generateBtn');
         const copyBtn = document.getElementById('copyBtn');
+        const shareBtn = document.getElementById('shareBtn');
         const resultDiv = document.getElementById('result');
         const refLinkInput = document.getElementById('refLink');
         const miniAppUrlInput = document.getElementById('miniAppUrl');
@@ -155,6 +173,42 @@
             }, 2000);
         });
         
+        shareBtn.addEventListener('click', function() {
+            const refLink = refLinkInput.value;
+            const shareText = `Попробуйте это приложение: ${refLink}`;
+            
+            if (window.Telegram && window.Telegram.WebApp) {
+                // В Telegram Mini App используем встроенную функцию поделиться
+                window.Telegram.WebApp.shareText(shareText);
+            } else {
+                // Вне Telegram используем стандартный Web Share API
+                if (navigator.share) {
+                    navigator.share({
+                        title: 'Попробуйте это приложение',
+                        text: 'Я нашел интересное приложение',
+                        url: refLink
+                    }).catch(err => {
+                        console.log('Ошибка при использовании Web Share API:', err);
+                        fallbackShare();
+                    });
+                } else {
+                    fallbackShare();
+                }
+            }
+            
+            function fallbackShare() {
+                // Если API недоступны, просто копируем в буфер обмена
+                navigator.clipboard.writeText(shareText)
+                    .then(() => {
+                        alert('Ссылка скопирована в буфер обмена. Теперь вы можете поделиться ею вручную.');
+                    })
+                    .catch(err => {
+                        console.error('Не удалось скопировать ссылку:', err);
+                        prompt('Скопируйте эту ссылку:', shareText);
+                    });
+            }
+        });
+        
         // Обработка стартовых параметров в боте
         const urlParams = new URLSearchParams(window.location.search);
         const startParam = urlParams.get('start');
@@ -170,8 +224,11 @@
                 <div style="display: flex; flex-direction: column; justify-content: center; align-items: center; height: 100vh; padding: 20px; text-align: center;">
                     <h2 style="margin-bottom: 20px;">Добро пожаловать!</h2>
                     <p style="margin-bottom: 30px;">Нажмите кнопку ниже, чтобы перейти в приложение</p>
-                    <button id="goToAppBtn" style="background-color: #0088cc; color: white; border: none; padding: 15px 30px; border-radius: 8px; font-size: 18px; cursor: pointer;">
+                    <button id="goToAppBtn" style="background-color: #0088cc; color: white; border: none; padding: 15px 30px; border-radius: 8px; font-size: 18px; cursor: pointer; margin-bottom: 20px;">
                         Перейти в приложение
+                    </button>
+                    <button id="shareInBotBtn" style="background-color: #4caf50; color: white; border: none; padding: 15px 30px; border-radius: 8px; font-size: 18px; cursor: pointer;">
+                        Поделиться с друзьями
                     </button>
                 </div>
             `;
@@ -181,6 +238,17 @@
                     window.Telegram.WebApp.openTelegramLink(miniAppUrl);
                 } else {
                     window.open(miniAppUrl, '_blank');
+                }
+            });
+            
+            document.getElementById('shareInBotBtn').addEventListener('click', function() {
+                const currentUrl = window.location.href;
+                const shareText = `Попробуйте это приложение: ${currentUrl}`;
+                
+                if (window.Telegram && window.Telegram.WebApp) {
+                    window.Telegram.WebApp.shareText(shareText);
+                } else {
+                    alert('Поделитесь этой ссылкой: ' + currentUrl);
                 }
             });
             
