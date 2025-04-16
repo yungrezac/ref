@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PuzzleRef Service</title>
+    <title>Реферальная система</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -21,8 +21,8 @@
             --bg: #f8f9fa;
             --card-bg: #ffffff;
             --border: #dfe6e9;
-            --radius: 0px;
-            --shadow: 0 4px 0px rgba(0, 0, 0, 0);
+            --radius: 16px;
+            --shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
             --transition: all 0.25s cubic-bezier(0.25, 0.8, 0.25, 1);
         }
 
@@ -38,11 +38,11 @@
             color: var(--text);
             line-height: 1.6;
             -webkit-font-smoothing: antialiased;
-            padding: 0px;
+            padding: 16px;
         }
 
         .container {
-            max-width: 100%;
+            max-width: 480px;
             margin: 0 auto;
         }
 
@@ -779,7 +779,7 @@
                     <div class="form-group">
                         <label>Аватар</label>
                         <div class="avatar" style="width: 100px; height: 100px; margin: 0 auto;">
-                            <img id="profileAvatar" src="https://pbt.storage.yandexcloud.net/cp_avatars/AgACAgIAAxUAAWf-xKkXxvc7CxsIzRj6wWh-XE6XAAJn-jEbzNyZS8T7Ny2Bcmv1AQADAgADYQADNgQ.jpg" alt="Avatar">
+                            <img id="profileAvatar" src="https://via.placeholder.com/100" alt="Avatar">
                             <div class="avatar-edit">
                                 <i class="fas fa-camera" style="color: white; font-size: 12px;"></i>
                             </div>
@@ -808,17 +808,21 @@
         <div class="modal" id="createCampaignModal">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h3>Создать реферальную кампанию</h3>
+                    <h3>Создать компанию</h3>
                     <button class="btn btn-sm btn-outline" id="closeCreateCampaignModal">&times;</button>
                 </div>
                 <div class="modal-body">
                     <div class="form-group">
-                        <label for="campaignName">Название кампании</label>
-                        <input type="text" id="campaignName" class="form-control" placeholder="Название вашей кампании">
+                        <label for="campaignName">Название компании</label>
+                        <input type="text" id="campaignName" class="form-control" placeholder="Название вашей компании">
                     </div>
                     <div class="form-group">
-                        <label for="campaignLink">Ссылка на Mini App</label>
-                        <input type="text" id="campaignLink" class="form-control" placeholder="https://t.me/your_mini_app">
+                        <label for="campaignDescription">Описание компании</label>
+                        <textarea id="campaignDescription" class="form-control" rows="3" placeholder="Описание вашей компании"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="campaignLink">Ссылка на сайт</label>
+                        <input type="text" id="campaignLink" class="form-control" placeholder="https://example.com">
                     </div>
                     <div class="form-group">
                         <label for="campaignRefParam">Реферальный параметр</label>
@@ -839,7 +843,22 @@
                 </div>
                 <div class="modal-footer">
                     <button class="btn btn-outline" id="cancelCreateCampaign">Отмена</button>
-                    <button class="btn btn-primary" id="createCampaign">Создать кампанию</button>
+                    <button class="btn btn-primary" id="createCampaign">Создать компанию</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="modal" id="campaignDetailsModal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3 id="campaignDetailsTitle">Детали компании</h3>
+                    <button class="btn btn-sm btn-outline" id="closeCampaignDetailsModal">&times;</button>
+                </div>
+                <div class="modal-body" id="campaignDetailsBody">
+                    <!-- Содержимое будет заполнено динамически -->
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-primary" id="closeCampaignDetails">Закрыть</button>
                 </div>
             </div>
         </div>
@@ -908,21 +927,21 @@
                     </button>
                     <div class="dropdown-content">
                         <a href="#" class="dropdown-item" id="editProfileBtn"><i class="fas fa-user-edit"></i> Редактировать профиль</a>
-                        <a href="#" class="dropdown-item" id="createCampaignBtn"><i class="fas fa-plus-circle"></i> Создать кампанию</a>
+                        <a href="#" class="dropdown-item" id="createCampaignBtn"><i class="fas fa-plus-circle"></i> Создать компанию</a>
                         <a href="#" class="dropdown-item" id="settingsBtn"><i class="fas fa-cog"></i> Настройки</a>
                         <a href="#" class="dropdown-item" id="helpBtn"><i class="fas fa-question-circle"></i> Помощь</a>
                     </div>
                 </div>
                 
                 <div class="avatar">
-                    <img id="avatarImage" src="https://pbt.storage.yandexcloud.net/cp_avatars/AgACAgIAAxUAAWf-xKkXxvc7CxsIzRj6wWh-XE6XAAJn-jEbzNyZS8T7Ny2Bcmv1AQADAgADYQADNgQ.jpg" alt="Avatar">
+                    <img id="avatarImage" src="https://via.placeholder.com/80" alt="Avatar">
                     <div class="avatar-edit">
                         <i class="fas fa-camera" style="color: white; font-size: 12px;"></i>
                     </div>
                 </div>
-                <h1 id="pageTitle">PuzzleRef Service</h1>
-                <a id="usernameLink" href="https://t.me/PuzzlerefBot" class="username">@PuzzlerefBot</a>
-                <p id="pageDescription" class="description">Продвинутая реферальная система для Mini Apps</p>
+                <h1 id="pageTitle">Реферальная система</h1>
+                <a id="usernameLink" href="#" class="username">@username</a>
+                <p id="pageDescription" class="description">Управление реферальными компаниями</p>
             </div>
             
             <div class="card-body">
@@ -936,17 +955,16 @@
                 <div id="generatorMode" style="display: none;">
                     <div class="tabs">
                         <div class="tab active" data-tab="generator"><i class="fas fa-link"></i> Генератор</div>
-                        <div class="tab" data-tab="campaigns"><i class="fas fa-bullhorn"></i> Кампании <span class="tab-badge">3</span></div>
+                        <div class="tab" data-tab="campaigns"><i class="fas fa-bullhorn"></i> Компании <span class="tab-badge" id="campaignsCount">0</span></div>
                         <div class="tab" data-tab="history"><i class="fas fa-history"></i> История</div>
                         <div class="tab" data-tab="stats"><i class="fas fa-chart-pie"></i> Статистика</div>
-                        <div class="tab" data-tab="rewards"><i class="fas fa-gift"></i> Награды</div>
                     </div>
                     
                     <!-- Вкладка генератора -->
                     <div class="tab-content active" id="generatorTab">
                         <div class="form-group">
-                            <label for="miniAppUrl"><i class="fas fa-external-link-alt"></i> Ссылка на Mini App</label>
-                            <input type="text" id="miniAppUrl" class="form-control" placeholder="https://t.me/your_mini_app">
+                            <label for="miniAppUrl"><i class="fas fa-external-link-alt"></i> Ссылка на сайт</label>
+                            <input type="text" id="miniAppUrl" class="form-control" placeholder="https://example.com">
                         </div>
                         <div class="form-group">
                             <label for="refParam"><i class="fas fa-user-tag"></i> Реферальный параметр</label>
@@ -960,12 +978,10 @@
                             <input type="text" id="linkTitle" class="form-control" placeholder="Моя реферальная ссылка">
                         </div>
                         <div class="form-group">
-                            <label for="campaignSelect"><i class="fas fa-bullhorn"></i> Привязать к кампании</label>
+                            <label for="campaignSelect"><i class="fas fa-bullhorn"></i> Привязать к компании</label>
                             <select id="campaignSelect" class="form-control select-control">
-                                <option value="">Без кампании</option>
-                                <option value="1">Летняя акция</option>
-                                <option value="2">Новый продукт</option>
-                                <option value="3">Бонусная программа</option>
+                                <option value="">Без компании</option>
+                                <!-- Опции будут заполнены динамически -->
                             </select>
                         </div>
                         <button id="generateBtn" class="btn btn-primary">
@@ -973,99 +989,30 @@
                             <span id="generateLoader" class="loader" style="display: none;"></span>
                         </button>
                         
-                        <div id="result" class="result">
+                        <div id="result" class="result" style="display: none;">
                             <input type="text" id="refLink" class="result-input" readonly>
                             <div style="display: flex; gap: 8px;">
                                 <button id="copyBtn" class="btn btn-primary" style="flex: 1;"><i class="fas fa-copy"></i> Копировать</button>
                                 <button id="shareBtn" class="btn btn-outline" style="flex: 1;"><i class="fas fa-share-alt"></i> Поделиться</button>
                             </div>
-                            <button id="saveLinkBtn" class="btn btn-outline"><i class="fas fa-save"></i> Сохранить в кампанию</button>
+                            <button id="saveLinkBtn" class="btn btn-outline"><i class="fas fa-save"></i> Сохранить в компанию</button>
                             
                             <div id="qrCode" class="qr-code" style="display: none;"></div>
                         </div>
                     </div>
                     
-                    <!-- Вкладка кампаний -->
+                    <!-- Вкладка компаний -->
                     <div class="tab-content" id="campaignsTab">
                         <button class="btn btn-primary" id="newCampaignBtn" style="margin-bottom: 16px;">
-                            <i class="fas fa-plus"></i> Новая кампания
+                            <i class="fas fa-plus"></i> Новая компания
                         </button>
                         
-                        <div class="campaign-card campaign-card-success">
-                            <div class="card-body">
-                                <div class="history-item-header">
-                                    <div class="history-item-title">Летняя акция</div>
-                                    <span class="badge badge-success">Активна</span>
-                                </div>
-                                <div class="history-item-stats">
-                                    <div>Цель: 100 переходов</div>
-                                    <div>Награда: 100 баллов</div>
-                                    <div>Завершение: 15.08.2023</div>
-                                </div>
-                                <div class="campaign-progress">
-                                    <div class="progress-bar">
-                                        <div class="progress" style="width: 65%;"></div>
-                                    </div>
-                                    <div class="campaign-stats">
-                                        <span>65/100</span>
-                                        <span>65%</span>
-                                    </div>
-                                </div>
-                                <button class="btn btn-sm btn-outline" style="width: 100%; margin-top: 8px;">
-                                    <i class="fas fa-eye"></i> Подробнее
-                                </button>
-                            </div>
-                        </div>
-                        
-                        <div class="campaign-card">
-                            <div class="card-body">
-                                <div class="history-item-header">
-                                    <div class="history-item-title">Новый продукт</div>
-                                    <span class="badge">В работе</span>
-                                </div>
-                                <div class="history-item-stats">
-                                    <div>Цель: 50 переходов</div>
-                                    <div>Награда: Скидка 10%</div>
-                                    <div>Завершение: 30.09.2023</div>
-                                </div>
-                                <div class="campaign-progress">
-                                    <div class="progress-bar">
-                                        <div class="progress" style="width: 30%;"></div>
-                                    </div>
-                                    <div class="campaign-stats">
-                                        <span>15/50</span>
-                                        <span>30%</span>
-                                    </div>
-                                </div>
-                                <button class="btn btn-sm btn-outline" style="width: 100%; margin-top: 8px;">
-                                    <i class="fas fa-eye"></i> Подробнее
-                                </button>
-                            </div>
-                        </div>
-                        
-                        <div class="campaign-card campaign-card-warning">
-                            <div class="card-body">
-                                <div class="history-item-header">
-                                    <div class="history-item-title">Бонусная программа</div>
-                                    <span class="badge badge-warning">Завершена</span>
-                                </div>
-                                <div class="history-item-stats">
-                                    <div>Цель: 200 переходов</div>
-                                    <div>Награда: VIP статус</div>
-                                    <div>Завершение: 01.07.2023</div>
-                                </div>
-                                <div class="campaign-progress">
-                                    <div class="progress-bar">
-                                        <div class="progress" style="width: 100%;"></div>
-                                    </div>
-                                    <div class="campaign-stats">
-                                        <span>210/200</span>
-                                        <span>105%</span>
-                                    </div>
-                                </div>
-                                <button class="btn btn-sm btn-outline" style="width: 100%; margin-top: 8px;">
-                                    <i class="fas fa-eye"></i> Подробнее
-                                </button>
+                        <div id="campaignsList">
+                            <!-- Список компаний будет заполнен динамически -->
+                            <div class="empty-state">
+                                <i class="fas fa-bullhorn"></i>
+                                <h3>Нет созданных компаний</h3>
+                                <p>Создайте свою первую компанию, чтобы начать работу</p>
                             </div>
                         </div>
                     </div>
@@ -1077,30 +1024,36 @@
                                 <option value="all">Все ссылки</option>
                                 <option value="week">За неделю</option>
                                 <option value="month">За месяц</option>
-                                <option value="campaign">По кампаниям</option>
+                                <option value="campaign">По компаниям</option>
                             </select>
                         </div>
                         
-                        <div id="historyList"></div>
+                        <div id="historyList">
+                            <div class="empty-state">
+                                <i class="fas fa-history"></i>
+                                <h3>История пуста</h3>
+                                <p>Создайте свою первую ссылку, чтобы начать отслеживать статистику</p>
+                            </div>
+                        </div>
                     </div>
                     
                     <!-- Вкладка статистики -->
                     <div class="tab-content" id="statsTab">
                         <div class="stats-grid">
                             <div class="stat-card">
-                                <div class="stat-value" id="totalLinks">12</div>
+                                <div class="stat-value" id="totalLinks">0</div>
                                 <div class="stat-label">Всего ссылок</div>
                             </div>
                             <div class="stat-card">
-                                <div class="stat-value" id="totalClicks">347</div>
+                                <div class="stat-value" id="totalClicks">0</div>
                                 <div class="stat-label">Всего переходов</div>
                             </div>
                             <div class="stat-card">
-                                <div class="stat-value" id="uniqueClicks">284</div>
+                                <div class="stat-value" id="uniqueClicks">0</div>
                                 <div class="stat-label">Уникальных</div>
                             </div>
                             <div class="stat-card">
-                                <div class="stat-value" id="conversionRate">23%</div>
+                                <div class="stat-value" id="conversionRate">0%</div>
                                 <div class="stat-label">Конверсия</div>
                             </div>
                         </div>
@@ -1109,105 +1062,13 @@
                             <label><i class="fas fa-chart-line"></i> Активность за последние 30 дней</label>
                             <div id="chart" style="height: 200px; background: #f5f6fa; border-radius: 12px; display: flex; align-items: flex-end; padding: 8px; gap: 4px;">
                                 <!-- График будет заполняться динамически -->
-                                <div style="flex: 1; display: flex; justify-content: center; align-items: flex-end;">
-                                    <div style="width: 80%; background: var(--primary); height: 10%; border-radius: 4px 4px 0 0;" title="Day 1: 2 clicks"></div>
-                                </div>
-                                <div style="flex: 1; display: flex; justify-content: center; align-items: flex-end;">
-                                    <div style="width: 60%; background: var(--primary); height: 30%; border-radius: 4px 4px 0 0;" title="Day 2: 6 clicks"></div>
-                                </div>
-                                <div style="flex: 1; display: flex; justify-content: center; align-items: flex-end;">
-                                    <div style="width: 90%; background: var(--primary); height: 45%; border-radius: 4px 4px 0 0;" title="Day 3: 9 clicks"></div>
-                                </div>
-                                <!-- Другие дни -->
                             </div>
                         </div>
                         
                         <div class="form-group">
                             <label><i class="fas fa-mobile-alt"></i> Устройства</label>
                             <div id="devicesChart" style="height: 24px; background: #f5f6fa; border-radius: 12px; overflow: hidden; margin-bottom: 8px;">
-                                <div style="width: 70%; height: 100%; background: var(--primary); display: inline-block;" title="Mobile: 70%"></div>
-                                <div style="width: 30%; height: 100%; background: var(--secondary); display: inline-block;" title="Desktop: 30%"></div>
-                            </div>
-                        </div>
-                        
-                        <div class="form-group">
-                            <label><i class="fas fa-globe"></i> Источники трафика</label>
-                            <div style="margin-top: 8px;">
-                                <div style="display: flex; align-items: center; margin-bottom: 8px;">
-                                    <div style="width: 60%; height: 8px; background: var(--primary); border-radius: 4px;"></div>
-                                    <span style="margin-left: 8px; font-size: 12px;">Telegram (60%)</span>
-                                </div>
-                                <div style="display: flex; align-items: center; margin-bottom: 8px;">
-                                    <div style="width: 25%; height: 8px; background: var(--secondary); border-radius: 4px;"></div>
-                                    <span style="margin-left: 8px; font-size: 12px;">Веб-сайты (25%)</span>
-                                </div>
-                                <div style="display: flex; align-items: center;">
-                                    <div style="width: 15%; height: 8px; background: var(--accent); border-radius: 4px;"></div>
-                                    <span style="margin-left: 8px; font-size: 12px;">Другие (15%)</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <!-- Вкладка наград -->
-                    <div class="tab-content" id="rewardsTab">
-                        <div class="referral-level">
-                            <div class="level-badge">1</div>
-                            <div class="level-progress">
-                                <div class="progress-bar">
-                                    <div class="progress" style="width: 100%;"></div>
-                                </div>
-                            </div>
-                            <div class="level-badge active">2</div>
-                            <div class="level-progress">
-                                <div class="progress-bar">
-                                    <div class="progress" style="width: 65%;"></div>
-                                </div>
-                            </div>
-                            <div class="level-badge">3</div>
-                        </div>
-                        
-                        <div class="card">
-                            <div class="card-body">
-                                <div class="history-item-header">
-                                    <div class="history-item-title">Текущий уровень: 2</div>
-                                    <span class="badge badge-success">Активен</span>
-                                </div>
-                                <div class="history-item-stats">
-                                    До следующего уровня: 35 переходов
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <h3 style="margin: 16px 0 8px;">Доступные награды</h3>
-                        
-                        <div class="card">
-                            <div class="card-body">
-                                <div class="history-item-header">
-                                    <div class="history-item-title">Бесплатный месяц подписки</div>
-                                    <span class="badge badge-success">Доступно</span>
-                                </div>
-                                <div class="history-item-stats">
-                                    Требуется: 50 переходов
-                                </div>
-                                <button class="btn btn-sm btn-success" style="width: 100%; margin-top: 8px;">
-                                    <i class="fas fa-gift"></i> Получить
-                                </button>
-                            </div>
-                        </div>
-                        
-                        <div class="card">
-                            <div class="card-body">
-                                <div class="history-item-header">
-                                    <div class="history-item-title">Эксклюзивный стикерпак</div>
-                                    <span class="badge">Недоступно</span>
-                                </div>
-                                <div class="history-item-stats">
-                                    Требуется: 100 переходов
-                                </div>
-                                <button class="btn btn-sm btn-outline" style="width: 100%; margin-top: 8px;" disabled>
-                                    <i class="fas fa-lock"></i> Заблокировано
-                                </button>
+                                <!-- График устройств -->
                             </div>
                         </div>
                     </div>
@@ -1248,9 +1109,6 @@
     </div>
 
     <script>
-        // Telegram Bot Token
-        const BOT_TOKEN = '7030085123:AAGxRwbTC-Kwr4TBpFxuhymfdDXKMzhIn6E';
-        
         // Проверяем параметры URL
         const urlParams = new URLSearchParams(window.location.search);
         const redirectUrl = urlParams.get('r');
@@ -1322,7 +1180,7 @@
                 // Загрузка истории
                 loadHistory();
                 
-                // Загрузка кампаний
+                // Загрузка компаний
                 loadCampaigns();
                 
                 // Загрузка статистики
@@ -1339,6 +1197,24 @@
                     Telegram.WebApp.BackButton.hide();
                 }
             });
+            
+            // Заполняем данные пользователя
+            fillUserData();
+        }
+        
+        // Заполнение данных пользователя
+        function fillUserData() {
+            const tgUser = window.Telegram?.WebApp?.initDataUnsafe?.user;
+            if (tgUser) {
+                document.getElementById('profileName').value = tgUser.first_name || '';
+                document.getElementById('profileUsername').value = tgUser.username ? `@${tgUser.username}` : '';
+                
+                document.getElementById('avatarImage').src = tgUser.photo_url || 'https://via.placeholder.com/80';
+                document.getElementById('profileAvatar').src = tgUser.photo_url || 'https://via.placeholder.com/100';
+                document.getElementById('usernameLink').textContent = tgUser.username ? `@${tgUser.username}` : 'Пользователь';
+                document.getElementById('usernameLink').href = tgUser.username ? `https://t.me/${tgUser.username}` : '#';
+                document.getElementById('pageTitle').textContent = tgUser.first_name || 'Реферальная система';
+            }
         }
         
         // Инициализация модальных окон
@@ -1357,12 +1233,30 @@
             });
             
             document.getElementById('saveProfile').addEventListener('click', () => {
-                // Сохранение профиля
+                const name = document.getElementById('profileName').value.trim();
+                const username = document.getElementById('profileUsername').value.trim();
+                const bio = document.getElementById('profileBio').value.trim();
+                
+                if (name) {
+                    document.getElementById('pageTitle').textContent = name;
+                }
+                
+                if (username) {
+                    document.getElementById('usernameLink').textContent = username;
+                    if (username.startsWith('@')) {
+                        document.getElementById('usernameLink').href = `https://t.me/${username.substring(1)}`;
+                    }
+                }
+                
+                if (bio) {
+                    document.getElementById('pageDescription').textContent = bio;
+                }
+                
                 showToast('Профиль успешно сохранен');
                 document.getElementById('editProfileModal').classList.remove('active');
             });
             
-            // Создание кампании
+            // Создание компании
             document.getElementById('createCampaignBtn')?.addEventListener('click', () => {
                 document.getElementById('createCampaignModal').classList.add('active');
             });
@@ -1379,19 +1273,15 @@
                 document.getElementById('createCampaignModal').classList.remove('active');
             });
             
-            document.getElementById('createCampaign').addEventListener('click', () => {
-                const name = document.getElementById('campaignName').value.trim();
-                if (!name) {
-                    showToast('Введите название кампании');
-                    return;
-                }
-                
-                // Создание кампании
-                showToast(`Кампания "${name}" создана`);
-                document.getElementById('createCampaignModal').classList.remove('active');
-                
-                // Обновляем список кампаний
-                loadCampaigns();
+            document.getElementById('createCampaign').addEventListener('click', createNewCampaign);
+            
+            // Детали компании
+            document.getElementById('closeCampaignDetailsModal').addEventListener('click', () => {
+                document.getElementById('campaignDetailsModal').classList.remove('active');
+            });
+            
+            document.getElementById('closeCampaignDetails').addEventListener('click', () => {
+                document.getElementById('campaignDetailsModal').classList.remove('active');
             });
             
             // Настройки
@@ -1408,7 +1298,16 @@
             });
             
             document.getElementById('saveSettings').addEventListener('click', () => {
-                // Сохранение настроек
+                const notifications = document.getElementById('notificationsToggle').checked;
+                const darkMode = document.getElementById('darkModeToggle').checked;
+                const autoCopy = document.getElementById('autoCopyToggle').checked;
+                const qrCode = document.getElementById('qrCodeToggle').checked;
+                
+                localStorage.setItem('notifications', notifications);
+                localStorage.setItem('darkMode', darkMode);
+                localStorage.setItem('autoCopy', autoCopy);
+                localStorage.setItem('qrCode', qrCode);
+                
                 showToast('Настройки сохранены');
                 document.getElementById('settingsModal').classList.remove('active');
             });
@@ -1417,6 +1316,249 @@
             document.getElementById('helpBtn')?.addEventListener('click', () => {
                 showToast('Открывается раздел помощи...');
             });
+        }
+        
+        // Создание новой компании
+        function createNewCampaign() {
+            const name = document.getElementById('campaignName').value.trim();
+            const description = document.getElementById('campaignDescription').value.trim();
+            const link = document.getElementById('campaignLink').value.trim();
+            const refParam = document.getElementById('campaignRefParam').value.trim();
+            const goal = document.getElementById('campaignGoal').value;
+            const reward = document.getElementById('campaignReward').value.trim();
+            const endDate = document.getElementById('campaignEndDate').value;
+            
+            if (!name) {
+                showToast('Введите название компании');
+                return;
+            }
+            
+            if (!link) {
+                showToast('Введите ссылку на сайт');
+                return;
+            }
+            
+            const campaign = {
+                id: Date.now().toString(),
+                name,
+                description,
+                link,
+                refParam: refParam || generateRandomRefParam(false),
+                goal: goal ? parseInt(goal) : 100,
+                reward: reward || 'Бонус за участие',
+                endDate,
+                createdAt: new Date().toISOString(),
+                clicks: 0,
+                clickDetails: []
+            };
+            
+            // Сохраняем компанию
+            const campaigns = getCampaigns();
+            campaigns.push(campaign);
+            saveCampaigns(campaigns);
+            
+            // Обновляем список компаний
+            loadCampaigns();
+            
+            // Очищаем форму
+            document.getElementById('createCampaignModal').classList.remove('active');
+            document.getElementById('campaignName').value = '';
+            document.getElementById('campaignDescription').value = '';
+            document.getElementById('campaignLink').value = '';
+            document.getElementById('campaignRefParam').value = '';
+            document.getElementById('campaignGoal').value = '';
+            document.getElementById('campaignReward').value = '';
+            document.getElementById('campaignEndDate').value = '';
+            
+            showToast(`Компания "${name}" создана`);
+        }
+        
+        // Получение списка компаний
+        function getCampaigns() {
+            return JSON.parse(localStorage.getItem('campaigns') || '[]');
+        }
+        
+        // Сохранение списка компаний
+        function saveCampaigns(campaigns) {
+            localStorage.setItem('campaigns', JSON.stringify(campaigns));
+        }
+        
+        // Загрузка списка компаний
+        function loadCampaigns() {
+            const campaigns = getCampaigns();
+            const campaignsList = document.getElementById('campaignsList');
+            const campaignSelect = document.getElementById('campaignSelect');
+            
+            // Обновляем счетчик компаний
+            document.getElementById('campaignsCount').textContent = campaigns.length;
+            
+            // Обновляем выпадающий список
+            campaignSelect.innerHTML = '<option value="">Без компании</option>';
+            campaigns.forEach(campaign => {
+                campaignSelect.innerHTML += `<option value="${campaign.id}">${campaign.name}</option>`;
+            });
+            
+            if (campaigns.length === 0) {
+                campaignsList.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-bullhorn"></i>
+                        <h3>Нет созданных компаний</h3>
+                        <p>Создайте свою первую компанию, чтобы начать работу</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            // Отображаем список компаний
+            campaignsList.innerHTML = campaigns.map(campaign => `
+                <div class="campaign-card ${getCampaignStatusClass(campaign)}" data-id="${campaign.id}">
+                    <div class="card-body">
+                        <div class="history-item-header">
+                            <div class="history-item-title">${campaign.name}</div>
+                            <span class="badge ${getCampaignStatusBadgeClass(campaign)}">${getCampaignStatusText(campaign)}</span>
+                        </div>
+                        <div class="history-item-stats">
+                            <div>Цель: ${campaign.goal} переходов</div>
+                            <div>Награда: ${campaign.reward}</div>
+                            ${campaign.endDate ? `<div>Завершение: ${new Date(campaign.endDate).toLocaleDateString()}</div>` : ''}
+                        </div>
+                        <div class="campaign-progress">
+                            <div class="progress-bar">
+                                <div class="progress" style="width: ${Math.min(100, (campaign.clicks / campaign.goal) * 100)}%;"></div>
+                            </div>
+                            <div class="campaign-stats">
+                                <span>${campaign.clicks}/${campaign.goal}</span>
+                                <span>${Math.round((campaign.clicks / campaign.goal) * 100)}%</span>
+                            </div>
+                        </div>
+                        <button class="btn btn-sm btn-outline view-campaign-btn" style="width: 100%; margin-top: 8px;">
+                            <i class="fas fa-eye"></i> Подробнее
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+            
+            // Добавляем обработчики для кнопок "Подробнее"
+            document.querySelectorAll('.view-campaign-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    const campaignId = e.target.closest('.campaign-card').getAttribute('data-id');
+                    showCampaignDetails(campaignId);
+                });
+            });
+        }
+        
+        // Получение класса статуса компании
+        function getCampaignStatusClass(campaign) {
+            if (campaign.endDate && new Date(campaign.endDate) < new Date()) {
+                return 'campaign-card-warning';
+            }
+            if (campaign.clicks >= campaign.goal) {
+                return 'campaign-card-success';
+            }
+            return '';
+        }
+        
+        // Получение класса бейджа статуса компании
+        function getCampaignStatusBadgeClass(campaign) {
+            if (campaign.endDate && new Date(campaign.endDate) < new Date()) {
+                return 'badge-warning';
+            }
+            if (campaign.clicks >= campaign.goal) {
+                return 'badge-success';
+            }
+            return '';
+        }
+        
+        // Получение текста статуса компании
+        function getCampaignStatusText(campaign) {
+            if (campaign.endDate && new Date(campaign.endDate) < new Date()) {
+                return 'Завершена';
+            }
+            if (campaign.clicks >= campaign.goal) {
+                return 'Цель достигнута';
+            }
+            return 'Активна';
+        }
+        
+        // Показать детали компании
+        function showCampaignDetails(campaignId) {
+            const campaigns = getCampaigns();
+            const campaign = campaigns.find(c => c.id === campaignId);
+            
+            if (!campaign) {
+                showToast('Компания не найдена');
+                return;
+            }
+            
+            document.getElementById('campaignDetailsTitle').textContent = campaign.name;
+            
+            const detailsBody = document.getElementById('campaignDetailsBody');
+            detailsBody.innerHTML = `
+                <div class="form-group">
+                    <label>Описание</label>
+                    <p>${campaign.description || 'Нет описания'}</p>
+                </div>
+                
+                <div class="form-group">
+                    <label>Ссылка на сайт</label>
+                    <p><a href="${campaign.link}" target="_blank">${campaign.link}</a></p>
+                </div>
+                
+                <div class="form-group">
+                    <label>Реферальный параметр</label>
+                    <p>${campaign.refParam}</p>
+                </div>
+                
+                <div class="stats-grid" style="margin-top: 16px;">
+                    <div class="stat-card">
+                        <div class="stat-value">${campaign.clicks}</div>
+                        <div class="stat-label">Переходов</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">${Math.round((campaign.clicks / campaign.goal) * 100)}%</div>
+                        <div class="stat-label">Прогресс</div>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label>Цель</label>
+                    <p>${campaign.goal} переходов</p>
+                </div>
+                
+                <div class="form-group">
+                    <label>Награда</label>
+                    <p>${campaign.reward}</p>
+                </div>
+                
+                <div class="form-group">
+                    <label>Дата создания</label>
+                    <p>${new Date(campaign.createdAt).toLocaleDateString()}</p>
+                </div>
+                
+                ${campaign.endDate ? `
+                <div class="form-group">
+                    <label>Дата окончания</label>
+                    <p>${new Date(campaign.endDate).toLocaleDateString()}</p>
+                </div>
+                ` : ''}
+                
+                <div class="form-group">
+                    <label>Последние переходы</label>
+                    ${campaign.clickDetails && campaign.clickDetails.length > 0 ? `
+                    <div class="click-details">
+                        ${campaign.clickDetails.slice(0, 5).map(click => `
+                            <div class="click-detail">
+                                <span class="click-detail-label">${new Date(click.timestamp).toLocaleString()}</span>
+                                <span class="click-detail-value">${click.device === 'mobile' ? '📱' : '💻'} ${click.username ? '@' + click.username : 'Аноним'}</span>
+                            </div>
+                        `).join('')}
+                        ${campaign.clickDetails.length > 5 ? `<div style="text-align: center; font-size: 11px; color: var(--primary);">+${campaign.clickDetails.length - 5} еще</div>` : ''}
+                    </div>
+                    ` : '<p>Нет данных о переходах</p>'}
+                </div>
+            `;
+            
+            document.getElementById('campaignDetailsModal').classList.add('active');
         }
         
         // Кастомизация из параметров URL
@@ -1485,17 +1627,19 @@
             document.getElementById('copyBtn').addEventListener('click', copyToClipboard);
             document.getElementById('shareBtn').addEventListener('click', shareLink);
             document.getElementById('saveLinkBtn').addEventListener('click', saveToCampaign);
-            document.getElementById('generateRefParam').addEventListener('click', generateRandomRefParam);
+            document.getElementById('generateRefParam').addEventListener('click', () => {
+                document.getElementById('refParam').value = generateRandomRefParam();
+            });
         }
         
         // Генерация случайного реферального параметра
-        function generateRandomRefParam() {
+        function generateRandomRefParam(includePrefix = true) {
             const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-            let result = 'ref_';
+            let result = includePrefix ? 'ref_' : '';
             for (let i = 0; i < 8; i++) {
                 result += chars.charAt(Math.floor(Math.random() * chars.length));
             }
-            document.getElementById('refParam').value = result;
+            return result;
         }
         
         // Генерация реферальной ссылки
@@ -1506,7 +1650,7 @@
             const campaignId = document.getElementById('campaignSelect').value;
             
             if (!miniAppUrl) {
-                showToast('Пожалуйста, введите ссылку на Mini App');
+                showToast('Пожалуйста, введите ссылку на сайт');
                 return;
             }
             
@@ -1578,7 +1722,7 @@
                 return;
             }
             
-            showToast('Ссылка сохранена в кампанию');
+            showToast('Ссылка сохранена в компанию');
         }
         
         // Генерация QR-кода
@@ -1632,12 +1776,6 @@
             } else {
                 showToast('Скопируйте ссылку и поделитесь ею вручную');
             }
-        }
-        
-        // Загрузка кампаний
-        function loadCampaigns() {
-            // В реальном приложении здесь будет запрос к API
-            console.log('Загрузка кампаний...');
         }
         
         // Загрузка статистики
@@ -1713,7 +1851,7 @@
                     <a href="${item.generatedLink}" target="_blank" class="history-item-link">${item.generatedLink}</a>
                     <div class="history-item-stats">
                         <span class="badge">${item.clicks} переходов</span>
-                        ${item.campaignId ? '<span class="badge badge-success">Кампания</span>' : ''}
+                        ${item.campaignId ? '<span class="badge badge-success">Компания</span>' : ''}
                         ${item.clickDetails && item.clickDetails.length > 0 ? `
                         <div class="click-details">
                             ${item.clickDetails.slice(0, 3).map(click => `
@@ -1781,6 +1919,18 @@
                 historyItem.clickDetails.push(clickDetail);
                 saveHistory(history);
                 
+                // Обновляем статистику в кампании, если ссылка привязана к кампании
+                if (historyItem.campaignId) {
+                    const campaigns = getCampaigns();
+                    const campaignIndex = campaigns.findIndex(c => c.id === historyItem.campaignId);
+                    if (campaignIndex !== -1) {
+                        campaigns[campaignIndex].clicks += 1;
+                        if (!campaigns[campaignIndex].clickDetails) campaigns[campaignIndex].clickDetails = [];
+                        campaigns[campaignIndex].clickDetails.push(clickDetail);
+                        saveCampaigns(campaigns);
+                    }
+                }
+                
                 // Отправляем уведомление создателю ссылки
                 if (localStorage.getItem('notifications') !== 'false') {
                     sendTelegramNotification(historyItem, clickDetail);
@@ -1793,37 +1943,6 @@
                     details: clickDetail
                 });
             }
-        }
-        
-        // Отправка уведомления в Telegram
-        function sendTelegramNotification(historyItem, clickDetail) {
-            if (!historyItem.ownerChatId) return;
-            
-            const username = clickDetail.username ? `@${clickDetail.username}` : 'Анонимный пользователь';
-            const device = clickDetail.device === 'mobile' ? 'Мобильное устройство' : 'Компьютер';
-            const browser = clickDetail.browser;
-            
-            const message = `🔔 *Новый переход по вашей ссылке!*\n\n` +
-                           `📌 *Ссылка:* ${historyItem.title || 'Без названия'}\n` +
-                           `👤 *Пользователь:* ${username}\n` +
-                           `📱 *Устройство:* ${device}\n` +
-                           `🌐 *Браузер:* ${browser}\n` +
-                           `🕒 *Время:* ${new Date(clickDetail.timestamp).toLocaleString()}\n\n` +
-                           `Всего переходов: ${historyItem.clicks}`;
-            
-            fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    chat_id: historyItem.ownerChatId,
-                    text: message,
-                    parse_mode: 'Markdown'
-                })
-            }).catch(error => {
-                console.error('Ошибка отправки уведомления:', error);
-            });
         }
         
         // Показать статистику для реферальной страницы
