@@ -266,53 +266,7 @@
                 height: 100px;
             }
         }
-    </style>
-</head>
-<body>
-    <div class="container">
-        <div class="card">
-            <div class="avatar-container">
-                <div class="avatar-border"></div>
-                <div class="avatar">
-                    <img id="avatarImage" src="https://pbt.storage.yandexcloud.net/cp_avatars/AgACAgIAAxUAAWf-xKkXxvc7CxsIzRj6wWh-XE6XAAJn-jEbzNyZS8T7Ny2Bcmv1AQADAgADYQADNgQ.jpg" alt="PuzzleRef Avatar">
-                </div>
-            </div>
-            
-            <h1 id="pageTitle">PuzzleRef ://</h1>
-            <a id="usernameLink" href="https://t.me/PuzzlerefBot" class="username">@PuzzlerefBot</a>
-            <p id="pageDescription" class="description">Реферальная система для твоих Mini-App</p>
-            
-            <!-- Реферальная кнопка -->
-            <div id="refButtonContainer">
-                <button id="tgButton" class="btn pulse">Перейти в приложение</button>
-            </div>
-            
-            <!-- Форма генератора -->
-            <div id="generatorForm" class="generator-form">
-                <div class="form-group">
-                    <label for="miniAppUrl">Ссылка на Mini App</label>
-                    <input type="text" id="miniAppUrl" class="form-control" placeholder="https://t.me/your_mini_app">
-                </div>
-                <div class="form-group">
-                    <label for="refParam">Реферальный параметр (необязательно)</label>
-                    <input type="text" id="refParam" class="form-control" placeholder="ref12345">
-                </div>
-                <button id="generateBtn" class="btn">Создать ссылку</button>
-                <div id="result" class="result">
-                    <input type="text" id="refLink" class="result-input" readonly>
-                    <button id="copyBtn" class="btn copy-btn">Копировать ссылку</button>
-                </div>
-            </div>
-            
-            <!-- История ссылок -->
-            <div id="linkHistory" class="history-section" style="display: none;">
-                <h3>История ссылок</h3>
-                <div id="historyList" class="history-list"></div>
-            </div>
-        </div>
-    </div>
 
-    <style>
         .history-section {
             margin-top: 30px;
             padding-top: 20px;
@@ -366,8 +320,55 @@
             margin-top: 5px;
         }
     </style>
+</head>
+<body>
+    <div class="container">
+        <div class="card">
+            <div class="avatar-container">
+                <div class="avatar-border"></div>
+                <div class="avatar">
+                    <img id="avatarImage" src="https://pbt.storage.yandexcloud.net/cp_avatars/AgACAgIAAxUAAWf-xKkXxvc7CxsIzRj6wWh-XE6XAAJn-jEbzNyZS8T7Ny2Bcmv1AQADAgADYQADNgQ.jpg" alt="PuzzleRef Avatar">
+                </div>
+            </div>
+            
+            <h1 id="pageTitle">PuzzleRef ://</h1>
+            <a id="usernameLink" href="https://t.me/PuzzlerefBot" class="username">@PuzzlerefBot</a>
+            <p id="pageDescription" class="description">Реферальная система для твоих Mini-App</p>
+            
+            <!-- Реферальная кнопка -->
+            <div id="refButtonContainer">
+                <button id="tgButton" class="btn pulse">Перейти в приложение</button>
+            </div>
+            
+            <!-- Форма генератора -->
+            <div id="generatorForm" class="generator-form">
+                <div class="form-group">
+                    <label for="miniAppUrl">Ссылка на Mini App</label>
+                    <input type="text" id="miniAppUrl" class="form-control" placeholder="https://t.me/your_mini_app">
+                </div>
+                <div class="form-group">
+                    <label for="refParam">Реферальный параметр (необязательно)</label>
+                    <input type="text" id="refParam" class="form-control" placeholder="ref12345">
+                </div>
+                <button id="generateBtn" class="btn">Создать ссылку</button>
+                <div id="result" class="result">
+                    <input type="text" id="refLink" class="result-input" readonly>
+                    <button id="copyBtn" class="btn copy-btn">Копировать ссылку</button>
+                </div>
+            </div>
+            
+            <!-- История ссылок -->
+            <div id="linkHistory" class="history-section" style="display: none;">
+                <h3>История ссылок</h3>
+                <div id="historyList" class="history-list"></div>
+            </div>
+        </div>
+    </div>
 
     <script>
+        // Telegram Bot Token
+        const BOT_TOKEN = '7030085123:AAGxRwbTC-Kwr4TBpFxuhymfdDXKMzhIn6E';
+        
         // Проверяем параметры URL
         const urlParams = new URLSearchParams(window.location.search);
         const redirectUrl = urlParams.get('r');
@@ -437,47 +438,71 @@
             addLink(miniAppUrl, refParam, generatedLink) {
                 const history = this.getHistory();
                 const ownerChatId = window.Telegram?.WebApp?.initDataUnsafe?.user?.id;
-                history.unshift({
-                    miniAppUrl,
-                    refParam,
-                    generatedLink,
-                    createdAt: new Date().toISOString(),
-                    clicks: 0,
-                    ownerChatId: ownerChatId // Сохраняем ID создателя ссылки
-                });
-                this.saveHistory(history);
+                
+                // Проверяем, не существует ли уже такая ссылка
+                const existingLink = history.find(item => 
+                    item.generatedLink === generatedLink && 
+                    item.ownerChatId === ownerChatId
+                );
+                
+                if (!existingLink) {
+                    history.unshift({
+                        miniAppUrl,
+                        refParam,
+                        generatedLink,
+                        createdAt: new Date().toISOString(),
+                        clicks: 0,
+                        clickDetails: [],
+                        ownerChatId: ownerChatId // Сохраняем ID создателя ссылки
+                    });
+                    this.saveHistory(history);
+                }
                 this.displayHistory();
             },
             
-            incrementClicks(link) {
+            incrementClicks(link, clickDetail) {
                 const history = this.getHistory();
                 const item = history.find(h => h.generatedLink === link);
                 if (item) {
                     item.clicks++;
+                    if (clickDetail) {
+                        if (!item.clickDetails) {
+                            item.clickDetails = [];
+                        }
+                        item.clickDetails.push(clickDetail);
+                    }
                     this.saveHistory(history);
                     this.displayHistory();
+                    return item;
                 }
+                return null;
             },
             
             displayHistory() {
                 const historyList = document.getElementById('historyList');
                 const history = this.getHistory();
+                const currentUserChatId = window.Telegram?.WebApp?.initDataUnsafe?.user?.id;
                 
-                historyList.innerHTML = history.map(item => `
+                // Фильтруем историю только для текущего пользователя
+                const userHistory = history.filter(item => item.ownerChatId === currentUserChatId);
+                
+                historyList.innerHTML = userHistory.map(item => `
                     <div class="history-item">
                         <div class="history-item-title">Mini App: ${item.miniAppUrl}</div>
                         ${item.refParam ? `<div>Реф. параметр: ${item.refParam}</div>` : ''}
                         <div class="history-item-stats">
                             Создано: ${new Date(item.createdAt).toLocaleString()}<br>
                             Всего переходов: ${item.clicks}<br>
-                            ${item.clickDetails ? `
+                            ${item.clickDetails && item.clickDetails.length > 0 ? `
                             <details>
                                 <summary>Детали переходов</summary>
                                 <div class="click-details">
                                     ${item.clickDetails.map(click => `
                                         <div class="click-detail">
                                             ${new Date(click.timestamp).toLocaleString()}<br>
-                                            <small>${click.platform}</small>
+                                            <small>Устройство: ${click.device}</small><br>
+                                            <small>Браузер: ${click.browser}</small><br>
+                                            ${click.username ? `<small>Пользователь: @${click.username}</small>` : ''}
                                         </div>
                                     `).join('')}
                                 </div>
@@ -488,7 +513,7 @@
                     </div>
                 `).join('');
                 
-                document.getElementById('linkHistory').style.display = 'block';
+                document.getElementById('linkHistory').style.display = userHistory.length > 0 ? 'block' : 'none';
             }
         };
 
@@ -507,12 +532,18 @@
                 refLink += `&p=${encodeURIComponent(refParam)}`;
             }
             
+            // Добавляем дополнительные параметры для кастомизации
+            const tgUser = window.Telegram?.WebApp?.initDataUnsafe?.user;
+            if (tgUser) {
+                if (tgUser.username) refLink += `&username=${encodeURIComponent(tgUser.username)}`;
+                if (tgUser.first_name) refLink += `&title=${encodeURIComponent(tgUser.first_name)}`;
+            }
+            
             document.getElementById('refLink').value = refLink;
             document.getElementById('result').style.display = 'block';
             
-            // Сохраняем в историю с полным URL
-            const fullRefLink = refLink + (refParam ? `&p=${encodeURIComponent(refParam)}` : '');
-            historyManager.addLink(miniAppUrl, refParam, fullRefLink);
+            // Сохраняем в историю
+            historyManager.addLink(miniAppUrl, refParam, refLink);
         }
         
         function copyToClipboard() {
@@ -528,72 +559,64 @@
         }
         
         function trackReferral(refCode) {
-            const history = historyManager.getHistory();
             const currentUrl = window.location.href;
+            const clickDetail = {
+                timestamp: new Date().toISOString(),
+                userAgent: navigator.userAgent,
+                platform: navigator.platform,
+                device: /Mobile|Android|iPhone/i.test(navigator.userAgent) ? 'mobile' : 'desktop',
+                browser: getBrowserName(),
+                username: window.Telegram?.WebApp?.initDataUnsafe?.user?.username
+            };
             
-            // Ищем соответствующую ссылку в истории
-            const historyItem = history.find(item => {
-                const itemUrlParams = new URL(item.generatedLink).searchParams;
-                const currentUrlParams = new URL(currentUrl).searchParams;
-                
-                // Проверяем совпадение параметров r и p
-                const rMatch = itemUrlParams.get('r') === currentUrlParams.get('r');
-                const pMatch = (!itemUrlParams.get('p') && !currentUrlParams.get('p')) || 
-                             (itemUrlParams.get('p') === currentUrlParams.get('p'));
-                
-                return rMatch && pMatch;
-            });
+            // Ищем соответствующую ссылку в истории и увеличиваем счетчик
+            const historyItem = historyManager.incrementClicks(currentUrl, clickDetail);
             
             if (historyItem) {
-                // Инициализируем массив для деталей кликов если его нет
-                if (!historyItem.clickDetails) {
-                    historyItem.clickDetails = [];
-                }
-                
-                // Добавляем подробную информацию о переходе
-                const clickDetail = {
-                    timestamp: new Date().toISOString(),
-                    userAgent: navigator.userAgent,
-                    platform: navigator.platform,
-                    device: /Mobile|Android|iPhone/i.test(navigator.userAgent) ? 'mobile' : 'desktop',
-                    browser: navigator.userAgent.match(/(chrome|safari|firefox|edge|opera(?=\/))\/?\s*(\d+)/i)[1],
-                };
-                
-                historyItem.clickDetails.push(clickDetail);
-                historyItem.clicks = historyItem.clickDetails.length;
-                
-                // Сохраняем обновленную историю
-                historyManager.saveHistory(history);
-                historyManager.displayHistory();
-
-                // Получаем username из Telegram WebApp
-                const username = window.Telegram?.WebApp?.initDataUnsafe?.user?.username || 'Неизвестный пользователь';
-                
                 // Отправляем уведомление создателю ссылки
-                const BOT_TOKEN = '7030085123:AAGxRwbTC-Kwr4TBpFxuhymfdDXKMzhIn6E';
-                const message = `🔗 Новый переход по вашей реферальной ссылке!\n\n👤 Пользователь: @${username}\n🌐 Ссылка: ${historyItem.miniAppUrl}\n📱 Устройство: ${clickDetail.device}\n🌍 Браузер: ${clickDetail.browser}`;
-                
-                fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        chat_id: historyItem.ownerChatId, // ID чата создателя ссылки
-                        text: message,
-                        parse_mode: 'HTML'
-                    })
-                }).catch(console.error);
-                
-                console.log('Переход зарегистрирован:', {
-                    referralCode: refCode,
-                    totalClicks: historyItem.clicks,
-                    details: clickDetail,
-                    username: username
-                });
+                sendTelegramNotification(historyItem, clickDetail);
             }
             
             console.log('Реферал зарегистрирован:', refCode);
+        }
+        
+        function sendTelegramNotification(historyItem, clickDetail) {
+            if (!historyItem.ownerChatId) return;
+            
+            const username = clickDetail.username ? `@${clickDetail.username}` : 'Неизвестный пользователь';
+            const message = `🔗 *Новый переход по вашей реферальной ссылке!*\n\n` +
+                           `👤 *Пользователь:* ${username}\n` +
+                           `🌐 *Ссылка:* ${historyItem.miniAppUrl}\n` +
+                           `📱 *Устройство:* ${clickDetail.device === 'mobile' ? 'Мобильное' : 'Десктоп'}\n` +
+                           `🖥 *Браузер:* ${clickDetail.browser}\n` +
+                           `🕒 *Время:* ${new Date(clickDetail.timestamp).toLocaleString()}\n\n` +
+                           `Всего переходов: ${historyItem.clicks}`;
+            
+            fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    chat_id: historyItem.ownerChatId,
+                    text: message,
+                    parse_mode: 'Markdown'
+                })
+            }).catch(error => {
+                console.error('Ошибка отправки уведомления:', error);
+            });
+        }
+        
+        function getBrowserName() {
+            const userAgent = navigator.userAgent;
+            if (userAgent.indexOf("Firefox") > -1) return "Firefox";
+            if (userAgent.indexOf("SamsungBrowser") > -1) return "Samsung Browser";
+            if (userAgent.indexOf("Opera") > -1 || userAgent.indexOf("OPR") > -1) return "Opera";
+            if (userAgent.indexOf("Trident") > -1) return "Internet Explorer";
+            if (userAgent.indexOf("Edge") > -1) return "Edge";
+            if (userAgent.indexOf("Chrome") > -1) return "Chrome";
+            if (userAgent.indexOf("Safari") > -1) return "Safari";
+            return "Unknown Browser";
         }
         
         // Инициализация отображения истории при загрузке
