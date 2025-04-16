@@ -28,28 +28,29 @@
             margin: 0;
             padding: 20px;
             min-height: 100vh;
-        }
-
-        .container {
-            max-width: 800px;
-            margin: 0 auto;
+            display: flex;
+            justify-content: center;
+            align-items: center;
         }
 
         .card {
             background: var(--white);
             border-radius: var(--radius);
             box-shadow: var(--shadow);
+            width: 100%;
+            max-width: 420px;
             padding: 30px;
-            margin-bottom: 20px;
+            text-align: center;
+            transition: var(--transition);
         }
 
         .avatar {
-            width: 80px;
-            height: 80px;
+            width: 100px;
+            height: 100px;
             border-radius: 50%;
-            border: 3px solid var(--white);
-            box-shadow: 0 0 0 3px var(--primary);
-            margin: 0 auto 15px;
+            border: 4px solid var(--white);
+            box-shadow: 0 0 0 4px var(--primary);
+            margin: 0 auto 20px;
             overflow: hidden;
         }
 
@@ -62,7 +63,7 @@
         h1 {
             font-size: 24px;
             margin-bottom: 8px;
-            text-align: center;
+            color: var(--dark);
         }
 
         .username {
@@ -70,14 +71,12 @@
             color: var(--primary);
             font-weight: 500;
             margin: 10px 0;
-            text-align: center;
             text-decoration: none;
         }
 
         .description {
             color: var(--gray);
             margin-bottom: 25px;
-            text-align: center;
         }
 
         .btn {
@@ -105,6 +104,7 @@
 
         .form-group {
             margin-bottom: 15px;
+            text-align: left;
         }
 
         .form-control {
@@ -130,74 +130,6 @@
             margin-bottom: 10px;
         }
 
-        .nav-tabs {
-            display: flex;
-            border-bottom: 1px solid #dfe6e9;
-            margin-bottom: 20px;
-        }
-
-        .tab {
-            padding: 10px 20px;
-            cursor: pointer;
-            border-bottom: 2px solid transparent;
-        }
-
-        .tab.active {
-            border-bottom: 2px solid var(--primary);
-            font-weight: 500;
-        }
-
-        .tab-content {
-            display: none;
-        }
-
-        .tab-content.active {
-            display: block;
-        }
-
-        .stats {
-            margin-top: 20px;
-        }
-
-        .stat-item {
-            display: flex;
-            justify-content: space-between;
-            padding: 10px 0;
-            border-bottom: 1px solid #eee;
-        }
-
-        .referral-list {
-            max-height: 300px;
-            overflow-y: auto;
-        }
-
-        .referral-item {
-            padding: 10px;
-            border-bottom: 1px solid #eee;
-            display: flex;
-            align-items: center;
-        }
-
-        .referral-avatar {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            margin-right: 10px;
-        }
-
-        .referral-info {
-            flex-grow: 1;
-        }
-
-        .referral-name {
-            font-weight: 500;
-        }
-
-        .referral-date {
-            font-size: 12px;
-            color: var(--gray);
-        }
-
         .pulse {
             animation: pulse 2s infinite;
         }
@@ -208,98 +140,50 @@
             100% { transform: scale(1); }
         }
 
-        @media (max-width: 600px) {
+        @media (max-width: 480px) {
             .card {
                 padding: 20px;
-            }
-            
-            .nav-tabs {
-                flex-direction: column;
-            }
-            
-            .tab {
-                border-bottom: none;
-                border-left: 2px solid transparent;
-            }
-            
-            .tab.active {
-                border-bottom: none;
-                border-left: 2px solid var(--primary);
             }
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <div class="card">
-            <div class="avatar">
-                <img src="https://pbt.storage.yandexcloud.net/cp_avatars/AgACAgIAAxUAAWf-xKkXxvc7CxsIzRj6wWh-XE6XAAJn-jEbzNyZS8T7Ny2Bcmv1AQADAgADYQADNgQ.jpg">
+    <div class="card">
+        <div class="avatar">
+            <img src="https://pbt.storage.yandexcloud.net/cp_avatars/AgACAgIAAxUAAWf-xKkXxvc7CxsIzRj6wWh-XE6XAAJn-jEbzNyZS8T7Ny2Bcmv1AQADAgADYQADNgQ.jpg">
+        </div>
+        
+        <h1 id="title">PuzzleRef ://</h1>
+        <a href="https://t.me/PuzzlerefBot" id="username" class="username">@PuzzlerefBot</a>
+        <p id="desc" class="description">Реферальная система для Mini-App</p>
+        
+        <div id="ref-view">
+            <button id="open-btn" class="btn pulse">Перейти в приложение</button>
+        </div>
+        
+        <div id="gen-form" style="display: none;">
+            <div class="form-group">
+                <label>Ссылка на Mini App</label>
+                <input type="text" id="app-url" class="form-control" placeholder="https://t.me/your_mini_app">
             </div>
-            
-            <h1 id="title">PuzzleRef ://</h1>
-            <a href="https://t.me/PuzzlerefBot" id="username" class="username">@PuzzlerefBot</a>
-            <p id="desc" class="description">Реферальная система для Mini-App</p>
-            
-            <div class="nav-tabs">
-                <div class="tab active" data-tab="generator">Генератор</div>
-                <div class="tab" data-tab="stats">Статистика</div>
-                <div class="tab" data-tab="history">История</div>
+            <div class="form-group">
+                <label>Реферальный ID (необязательно)</label>
+                <input type="text" id="ref-id" class="form-control" placeholder="ref123">
             </div>
+            <button id="gen-btn" class="btn">Создать ссылку</button>
             
-            <div id="generator" class="tab-content active">
-                <div id="ref-view">
-                    <button id="open-btn" class="btn pulse">Перейти в приложение</button>
-                </div>
-                
-                <div id="gen-form">
-                    <div class="form-group">
-                        <label>Ссылка на Mini App</label>
-                        <input type="text" id="app-url" class="form-control" placeholder="https://t.me/your_mini_app">
-                    </div>
-                    <button id="gen-btn" class="btn">Создать реферальную ссылку</button>
-                    
-                    <div id="result" class="result">
-                        <div id="short-link" class="short-link"></div>
-                        <button id="copy-btn" class="btn secondary">Копировать ссылку</button>
-                    </div>
-                </div>
-            </div>
-            
-            <div id="stats" class="tab-content">
-                <div class="stats">
-                    <div class="stat-item">
-                        <span>Всего переходов:</span>
-                        <span id="total-clicks">0</span>
-                    </div>
-                    <div class="stat-item">
-                        <span>Уникальных пользователей:</span>
-                        <span id="unique-users">0</span>
-                    </div>
-                    <div class="stat-item">
-                        <span>Последний переход:</span>
-                        <span id="last-click">-</span>
-                    </div>
-                </div>
-            </div>
-            
-            <div id="history" class="tab-content">
-                <h3>Последние переходы</h3>
-                <div id="referral-list" class="referral-list">
-                    <!-- Сюда будут добавляться элементы через JS -->
-                </div>
+            <div id="result" class="result">
+                <div id="short-link" class="short-link"></div>
+                <button id="copy-btn" class="btn secondary">Копировать ссылку</button>
             </div>
         </div>
     </div>
 
     <script>
-        // Telegram Bot API ключ
-        const BOT_TOKEN = '7030085123:AAGxRwbTC-Kwr4TBpFxuhymfdDXKMzhIn6E';
-        
         // Проверяем параметры URL
         const params = new URLSearchParams(location.search);
         const appId = params.get('app');
         const refId = params.get('ref');
-        const userId = params.get('user');
         
         // Элементы интерфейса
         const refView = document.getElementById('ref-view');
@@ -309,48 +193,8 @@
         const copyBtn = document.getElementById('copy-btn');
         const shortLink = document.getElementById('short-link');
         
-        // Статистика
-        const totalClicks = document.getElementById('total-clicks');
-        const uniqueUsers = document.getElementById('unique-users');
-        const lastClick = document.getElementById('last-click');
-        const referralList = document.getElementById('referral-list');
-        
         // Базовая часть URL без параметров
         const baseUrl = location.origin + location.pathname;
-        
-        // Инициализация WebApp
-        let tgUser = null;
-        if (window.Telegram?.WebApp) {
-            Telegram.WebApp.ready();
-            tgUser = Telegram.WebApp.initDataUnsafe?.user;
-            
-            // Если пользователь авторизован, сохраняем его данные
-            if (tgUser) {
-                localStorage.setItem('tg_user', JSON.stringify(tgUser));
-            }
-        }
-        
-        // Загружаем сохраненные данные пользователя
-        const savedUser = localStorage.getItem('tg_user');
-        if (savedUser) {
-            tgUser = JSON.parse(savedUser);
-        }
-        
-        // Обработчики вкладок
-        document.querySelectorAll('.tab').forEach(tab => {
-            tab.addEventListener('click', () => {
-                document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-                document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-                
-                tab.classList.add('active');
-                document.getElementById(tab.dataset.tab).classList.add('active');
-                
-                // При открытии вкладки статистики загружаем данные
-                if (tab.dataset.tab === 'stats' || tab.dataset.tab === 'history') {
-                    loadStats();
-                }
-            });
-        });
         
         if (appId) {
             // Режим реферальной ссылки
@@ -367,16 +211,18 @@
             };
             
             // Отправляем реферальные данные (если есть)
-            if (refId && userId) {
-                trackReferral(refId, userId);
+            if (refId) {
+                trackReferral(refId);
             }
         } else {
             // Режим генератора
             refView.style.display = 'none';
+            genForm.style.display = 'block';
             
             // Генерация короткой ссылки
-            genBtn.onclick = async () => {
+            genBtn.onclick = () => {
                 const appUrl = document.getElementById('app-url').value.trim();
+                const refId = document.getElementById('ref-id').value.trim();
                 
                 if (!appUrl) return alert('Введите ссылку на Mini App');
                 
@@ -384,19 +230,9 @@
                 const appUsername = extractUsername(appUrl);
                 if (!appUsername) return alert('Некорректная ссылка на Mini App');
                 
-                // Генерируем уникальный реферальный ID
-                const referralId = generateReferralId();
-                
                 // Формируем короткую ссылку
-                let refLink = `${baseUrl}?app=${appUsername}&ref=${referralId}`;
-                
-                // Если пользователь авторизован, добавляем его ID
-                if (tgUser?.id) {
-                    refLink += `&user=${tgUser.id}`;
-                    
-                    // Сохраняем ссылку в историю пользователя
-                    await saveReferralLink(tgUser.id, referralId, appUsername);
-                }
+                let refLink = `${baseUrl}?app=${appUsername}`;
+                if (refId) refLink += `&ref=${encodeURIComponent(refId)}`;
                 
                 // Показываем результат
                 shortLink.textContent = refLink;
@@ -412,8 +248,8 @@
             };
         }
         
-        // Функция извлечения username из ссылки
         function extractUsername(url) {
+            // Извлекаем username из различных форматов ссылок
             const patterns = [
                 /t\.me\/([a-zA-Z0-9_]+)/,
                 /tg:\/\/resolve\?domain=([a-zA-Z0-9_]+)/,
@@ -428,78 +264,9 @@
             return null;
         }
         
-        // Генерация уникального реферального ID
-        function generateReferralId() {
-            return Math.random().toString(36).substring(2, 10) + Math.random().toString(36).substring(2, 6);
-        }
-        
-        // Трекинг реферального перехода
-        async function trackReferral(refId, userId) {
-            try {
-                const response = await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        chat_id: userId,
-                        text: `Новый переход по вашей реферальной ссылке!\nID: ${refId}`
-                    })
-                });
-                
-                // Здесь можно добавить дополнительную логику трекинга
-                console.log('Реферал зарегистрирован:', refId);
-            } catch (error) {
-                console.error('Ошибка при отправке данных:', error);
-            }
-        }
-        
-        // Сохранение реферальной ссылки
-        async function saveReferralLink(userId, refId, appUsername) {
-            // В реальном приложении здесь бы была отправка на ваш сервер
-            // Для демонстрации сохраняем в localStorage
-            const userLinks = JSON.parse(localStorage.getItem(`user_${userId}_links`) || '[]');
-            userLinks.push({
-                id: refId,
-                app: appUsername,
-                date: new Date().toISOString(),
-                clicks: 0
-            });
-            localStorage.setItem(`user_${userId}_links`, JSON.stringify(userLinks));
-        }
-        
-        // Загрузка статистики
-        async function loadStats() {
-            if (!tgUser?.id) return;
-            
-            // В реальном приложении здесь бы был запрос к вашему серверу
-            // Для демонстрации используем localStorage
-            const userLinks = JSON.parse(localStorage.getItem(`user_${tgUser.id}_links`) || '[]');
-            
-            // Обновляем статистику
-            const total = userLinks.reduce((sum, link) => sum + (link.clicks || 0), 0);
-            const unique = userLinks.filter(link => link.clicks > 0).length;
-            const last = userLinks.length > 0 ? new Date(userLinks[0].date).toLocaleString() : '-';
-            
-            totalClicks.textContent = total;
-            uniqueUsers.textContent = unique;
-            lastClick.textContent = last;
-            
-            // Обновляем историю переходов
-            referralList.innerHTML = '';
-            userLinks.slice(0, 10).forEach(link => {
-                const item = document.createElement('div');
-                item.className = 'referral-item';
-                item.innerHTML = `
-                    <img src="https://i.imgur.com/Os1nGNg.jpg" class="referral-avatar">
-                    <div class="referral-info">
-                        <div class="referral-name">${link.app}</div>
-                        <div class="referral-date">
-                            ${new Date(link.date).toLocaleString()} • 
-                            ${link.clicks || 0} переходов
-                        </div>
-                    </div>
-                `;
-                referralList.appendChild(item);
-            });
+        function trackReferral(refId) {
+            // Здесь можно добавить отправку данных на сервер
+            console.log('Реферал:', refId);
         }
     </script>
 </body>
