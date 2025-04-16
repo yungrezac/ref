@@ -26,11 +26,18 @@
             color: var(--dark);
             line-height: 1.6;
             margin: 0;
-            padding: 20px;
+            padding: 0;
             min-height: 100vh;
             display: flex;
             justify-content: center;
             align-items: center;
+        }
+
+        .ref-container {
+            text-align: center;
+            padding: 20px;
+            max-width: 100%;
+            width: 100%;
         }
 
         .card {
@@ -38,10 +45,10 @@
             border-radius: var(--radius);
             box-shadow: var(--shadow);
             width: 100%;
-            max-width: 420px;
+            max-width: 400px;
+            margin: 0 auto;
             padding: 30px;
             text-align: center;
-            transition: var(--transition);
         }
 
         .avatar {
@@ -83,23 +90,41 @@
             background: linear-gradient(135deg, var(--primary), var(--secondary));
             color: var(--white);
             border: none;
-            padding: 12px 24px;
+            padding: 14px 28px;
             border-radius: 50px;
             font-size: 16px;
             font-weight: 500;
             cursor: pointer;
             width: 100%;
             transition: var(--transition);
-            margin-top: 10px;
+            box-shadow: 0 4px 15px rgba(0, 136, 204, 0.3);
+            position: relative;
+            overflow: hidden;
         }
 
         .btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(0, 136, 204, 0.3);
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(0, 136, 204, 0.4);
         }
 
-        .btn.secondary {
-            background: var(--accent);
+        .btn:active {
+            transform: translateY(1px);
+        }
+
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        /* Стили для страницы генератора (только при прямом заходе) */
+        .generator-page {
+            display: none;
+            padding: 20px;
         }
 
         .form-group {
@@ -130,92 +155,110 @@
             margin-bottom: 10px;
         }
 
-        .pulse {
-            animation: pulse 2s infinite;
-        }
-
-        @keyframes pulse {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.02); }
-            100% { transform: scale(1); }
+        .copy-btn {
+            background: var(--accent);
+            color: white;
         }
 
         @media (max-width: 480px) {
             .card {
-                padding: 20px;
+                padding: 25px 20px;
+            }
+            
+            .avatar {
+                width: 80px;
+                height: 80px;
             }
         }
     </style>
 </head>
 <body>
-    <div class="card">
-        <div class="avatar">
-            <img src="https://pbt.storage.yandexcloud.net/cp_avatars/AgACAgIAAxUAAWf-xKkXxvc7CxsIzRj6wWh-XE6XAAJn-jEbzNyZS8T7Ny2Bcmv1AQADAgADYQADNgQ.jpg">
+    <!-- Реферальная страница (показывается при переходе по ссылке) -->
+    <div id="ref-page" class="ref-container">
+        <div class="card">
+            <div class="avatar">
+                <img id="ref-avatar" src="https://pbt.storage.yandexcloud.net/cp_avatars/AgACAgIAAxUAAWf-xKkXxvc7CxsIzRj6wWh-XE6XAAJn-jEbzNyZS8T7Ny2Bcmv1AQADAgADYQADNgQ.jpg">
+            </div>
+            
+            <h1 id="ref-title">PuzzleRef ://</h1>
+            <a id="ref-username" href="#" class="username">@PuzzlerefBot</a>
+            <p id="ref-description" class="description">Реферальная система для Mini-App</p>
+            
+            <button id="ref-button" class="btn pulse">Перейти в приложение</button>
         </div>
-        
-        <h1 id="title">PuzzleRef ://</h1>
-        <a href="https://t.me/PuzzlerefBot" id="username" class="username">@PuzzlerefBot</a>
-        <p id="desc" class="description">Реферальная система для Mini-App</p>
-        
-        <div id="ref-view">
-            <button id="open-btn" class="btn pulse">Перейти в приложение</button>
-        </div>
-        
-        <div id="gen-form" style="display: none;">
+    </div>
+
+    <!-- Страница генератора (показывается только при прямом заходе) -->
+    <div id="generator-page" class="generator-page">
+        <div class="card">
+            <div class="avatar">
+                <img src="https://pbt.storage.yandexcloud.net/cp_avatars/AgACAgIAAxUAAWf-xKkXxvc7CxsIzRj6wWh-XE6XAAJn-jEbzNyZS8T7Ny2Bcmv1AQADAgADYQADNgQ.jpg">
+            </div>
+            
+            <h1>PuzzleRef ://</h1>
+            <a href="https://t.me/PuzzlerefBot" class="username">@PuzzlerefBot</a>
+            <p class="description">Генератор реферальных ссылок</p>
+            
             <div class="form-group">
                 <label>Ссылка на Mini App</label>
                 <input type="text" id="app-url" class="form-control" placeholder="https://t.me/your_mini_app">
             </div>
-            <div class="form-group">
-                <label>Реферальный ID (необязательно)</label>
-                <input type="text" id="ref-id" class="form-control" placeholder="Оставьте пустым для автогенерации">
-            </div>
-            <button id="gen-btn" class="btn">Создать ссылку</button>
+            
+            <button id="gen-btn" class="btn">Создать реферальную ссылку</button>
             
             <div id="result" class="result">
                 <div id="short-link" class="short-link"></div>
-                <button id="copy-btn" class="btn secondary">Копировать ссылку</button>
-                <button id="redirect-btn" class="btn" style="display: none;">Перейти по ссылке</button>
+                <button id="copy-btn" class="btn copy-btn">Копировать ссылку</button>
             </div>
         </div>
     </div>
 
     <script>
+        // Telegram Bot API ключ
+        const BOT_TOKEN = '7030085123:AAGxRwbTC-Kwr4TBpFxuhymfdDXKMzhIn6E';
+        
         // Проверяем параметры URL
         const params = new URLSearchParams(location.search);
         const appId = params.get('app');
         const refId = params.get('ref');
-        const redirect = params.get('redirect');
+        const userId = params.get('user');
         
-        // Элементы интерфейса
-        const refView = document.getElementById('ref-view');
-        const genForm = document.getElementById('gen-form');
-        const openBtn = document.getElementById('open-btn');
+        // Элементы реферальной страницы
+        const refPage = document.getElementById('ref-page');
+        const refAvatar = document.getElementById('ref-avatar');
+        const refTitle = document.getElementById('ref-title');
+        const refUsername = document.getElementById('ref-username');
+        const refDescription = document.getElementById('ref-description');
+        const refButton = document.getElementById('ref-button');
+        
+        // Элементы страницы генератора
+        const generatorPage = document.getElementById('generator-page');
         const genBtn = document.getElementById('gen-btn');
         const copyBtn = document.getElementById('copy-btn');
-        const redirectBtn = document.getElementById('redirect-btn');
         const shortLink = document.getElementById('short-link');
         
         // Базовая часть URL без параметров
         const baseUrl = location.origin + location.pathname;
         
-        // Автоматическое перенаправление если есть параметр redirect
-        if (redirect === 'true' && appId) {
-            const appUrl = `https://t.me/${appId}`;
-            if (window.Telegram?.WebApp) {
-                Telegram.WebApp.openTelegramLink(appUrl);
-            } else {
-                location.href = appUrl;
-            }
-        }
-        
         if (appId) {
-            // Режим реферальной ссылки
-            genForm.style.display = 'none';
+            // Режим реферальной ссылки - показываем только кнопку
+            generatorPage.style.display = 'none';
             
-            // Устанавливаем ссылку для перехода
+            // Настраиваем данные страницы
+            refTitle.textContent = params.get('title') || 'PuzzleRef ://';
+            refDescription.textContent = params.get('desc') || 'Реферальная система для Mini-App';
+            
+            const username = appId.startsWith('@') ? appId.substring(1) : appId;
+            refUsername.textContent = `@${username}`;
+            refUsername.href = `https://t.me/${username}`;
+            
+            if (params.get('avatar')) {
+                refAvatar.src = params.get('avatar');
+            }
+            
+            // Настраиваем кнопку перехода
             const appUrl = `https://t.me/${appId}`;
-            openBtn.onclick = () => {
+            refButton.onclick = () => {
                 if (window.Telegram?.WebApp) {
                     Telegram.WebApp.openTelegramLink(appUrl);
                 } else {
@@ -224,18 +267,17 @@
             };
             
             // Отправляем реферальные данные (если есть)
-            if (refId) {
-                trackReferral(refId);
+            if (refId && userId) {
+                trackReferral(refId, userId);
             }
         } else {
-            // Режим генератора
-            refView.style.display = 'none';
-            genForm.style.display = 'block';
+            // Режим генератора - показываем форму
+            refPage.style.display = 'none';
+            generatorPage.style.display = 'block';
             
             // Генерация короткой ссылки
-            genBtn.onclick = () => {
+            genBtn.onclick = async () => {
                 const appUrl = document.getElementById('app-url').value.trim();
-                let refId = document.getElementById('ref-id').value.trim();
                 
                 if (!appUrl) return alert('Введите ссылку на Mini App');
                 
@@ -243,19 +285,26 @@
                 const appUsername = extractUsername(appUrl);
                 if (!appUsername) return alert('Некорректная ссылка на Mini App');
                 
-                // Генерируем реферальный ID если не указан
-                if (!refId) {
-                    refId = generateRefId();
-                    document.getElementById('ref-id').value = refId;
-                }
+                // Генерируем уникальный реферальный ID
+                const referralId = generateReferralId();
                 
-                // Формируем короткую ссылку с параметром redirect
-                let refLink = `${baseUrl}?app=${appUsername}&ref=${encodeURIComponent(refId)}&redirect=true`;
+                // Формируем короткую ссылку с минимальными параметрами
+                let refLink = `${baseUrl}?app=${appUsername}&ref=${referralId}`;
+                
+                // Добавляем дополнительные параметры для кастомизации
+                refLink += `&title=${encodeURIComponent('PuzzleRef ://')}`;
+                refLink += `&desc=${encodeURIComponent('Реферальная система для Mini-App')}`;
+                refLink += `&avatar=${encodeURIComponent('https://pbt.storage.yandexcloud.net/cp_avatars/AgACAgIAAxUAAWf-xKkXxvc7CxsIzRj6wWh-XE6XAAJn-jEbzNyZS8T7Ny2Bcmv1AQADAgADYQADNgQ.jpg')}`;
+                
+                // Если пользователь авторизован, добавляем его ID
+                if (window.Telegram?.WebApp?.initDataUnsafe?.user?.id) {
+                    const tgUserId = Telegram.WebApp.initDataUnsafe.user.id;
+                    refLink += `&user=${tgUserId}`;
+                }
                 
                 // Показываем результат
                 shortLink.textContent = refLink;
                 document.getElementById('result').style.display = 'block';
-                redirectBtn.style.display = 'block';
                 
                 // Настраиваем кнопку копирования
                 copyBtn.onclick = () => {
@@ -264,20 +313,11 @@
                         setTimeout(() => copyBtn.textContent = 'Копировать ссылку', 2000);
                     });
                 };
-                
-                // Настраиваем кнопку перенаправления
-                redirectBtn.onclick = () => {
-                    if (window.Telegram?.WebApp) {
-                        Telegram.WebApp.openTelegramLink(refLink);
-                    } else {
-                        location.href = refLink;
-                    }
-                };
             };
         }
         
+        // Функция извлечения username из ссылки
         function extractUsername(url) {
-            // Извлекаем username из различных форматов ссылок
             const patterns = [
                 /t\.me\/([a-zA-Z0-9_]+)/,
                 /tg:\/\/resolve\?domain=([a-zA-Z0-9_]+)/,
@@ -292,19 +332,25 @@
             return null;
         }
         
-        function generateRefId() {
-            // Генерация случайного реферального ID (8 символов)
-            const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-            let result = '';
-            for (let i = 0; i < 8; i++) {
-                result += chars.charAt(Math.floor(Math.random() * chars.length));
-            }
-            return result;
+        // Генерация уникального реферального ID
+        function generateReferralId() {
+            return Math.random().toString(36).substring(2, 10);
         }
         
-        function trackReferral(refId) {
-            // Здесь можно добавить отправку данных на сервер
-            console.log('Реферал:', refId);
+        // Трекинг реферального перехода
+        async function trackReferral(refId, userId) {
+            try {
+                await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        chat_id: userId,
+                        text: `Новый переход по вашей реферальной ссылке!\nID: ${refId}`
+                    })
+                });
+            } catch (error) {
+                console.error('Ошибка при отправке данных:', error);
+            }
         }
     </script>
 </body>
