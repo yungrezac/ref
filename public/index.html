@@ -3,18 +3,13 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Конструктор HTML блоков</title>
+  <title>Расширенный конструктор HTML блоков</title>
   <style>
-    /* Общие стили */
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
+    /* Базовые стили */
+    * { margin: 0; padding: 0; box-sizing: border-box; }
     body {
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-      background-color: #f2f2f2;
-      color: #333;
+      background-color: #f2f2f2; color: #333;
     }
     .header {
       background-color: #0088cc;
@@ -23,9 +18,7 @@
       text-align: center;
       font-size: 20px;
       font-weight: bold;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
+      display: flex; align-items: center; justify-content: space-between;
     }
     .header button {
       background-color: #ff3b30;
@@ -49,72 +42,27 @@
       overflow-y: auto;
       max-height: 80vh;
     }
-    .sidebar {
-      width: 320px;
-    }
-    h3 {
-      margin-bottom: 10px;
-      font-size: 16px;
-    }
-    .block {
-      padding: 10px;
-      border: 1px solid #ddd;
-      border-radius: 8px;
-      margin-bottom: 10px;
-      background-color: #fafafa;
-      position: relative;
-    }
-    .block p {
-      margin-top: 5px;
-      word-break: break-all;
-    }
-    .block-actions {
-      margin-top: 8px;
-      display: flex;
-      gap: 4px;
-      flex-wrap: wrap;
-    }
-    .block-actions button {
-      background-color: #0088cc;
-      border: none;
-      color: #fff;
-      padding: 5px 8px;
-      border-radius: 3px;
-      cursor: pointer;
-      font-size: 12px;
-    }
-    .form-group {
-      margin-bottom: 10px;
-    }
+    .sidebar { width: 380px; }
+    h3 { margin-bottom: 10px; font-size: 16px; }
+    .form-group { margin-bottom: 10px; }
     label {
-      display: block;
-      margin-bottom: 5px;
-      font-weight: bold;
+      display: block; margin-bottom: 5px;
+      font-weight: bold; font-size: 14px;
+    }
+    input[type="text"], input[type="color"], select, textarea {
+      width: 100%; padding: 8px;
+      border: 1px solid #ccc; border-radius: 5px;
       font-size: 14px;
     }
-    input[type="text"], textarea, input[type="color"] {
-      width: 100%;
-      padding: 8px;
-      border: 1px solid #ccc;
-      border-radius: 5px;
-      font-size: 14px;
-    }
-    textarea {
-      resize: vertical;
-    }
+    textarea { resize: vertical; }
     button.primary {
       background-color: #0088cc;
-      border: none;
-      color: #fff;
-      padding: 10px 15px;
-      border-radius: 5px;
-      cursor: pointer;
-      font-size: 14px;
+      border: none; color: #fff;
+      padding: 10px 15px; border-radius: 5px;
+      cursor: pointer; font-size: 14px;
       margin-top: 5px;
     }
-    button.primary:hover {
-      background-color: #0077b3;
-    }
+    button.primary:hover { background-color: #0077b3; }
     button.secondary {
       background-color: #aaa;
       border: none;
@@ -125,69 +73,186 @@
       font-size: 12px;
       margin-top: 5px;
     }
-    hr {
-      margin: 15px 0;
-      border: none;
-      border-top: 1px solid #eee;
-    }
+    hr { margin: 15px 0; border: none; border-top: 1px solid #eee; }
     .variable-item {
       margin-bottom: 8px;
-      display: flex;
-      align-items: center;
-      gap: 5px;
+      display: flex; align-items: center; gap: 5px;
     }
-    .variable-item input[type="text"] {
-      flex: 1;
-    }
+    .variable-item input[type="text"] { flex: 1; }
     .demo-code {
       background-color: #272c34;
       color: #fff;
-      padding: 10px;
-      border-radius: 5px;
-      font-family: monospace;
-      font-size: 12px;
-      overflow-x: auto;
-      white-space: pre-wrap;
+      padding: 10px; border-radius: 5px;
+      font-family: monospace; font-size: 12px;
+      overflow-x: auto; white-space: pre-wrap;
       max-height: 300px;
     }
     .export-btn {
       background-color: #4cd964;
-      border: none;
-      color: #fff;
-      padding: 8px 12px;
-      border-radius: 5px;
-      cursor: pointer;
-      font-size: 14px;
+      border: none; color: #fff;
+      padding: 8px 12px; border-radius: 5px;
+      cursor: pointer; font-size: 14px;
       margin-top: 10px;
     }
+    .block, .nested-block {
+      padding: 10px;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      margin-bottom: 10px;
+      background-color: #fafafa;
+      position: relative;
+    }
+    .block p, .nested-block p {
+      margin-top: 5px;
+      word-break: break-all;
+    }
+    .block-actions, .nested-block-actions {
+      margin-top: 8px;
+      display: flex;
+      gap: 4px;
+      flex-wrap: wrap;
+    }
+    .block-actions button, .nested-block-actions button {
+      background-color: #0088cc;
+      border: none;
+      color: #fff;
+      padding: 5px 8px;
+      border-radius: 3px;
+      cursor: pointer;
+      font-size: 12px;
+    }
+    /* Стили для WYSIWYG редактора */
+    #wysiwyg-toolbar {
+      border: 1px solid #ccc;
+      padding: 5px;
+      background: #f9f9f9;
+      margin-bottom: 5px;
+    }
+    #wysiwyg-toolbar button { font-size: 14px; margin-right: 5px; }
+    #wysiwyg-editor {
+      border: 1px solid #ccc;
+      min-height: 100px;
+      padding: 8px;
+      border-radius: 5px;
+      background: #fff;
+    }
+    /* Стили для управления вложенными блоками */
+    #nested-blocks-section {
+      border: 1px dashed #888;
+      padding: 10px;
+      margin-top: 10px;
+      background: #fdfdfd;
+    }
+    .hidden { display: none; }
   </style>
 </head>
 <body>
   <div class="header">
-    <span>Телеграм мини-приложение: Конструктор HTML блоков</span>
+    <span>Расширенный конструктор HTML блоков</span>
     <button onclick="clearAll()">Очистить все</button>
   </div>
   
   <div class="container">
-    <!-- Левая панель: блоки, форма добавления/редактирования, переменные -->
+    <!-- Левая панель: список блоков, форма создания/редактирования и переменные -->
     <div class="sidebar">
       <h3>Список блоков</h3>
       <div id="blocks-list">
-        <!-- Здесь будут отображаться блоки -->
+        <!-- Здесь будут отображаться блоки с drag & drop -->
       </div>
-      
       <hr>
-      
       <h3 id="form-title">Добавить блок</h3>
-      <div id="add-block-form">
+      <form id="block-form">
+        <!-- Выбор типа блока -->
+        <div class="form-group">
+          <label for="block-type">Тип блока</label>
+          <select id="block-type" onchange="toggleBlockTypeFields()">
+            <option value="text">Текстовый</option>
+            <option value="image">Изображение</option>
+            <option value="video">Видео</option>
+            <option value="container">Контейнер</option>
+            <option value="divider">Разделитель</option>
+            <option value="button">Кнопка</option>
+            <option value="quote">Цитата</option>
+            <option value="code">Код</option>
+          </select>
+        </div>
+        <!-- Заголовок блока -->
         <div class="form-group">
           <label for="block-title">Заголовок блока</label>
-          <input type="text" id="block-title" placeholder="Введите название блока">
+          <input type="text" id="block-title" placeholder="Введите заголовок блока">
         </div>
-        <div class="form-group">
-          <label for="block-content">Содержимое (HTML)</label>
-          <textarea id="block-content" rows="4" placeholder="Например: Привет, {{username}}!"></textarea>
+        <!-- Для текстового блока: WYSIWYG редактор -->
+        <div class="form-group" id="text-editor-group">
+          <label>Содержимое</label>
+          <div id="wysiwyg-toolbar">
+            <button type="button" onclick="execCmd('bold')"><b>B</b></button>
+            <button type="button" onclick="execCmd('italic')"><i>I</i></button>
+            <button type="button" onclick="execCmd('underline')"><u>U</u></button>
+            <button type="button" onclick="insertLink()">Link</button>
+            <button type="button" onclick="execCmd('insertOrderedList')">OL</button>
+            <button type="button" onclick="execCmd('insertUnorderedList')">UL</button>
+          </div>
+          <div id="wysiwyg-editor" contenteditable="true" style="background: #fff;"></div>
         </div>
+        <!-- Для изображений -->
+        <div id="image-fields" class="form-group hidden">
+          <label for="block-image-url">URL изображения</label>
+          <input type="text" id="block-image-url" placeholder="Введите URL изображения">
+          <label for="block-image-caption">Подпись</label>
+          <input type="text" id="block-image-caption" placeholder="Введите подпись к изображению">
+        </div>
+        <!-- Для видео -->
+        <div id="video-fields" class="form-group hidden">
+          <label for="block-video-url">URL видео</label>
+          <input type="text" id="block-video-url" placeholder="Введите URL видео">
+          <label for="block-video-caption">Подпись</label>
+          <input type="text" id="block-video-caption" placeholder="Введите подпись к видео">
+        </div>
+        <!-- Для контейнерного блока -->
+        <div id="container-fields" class="form-group hidden">
+          <label for="container-description">Описание контейнера</label>
+          <textarea id="container-description" rows="2" placeholder="Введите описание контейнера"></textarea>
+          <div id="nested-blocks-section">
+            <h4>Вложенные блоки</h4>
+            <div id="nested-blocks-list">
+              <!-- Список вложенных блоков -->
+            </div>
+            <button type="button" class="primary" onclick="showNestedBlockForm()">Добавить вложенный блок</button>
+            <div id="nested-block-form" class="hidden" style="margin-top:10px; border-top:1px solid #ccc; padding-top:10px;">
+              <div class="form-group">
+                <label for="nested-block-title">Заголовок вложенного блока</label>
+                <input type="text" id="nested-block-title" placeholder="Введите заголовок">
+              </div>
+              <div class="form-group">
+                <label for="nested-block-content">Содержимое</label>
+                <textarea id="nested-block-content" rows="2" placeholder="Введите текст"></textarea>
+              </div>
+              <button type="button" class="primary" onclick="addNestedBlock()">Добавить</button>
+              <button type="button" class="secondary" onclick="hideNestedBlockForm()">Отмена</button>
+            </div>
+          </div>
+        </div>
+        <!-- Для разделителя: дополнительных полей нет -->
+        <!-- Для кнопки -->
+        <div id="button-fields" class="form-group hidden">
+          <label for="block-button-text">Текст кнопки</label>
+          <input type="text" id="block-button-text" placeholder="Введите текст кнопки">
+          <label for="block-button-url">URL кнопки</label>
+          <input type="text" id="block-button-url" placeholder="Введите URL кнопки">
+        </div>
+        <!-- Для цитаты -->
+        <div id="quote-fields" class="form-group hidden">
+          <label for="block-quote-content">Текст цитаты</label>
+          <textarea id="block-quote-content" rows="2" placeholder="Введите цитату"></textarea>
+          <label for="block-quote-citation">Источник (необязательно)</label>
+          <input type="text" id="block-quote-citation" placeholder="Введите источник">
+        </div>
+        <!-- Для кодового блока -->
+        <div id="code-fields" class="form-group hidden">
+          <label for="block-code-content">Код</label>
+          <textarea id="block-code-content" rows="4" placeholder="Введите код" style="font-family: monospace;"></textarea>
+        </div>
+        <!-- Общие стили для всех блоков -->
         <div class="form-group">
           <label for="block-bgcolor">Цвет фона</label>
           <input type="color" id="block-bgcolor" value="#fafafa">
@@ -196,33 +261,35 @@
           <label for="block-textcolor">Цвет текста</label>
           <input type="color" id="block-textcolor" value="#333333">
         </div>
-        <button class="primary" id="save-block-btn" onclick="saveBlock()">Добавить блок</button>
-        <button class="secondary" id="cancel-edit-btn" onclick="cancelEdit()" style="display:none;">Отмена</button>
-      </div>
-      
+        <div class="form-group">
+          <label for="block-custom-class">Доп. CSS классы</label>
+          <input type="text" id="block-custom-class" placeholder="Введите дополнительные классы">
+        </div>
+        <div class="form-group">
+          <label for="block-custom-style">Доп. CSS стили (inline)</label>
+          <input type="text" id="block-custom-style" placeholder="Например: padding:10px; margin:0;">
+        </div>
+        <button type="button" class="primary" id="save-block-btn" onclick="saveBlock()">Добавить блок</button>
+        <button type="button" class="secondary" id="cancel-edit-btn" onclick="cancelEdit()" style="display:none;">Отмена</button>
+      </form>
       <hr>
-      
       <h3>Переменные</h3>
       <div id="variables">
         <!-- Список переменных -->
       </div>
-      <button class="primary" onclick="addVariable()">Добавить переменную</button>
+      <button type="button" class="primary" onclick="addVariable()">Добавить переменную</button>
     </div>
     
-    <!-- Правая панель: превью и демонстрация HTML кода -->
+    <!-- Правая панель: Превью и сгенерированный HTML код -->
     <div class="content">
       <h3>Превью</h3>
       <div id="preview">
-        <!-- Динамически отображаются блоки с подстановкой переменных -->
+        <!-- Здесь динамически отображаются блоки с подстановкой переменных -->
       </div>
-      
       <hr>
-      
-      <h3>HTML код с демо данными</h3>
-      <pre class="demo-code" id="demo-code">
-        <!-- Сюда выводится HTML код блоков -->
-      </pre>
-      <button class="export-btn" onclick="exportCode()">Скопировать код</button>
+      <h3>HTML код</h3>
+      <pre class="demo-code" id="demo-code"></pre>
+      <button type="button" class="export-btn" onclick="exportCode()">Скопировать код</button>
     </div>
   </div>
   
@@ -230,66 +297,281 @@
     // Глобальные переменные
     let blocks = [];
     let variables = {};
-    let currentEditIndex = -1; // -1 означает режим добавления
+    let currentEditIndex = -1; // -1 = режим добавления
+    let currentNestedBlocks = []; // для контейнерных блоков
 
-    // Загрузка данных из localStorage или установка демо значений
-    function loadData() {
-      const savedBlocks = localStorage.getItem('blocks');
-      const savedVariables = localStorage.getItem('variables');
-      if (savedBlocks) {
-        blocks = JSON.parse(savedBlocks);
-      } else {
-        blocks = [{
-          title: "Блок 1",
-          content: "Привет, {{username}}! Добро пожаловать в наше мини-приложение.",
-          style: { bgcolor: "#fafafa", textcolor: "#333333" }
-        }];
+    // Функции WYSIWYG редактора
+    function execCmd(cmd) {
+      document.execCommand(cmd, false, null);
+    }
+    function insertLink() {
+      let url = prompt("Введите URL ссылки:");
+      if (url) { document.execCommand("createLink", false, url); }
+    }
+    
+    // Функция подстановки переменных в шаблонном тексте
+    function substituteVariables(content) {
+      for (let key in variables) {
+        let regex = new RegExp("{{\\s*" + key + "\\s*}}", "g");
+        content = content.replace(regex, variables[key]);
       }
-      if (savedVariables) {
-        variables = JSON.parse(savedVariables);
-      } else {
-        variables = { username: "Иван" };
-      }
+      return content;
     }
 
-    // Сохранение данных в localStorage
-    function saveData() {
-      localStorage.setItem('blocks', JSON.stringify(blocks));
-      localStorage.setItem('variables', JSON.stringify(variables));
+    // Переключение видимости секций формы в зависимости от типа блока
+    function toggleBlockTypeFields() {
+      const type = document.getElementById('block-type').value;
+      // Скрываем все дополнительные секции
+      document.getElementById('text-editor-group').classList.add('hidden');
+      document.getElementById('image-fields').classList.add('hidden');
+      document.getElementById('video-fields').classList.add('hidden');
+      document.getElementById('container-fields').classList.add('hidden');
+      document.getElementById('button-fields').classList.add('hidden');
+      document.getElementById('quote-fields').classList.add('hidden');
+      document.getElementById('code-fields').classList.add('hidden');
+      // Показываем нужную секцию
+      if (type === "text") {
+        document.getElementById('text-editor-group').classList.remove('hidden');
+      } else if (type === "image") {
+        document.getElementById('image-fields').classList.remove('hidden');
+      } else if (type === "video") {
+        document.getElementById('video-fields').classList.remove('hidden');
+      } else if (type === "container") {
+        document.getElementById('container-fields').classList.remove('hidden');
+      } else if (type === "button") {
+        document.getElementById('button-fields').classList.remove('hidden');
+      } else if (type === "quote") {
+        document.getElementById('quote-fields').classList.remove('hidden');
+      } else if (type === "code") {
+        document.getElementById('code-fields').classList.remove('hidden');
+      }
     }
-
-    // Отрисовка блоков в превью с подстановкой переменных и стилями
-    function renderBlocks() {
-      const preview = document.getElementById('preview');
-      preview.innerHTML = "";
-      blocks.forEach(block => {
-        let renderedContent = block.content;
-        for (let key in variables) {
-          const regex = new RegExp("{{\\s*" + key + "\\s*}}", "g");
-          renderedContent = renderedContent.replace(regex, variables[key]);
+    
+    // Добавление или сохранение блока
+    function saveBlock() {
+      const type = document.getElementById('block-type').value;
+      const title = document.getElementById('block-title').value.trim();
+      if (!title) { alert("Введите заголовок блока"); return; }
+      let blockData = {
+        type: type,
+        title: title,
+        style: {
+          bgcolor: document.getElementById('block-bgcolor').value,
+          textcolor: document.getElementById('block-textcolor').value,
+          customClass: document.getElementById('block-custom-class').value.trim(),
+          customStyle: document.getElementById('block-custom-style').value.trim()
         }
-        const blockEl = document.createElement("div");
-        blockEl.className = "block";
-        blockEl.style.backgroundColor = block.style.bgcolor;
-        blockEl.style.color = block.style.textcolor;
-        blockEl.innerHTML = "<strong>" + block.title + "</strong><br>" + renderedContent;
-        preview.appendChild(blockEl);
-      });
-      updateDemoCode();
+      };
+      // Сбор данных в зависимости от типа блока
+      if (type === "text") {
+        let content = document.getElementById('wysiwyg-editor').innerHTML.trim();
+        if (!content) { alert("Введите содержимое блока"); return; }
+        blockData.content = content;
+      } else if (type === "image") {
+        let imageUrl = document.getElementById('block-image-url').value.trim();
+        if (!imageUrl) { alert("Введите URL изображения"); return; }
+        blockData.imageUrl = imageUrl;
+        blockData.caption = document.getElementById('block-image-caption').value.trim();
+      } else if (type === "video") {
+        let videoUrl = document.getElementById('block-video-url').value.trim();
+        if (!videoUrl) { alert("Введите URL видео"); return; }
+        blockData.videoUrl = videoUrl;
+        blockData.caption = document.getElementById('block-video-caption').value.trim();
+      } else if (type === "container") {
+        blockData.containerDescription = document.getElementById('container-description').value.trim();
+        blockData.children = currentNestedBlocks.slice();
+      } else if (type === "divider") {
+        // Не требует дополнительных полей
+      } else if (type === "button") {
+        let buttonText = document.getElementById('block-button-text').value.trim();
+        let buttonUrl = document.getElementById('block-button-url').value.trim();
+        if (!buttonText || !buttonUrl) { alert("Введите текст и URL кнопки"); return; }
+        blockData.buttonText = buttonText;
+        blockData.buttonUrl = buttonUrl;
+      } else if (type === "quote") {
+        let quoteContent = document.getElementById('block-quote-content').value.trim();
+        if (!quoteContent) { alert("Введите текст цитаты"); return; }
+        blockData.quoteContent = quoteContent;
+        blockData.citation = document.getElementById('block-quote-citation').value.trim();
+      } else if (type === "code") {
+        let codeContent = document.getElementById('block-code-content').value.trim();
+        if (!codeContent) { alert("Введите код"); return; }
+        blockData.codeContent = codeContent;
+      }
+      
+      if (currentEditIndex === -1) {
+        blocks.push(blockData);
+      } else {
+        blocks[currentEditIndex] = blockData;
+        currentEditIndex = -1;
+        document.getElementById('form-title').textContent = "Добавить блок";
+        document.getElementById('save-block-btn').textContent = "Добавить блок";
+        document.getElementById('cancel-edit-btn').style.display = "none";
+      }
+      clearBlockForm();
+      renderSidebarBlocks();
+      renderBlocks();
+      saveData();
     }
-
-    // Отрисовка списка блоков в левой панели
+    
+    function clearBlockForm() {
+      document.getElementById('block-type').value = "text";
+      toggleBlockTypeFields();
+      document.getElementById('block-title').value = "";
+      document.getElementById('wysiwyg-editor').innerHTML = "";
+      document.getElementById('block-image-url').value = "";
+      document.getElementById('block-image-caption').value = "";
+      document.getElementById('block-video-url').value = "";
+      document.getElementById('block-video-caption').value = "";
+      document.getElementById('container-description').value = "";
+      document.getElementById('block-button-text').value = "";
+      document.getElementById('block-button-url').value = "";
+      document.getElementById('block-quote-content').value = "";
+      document.getElementById('block-quote-citation').value = "";
+      document.getElementById('block-code-content').value = "";
+      document.getElementById('block-bgcolor').value = "#fafafa";
+      document.getElementById('block-textcolor').value = "#333333";
+      document.getElementById('block-custom-class').value = "";
+      document.getElementById('block-custom-style').value = "";
+      currentNestedBlocks = [];
+      renderNestedBlocks();
+      hideNestedBlockForm();
+    }
+    
+    function editBlock(index) {
+      currentEditIndex = index;
+      const block = blocks[index];
+      document.getElementById('block-type').value = block.type;
+      toggleBlockTypeFields();
+      document.getElementById('block-title').value = block.title;
+      if (block.type === "text") {
+        document.getElementById('wysiwyg-editor').innerHTML = block.content;
+      } else if (block.type === "image") {
+        document.getElementById('block-image-url').value = block.imageUrl;
+        document.getElementById('block-image-caption').value = block.caption || "";
+      } else if (block.type === "video") {
+        document.getElementById('block-video-url').value = block.videoUrl;
+        document.getElementById('block-video-caption').value = block.caption || "";
+      } else if (block.type === "container") {
+        document.getElementById('container-description').value = block.containerDescription || "";
+        currentNestedBlocks = block.children ? block.children.slice() : [];
+        renderNestedBlocks();
+      } else if (block.type === "button") {
+        document.getElementById('block-button-text').value = block.buttonText;
+        document.getElementById('block-button-url').value = block.buttonUrl;
+      } else if (block.type === "quote") {
+        document.getElementById('block-quote-content').value = block.quoteContent;
+        document.getElementById('block-quote-citation').value = block.citation || "";
+      } else if (block.type === "code") {
+        document.getElementById('block-code-content').value = block.codeContent;
+      }
+      document.getElementById('block-bgcolor').value = block.style.bgcolor;
+      document.getElementById('block-textcolor').value = block.style.textcolor;
+      document.getElementById('block-custom-class').value = block.style.customClass || "";
+      document.getElementById('block-custom-style').value = block.style.customStyle || "";
+      
+      document.getElementById('form-title').textContent = "Редактировать блок";
+      document.getElementById('save-block-btn').textContent = "Сохранить изменения";
+      document.getElementById('cancel-edit-btn').style.display = "inline-block";
+    }
+    
+    function cancelEdit() {
+      currentEditIndex = -1;
+      clearBlockForm();
+      document.getElementById('form-title').textContent = "Добавить блок";
+      document.getElementById('save-block-btn').textContent = "Добавить блок";
+      document.getElementById('cancel-edit-btn').style.display = "none";
+    }
+    
+    function deleteBlock(index) {
+      if (confirm("Удалить этот блок?")) {
+        blocks.splice(index, 1);
+        renderSidebarBlocks();
+        renderBlocks();
+        saveData();
+      }
+    }
+    
+    function moveBlockUp(index) {
+      if (index > 0) {
+        [blocks[index - 1], blocks[index]] = [blocks[index], blocks[index - 1]];
+        renderSidebarBlocks();
+        renderBlocks();
+        saveData();
+      }
+    }
+    
+    function moveBlockDown(index) {
+      if (index < blocks.length - 1) {
+        [blocks[index + 1], blocks[index]] = [blocks[index], blocks[index + 1]];
+        renderSidebarBlocks();
+        renderBlocks();
+        saveData();
+      }
+    }
+    
+    // Drag & Drop для сортировки блоков в боковой панели
+    function allowDrop(ev) { ev.preventDefault(); }
+    function drag(ev) { ev.dataTransfer.setData("text/plain", ev.target.getAttribute("data-index")); }
+    function drop(ev) {
+      ev.preventDefault();
+      let fromIndex = ev.dataTransfer.getData("text/plain");
+      let target = ev.target;
+      // Находим родительский элемент с data-index
+      while (target && !target.getAttribute("data-index")) { target = target.parentElement; }
+      if (!target) return;
+      let toIndex = target.getAttribute("data-index");
+      if (fromIndex !== null && toIndex !== null) {
+        fromIndex = parseInt(fromIndex);
+        toIndex = parseInt(toIndex);
+        if (fromIndex !== toIndex) {
+          let moved = blocks.splice(fromIndex, 1)[0];
+          blocks.splice(toIndex, 0, moved);
+          renderSidebarBlocks();
+          renderBlocks();
+          saveData();
+        }
+      }
+    }
+    
     function renderSidebarBlocks() {
       const blocksList = document.getElementById('blocks-list');
       blocksList.innerHTML = "";
       blocks.forEach((block, index) => {
         const div = document.createElement("div");
-        div.className = "block";
-        div.setAttribute("data-index", index);
+        div.className = "block" + (block.style.customClass ? " " + block.style.customClass : "");
         div.style.backgroundColor = block.style.bgcolor;
         div.style.color = block.style.textcolor;
-        div.innerHTML = "<strong>" + block.title + "</strong><p>" + block.content + "</p>";
-        // Панель действий для блока
+        div.setAttribute("data-index", index);
+        div.setAttribute("draggable", "true");
+        div.addEventListener("dragstart", drag);
+        div.addEventListener("dragover", allowDrop);
+        div.addEventListener("drop", drop);
+        let previewContent = "";
+        if (block.type === "divider") {
+          previewContent = "<hr>";
+        } else if (block.type === "button") {
+          previewContent = `<button style="cursor:pointer;">${block.buttonText}</button>`;
+        } else if (block.type === "quote") {
+          previewContent = `<blockquote>${block.quoteContent}</blockquote>`;
+          if (block.citation) previewContent += `<cite>${block.citation}</cite>`;
+        } else if (block.type === "code") {
+          previewContent = `<pre style="font-family: monospace;">${block.codeContent}</pre>`;
+        } else if (block.type === "container") {
+          previewContent = block.containerDescription ? `<p>${block.containerDescription}</p>` : "";
+          if (block.children && block.children.length > 0) {
+            previewContent += "<div style='margin-left:15px; border-left:2px solid #ccc; padding-left:5px;'>" + renderNestedBlocksHTML(block.children) + "</div>";
+          }
+        } else if (block.type === "text") {
+          previewContent = substituteVariables(block.content);
+        } else if (block.type === "image") {
+          previewContent = `<img src="${block.imageUrl}" style="max-width:100%;">`;
+          if (block.caption) previewContent += `<em>${block.caption}</em>`;
+        } else if (block.type === "video") {
+          previewContent = `<video src="${block.videoUrl}" controls style="max-width:100%;"></video>`;
+          if (block.caption) previewContent += `<em>${block.caption}</em>`;
+        }
+        div.innerHTML = `<strong>${block.title}</strong><p>${previewContent}</p>`;
         const actionsDiv = document.createElement("div");
         actionsDiv.className = "block-actions";
         actionsDiv.innerHTML = `
@@ -302,146 +584,137 @@
         blocksList.appendChild(div);
       });
     }
-
-    // Обновление области с демонстрационным HTML кодом
-    function updateDemoCode() {
-      const demoCode = document.getElementById('demo-code');
-      let codeStr = "";
+    
+    // Функция для отрисовки блоков в превью
+    function renderBlocks() {
+      const preview = document.getElementById('preview');
+      preview.innerHTML = "";
       blocks.forEach(block => {
-        codeStr += `<div class="block-demo" style="background: ${block.style.bgcolor}; color: ${block.style.textcolor};">\n`;
-        codeStr += `  <h3>${block.title}</h3>\n`;
-        codeStr += `  <p>${block.content}</p>\n`;
-        codeStr += `</div>\n\n`;
+        const blockEl = document.createElement("div");
+        blockEl.className = "block" + (block.style.customClass ? " " + block.style.customClass : "");
+        blockEl.style.backgroundColor = block.style.bgcolor;
+        blockEl.style.color = block.style.textcolor;
+        if(block.style.customStyle) { blockEl.style.cssText += " " + block.style.customStyle; }
+        let innerHTML = `<strong>${block.title}</strong><br>`;
+        if (block.type === "divider") {
+          innerHTML += "<hr>";
+        } else if (block.type === "button") {
+          innerHTML += `<a href="${block.buttonUrl}" style="text-decoration:none;"><button style="cursor:pointer;">${block.buttonText}</button></a>`;
+        } else if (block.type === "quote") {
+          innerHTML += `<blockquote>${block.quoteContent}</blockquote>`;
+          if (block.citation) innerHTML += `<cite>${block.citation}</cite>`;
+        } else if (block.type === "code") {
+          innerHTML += `<pre style="font-family: monospace;">${block.codeContent}</pre>`;
+        } else if (block.type === "container") {
+          innerHTML += block.containerDescription ? `<p>${block.containerDescription}</p>` : "";
+          if (block.children && block.children.length > 0) {
+            innerHTML += "<div style='margin-left:15px; border-left:2px solid #ccc; padding-left:5px;'>" + renderNestedBlocksHTML(block.children) + "</div>";
+          }
+        } else if (block.type === "text") {
+          innerHTML += substituteVariables(block.content);
+        } else if (block.type === "image") {
+          innerHTML += `<img src="${block.imageUrl}" alt="${block.title}" style="max-width:100%;"><br>`;
+          if (block.caption) innerHTML += `<em>${block.caption}</em>`;
+        } else if (block.type === "video") {
+          innerHTML += `<video src="${block.videoUrl}" alt="${block.title}" controls style="max-width:100%;"></video><br>`;
+          if (block.caption) innerHTML += `<em>${block.caption}</em>`;
+        }
+        blockEl.innerHTML = innerHTML;
+        preview.appendChild(blockEl);
       });
-      demoCode.textContent = codeStr;
+      updateDemoCode();
     }
-
-    // Добавление или сохранение блока (в зависимости от режима)
-    function saveBlock() {
-      const title = document.getElementById('block-title').value.trim();
-      const content = document.getElementById('block-content').value.trim();
-      const bgcolor = document.getElementById('block-bgcolor').value;
-      const textcolor = document.getElementById('block-textcolor').value;
-      
-      if (!title || !content) {
-        alert("Пожалуйста, заполните заголовок и содержимое блока.");
-        return;
-      }
-      
-      const blockData = {
-        title: title,
-        content: content,
-        style: { bgcolor: bgcolor, textcolor: textcolor }
-      };
-      
-      if (currentEditIndex === -1) {
-        // Режим добавления
-        blocks.push(blockData);
-      } else {
-        // Режим редактирования
-        blocks[currentEditIndex] = blockData;
-        currentEditIndex = -1;
-        document.getElementById('form-title').textContent = "Добавить блок";
-        document.getElementById('save-block-btn').textContent = "Добавить блок";
-        document.getElementById('cancel-edit-btn').style.display = "none";
-      }
-      
-      clearBlockForm();
-      renderSidebarBlocks();
-      renderBlocks();
-      saveData();
+    
+    function renderNestedBlocksHTML(childrenArray) {
+      let html = "";
+      childrenArray.forEach(child => {
+        html += `<div class="nested-block" style="border:1px solid #ddd; padding:5px; margin-bottom:5px; border-radius:5px; background:#fff;">`;
+        html += `<strong>${child.title}</strong><p>${child.content}</p>`;
+        html += `</div>`;
+      });
+      return html;
     }
-
-    // Заполнение формы редактирования блока
-    function editBlock(index) {
-      currentEditIndex = index;
-      const block = blocks[index];
-      document.getElementById('block-title').value = block.title;
-      document.getElementById('block-content').value = block.content;
-      document.getElementById('block-bgcolor').value = block.style.bgcolor;
-      document.getElementById('block-textcolor').value = block.style.textcolor;
-      document.getElementById('form-title').textContent = "Редактировать блок";
-      document.getElementById('save-block-btn').textContent = "Сохранить изменения";
-      document.getElementById('cancel-edit-btn').style.display = "inline-block";
+    
+    // Управление вложенными блоками для контейнерного блока
+    function renderNestedBlocks() {
+      const nestedList = document.getElementById('nested-blocks-list');
+      nestedList.innerHTML = "";
+      currentNestedBlocks.forEach((nblock, index) => {
+        const div = document.createElement("div");
+        div.className = "nested-block";
+        div.innerHTML = `<strong>${nblock.title}</strong><p>${nblock.content}</p>`;
+        const actions = document.createElement("div");
+        actions.className = "nested-block-actions";
+        actions.innerHTML = `
+          <button onclick="editNestedBlock(${index})">Редактировать</button>
+          <button onclick="deleteNestedBlock(${index})">Удалить</button>
+        `;
+        div.appendChild(actions);
+        nestedList.appendChild(div);
+      });
     }
-
-    // Отмена редактирования блока
-    function cancelEdit() {
-      currentEditIndex = -1;
-      clearBlockForm();
-      document.getElementById('form-title').textContent = "Добавить блок";
-      document.getElementById('save-block-btn').textContent = "Добавить блок";
-      document.getElementById('cancel-edit-btn').style.display = "none";
+    
+    function showNestedBlockForm() {
+      document.getElementById('nested-block-form').classList.remove('hidden');
     }
-
-    // Очистка формы блока
-    function clearBlockForm() {
-      document.getElementById('block-title').value = "";
-      document.getElementById('block-content').value = "";
-      document.getElementById('block-bgcolor').value = "#fafafa";
-      document.getElementById('block-textcolor').value = "#333333";
+    
+    function hideNestedBlockForm() {
+      document.getElementById('nested-block-form').classList.add('hidden');
+      document.getElementById('nested-block-title').value = "";
+      document.getElementById('nested-block-content').value = "";
     }
-
-    // Удаление блока
-    function deleteBlock(index) {
-      if (confirm("Удалить этот блок?")) {
-        blocks.splice(index, 1);
-        renderSidebarBlocks();
-        renderBlocks();
-        saveData();
+    
+    function addNestedBlock() {
+      const title = document.getElementById('nested-block-title').value.trim();
+      const content = document.getElementById('nested-block-content').value.trim();
+      if (!title || !content) { alert("Введите заголовок и содержимое вложенного блока"); return; }
+      const nestedBlock = { title: title, content: content };
+      currentNestedBlocks.push(nestedBlock);
+      renderNestedBlocks();
+      hideNestedBlockForm();
+    }
+    
+    function editNestedBlock(index) {
+      const nb = currentNestedBlocks[index];
+      document.getElementById('nested-block-title').value = nb.title;
+      document.getElementById('nested-block-content').value = nb.content;
+      showNestedBlockForm();
+      currentNestedBlocks.splice(index, 1);
+      renderNestedBlocks();
+    }
+    
+    function deleteNestedBlock(index) {
+      if (confirm("Удалить вложенный блок?")) {
+        currentNestedBlocks.splice(index, 1);
+        renderNestedBlocks();
       }
     }
-
-    // Перемещение блока вверх
-    function moveBlockUp(index) {
-      if (index > 0) {
-        [blocks[index - 1], blocks[index]] = [blocks[index], blocks[index - 1]];
-        renderSidebarBlocks();
-        renderBlocks();
-        saveData();
-      }
-    }
-
-    // Перемещение блока вниз
-    function moveBlockDown(index) {
-      if (index < blocks.length - 1) {
-        [blocks[index + 1], blocks[index]] = [blocks[index], blocks[index + 1]];
-        renderSidebarBlocks();
-        renderBlocks();
-        saveData();
-      }
-    }
-
-    // Отрисовка списка переменных
+    
+    // Управление переменными
     function renderVariables() {
       const variablesDiv = document.getElementById('variables');
       variablesDiv.innerHTML = "";
       for (let key in variables) {
-        const varItem = document.createElement('div');
-        varItem.className = 'variable-item';
+        const varItem = document.createElement("div");
+        varItem.className = "variable-item";
         varItem.innerHTML = `<label for="var-${key}">${key}:</label>
-                             <input type="text" id="var-${key}" value="${variables[key]}" oninput="updateVariable('${key}')">
-                             <button class="secondary" onclick="deleteVariable('${key}')">Удалить</button>`;
+          <input type="text" id="var-${key}" value="${variables[key]}" oninput="updateVariable('${key}')">
+          <button class="secondary" onclick="deleteVariable('${key}')">Удалить</button>`;
         variablesDiv.appendChild(varItem);
       }
     }
-
-    // Обновление значения переменной
+    
     function updateVariable(varName) {
       variables[varName] = document.getElementById('var-' + varName).value;
       renderBlocks();
       updateDemoCode();
       saveData();
     }
-
-    // Добавление новой переменной
+    
     function addVariable() {
       const varName = prompt("Введите имя переменной (без фигурных скобок):");
       if (varName) {
-        if (variables.hasOwnProperty(varName)) {
-          alert("Переменная с таким именем уже существует.");
-          return;
-        }
+        if (variables.hasOwnProperty(varName)) { alert("Переменная с таким именем уже существует."); return; }
         const varValue = prompt("Введите значение для переменной " + varName + ":");
         if (varValue !== null) {
           variables[varName] = varValue;
@@ -451,8 +724,7 @@
         }
       }
     }
-
-    // Удаление переменной
+    
     function deleteVariable(varName) {
       if (confirm("Удалить переменную " + varName + "?")) {
         delete variables[varName];
@@ -461,41 +733,109 @@
         saveData();
       }
     }
-
-    // Экспорт кода: копирование содержимого HTML кода в буфер обмена
+    
+    // Формирование сгенерированного HTML кода (рекурсивно)
+    function generateDemoCode(blockArray, indent = "") {
+      let code = "";
+      blockArray.forEach(block => {
+        let styleStr = `background: ${block.style.bgcolor}; color: ${block.style.textcolor};`;
+        if (block.style.customStyle) styleStr += " " + block.style.customStyle;
+        code += indent + `<div class="block-demo ${block.style.customClass}" style="${styleStr}">\n`;
+        code += indent + "  <h3>" + block.title + "</h3>\n";
+        if (block.type === "divider") {
+          code += indent + "  <hr>\n";
+        } else if (block.type === "button") {
+          code += indent + `  <a href="${block.buttonUrl}"><button>${block.buttonText}</button></a>\n`;
+        } else if (block.type === "quote") {
+          code += indent + `  <blockquote>${block.quoteContent}</blockquote>\n`;
+          if (block.citation) code += indent + `  <cite>${block.citation}</cite>\n`;
+        } else if (block.type === "code") {
+          code += indent + `  <pre style="font-family: monospace;">${block.codeContent}</pre>\n`;
+        } else if (block.type === "container") {
+          if (block.containerDescription) code += indent + "  <p>" + block.containerDescription + "</p>\n";
+          if (block.children && block.children.length > 0) {
+            code += generateDemoCode(block.children, indent + "  ");
+          }
+        } else if (block.type === "text") {
+          code += indent + "  <p>" + substituteVariables(block.content) + "</p>\n";
+        } else if (block.type === "image") {
+          code += indent + `  <img src="${block.imageUrl}" alt="${block.title}" style="max-width:100%;">\n`;
+          if (block.caption) code += indent + `  <p><em>${block.caption}</em></p>\n`;
+        } else if (block.type === "video") {
+          code += indent + `  <video src="${block.videoUrl}" controls style="max-width:100%;"></video>\n`;
+          if (block.caption) code += indent + `  <p><em>${block.caption}</em></p>\n`;
+        }
+        code += indent + `</div>\n\n`;
+      });
+      return code;
+    }
+    
+    function updateDemoCode() {
+      const demoCode = document.getElementById('demo-code');
+      demoCode.textContent = generateDemoCode(blocks);
+    }
+    
+    // Экспорт кода в буфер обмена
     function exportCode() {
       const code = document.getElementById('demo-code').textContent;
       navigator.clipboard.writeText(code)
         .then(() => alert("Код скопирован в буфер обмена!"))
         .catch(() => alert("Не удалось скопировать код."));
     }
-
-    // Очистить все данные и сбросить настройки
+    
+    // Сохранение и загрузка данных из localStorage
+    function saveData() {
+      localStorage.setItem("blocks", JSON.stringify(blocks));
+      localStorage.setItem("variables", JSON.stringify(variables));
+    }
+    
+    function loadData() {
+      const savedBlocks = localStorage.getItem("blocks");
+      const savedVariables = localStorage.getItem("variables");
+      if (savedBlocks) {
+        blocks = JSON.parse(savedBlocks);
+      } else {
+        blocks = [{
+          type: "text",
+          title: "Блок 1",
+          content: "Привет, {{username}}! Добро пожаловать в расширенный конструктор блоков.",
+          style: { bgcolor: "#fafafa", textcolor: "#333333", customClass: "", customStyle: "" }
+        }];
+      }
+      if (savedVariables) {
+        variables = JSON.parse(savedVariables);
+      } else {
+        variables = { username: "Иван" };
+      }
+    }
+    
     function clearAll() {
       if (confirm("Вы уверены, что хотите очистить все данные?")) {
         localStorage.clear();
         blocks = [{
+          type: "text",
           title: "Блок 1",
-          content: "Привет, {{username}}! Добро пожаловать в наше мини-приложение.",
-          style: { bgcolor: "#fafafa", textcolor: "#333333" }
+          content: "Привет, {{username}}! Добро пожаловать в расширенный конструктор блоков.",
+          style: { bgcolor: "#fafafa", textcolor: "#333333", customClass: "", customStyle: "" }
         }];
         variables = { username: "Иван" };
         currentEditIndex = -1;
+        currentNestedBlocks = [];
         clearBlockForm();
         renderSidebarBlocks();
         renderBlocks();
         renderVariables();
       }
     }
-
+    
     // Инициализация приложения
     function init() {
       loadData();
       renderSidebarBlocks();
       renderBlocks();
       renderVariables();
+      toggleBlockTypeFields();
     }
-    
     init();
   </script>
 </body>
