@@ -72,7 +72,6 @@
       text-align: center;
       padding: 20px;
     }
-    /* Спиннер подключения */
     .spinner {
       border: 6px solid rgba(255, 255, 255, 0.3);
       border-top: 6px solid #7289DA;
@@ -135,7 +134,7 @@
     header button:hover {
       background-color: #4752c4;
     }
-    /* Блок с аудиопотоками участников */
+    /* Секция с аудиопотоками подключённых участников */
     #remoteAudios {
       padding: 10px;
       background-color: #202225;
@@ -196,7 +195,7 @@
     form button:hover {
       background-color: #4752c4;
     }
-    /* Кнопка для повторного подключения к голосовому чату в чате */
+    /* Кнопка повторного подключения к голосовому чату */
     #voiceChatButton {
       width: 100%;
       padding: 15px;
@@ -234,13 +233,13 @@
     <p>Если у вас уже есть ссылка от друга – откройте её в браузере.</p>
   </div>
 
-  <!-- Экран подключения (индикатор загрузки) -->
+  <!-- Экран подключения -->
   <div id="connectingScreen" class="screen">
     <div class="spinner"></div>
     <p>Соединяемся с голосовым чатом...</p>
   </div>
 
-  <!-- Основной экран комнаты (текстовый чат + голос) -->
+  <!-- Основной экран комнаты -->
   <div id="chatScreen" class="screen">
     <header>
       <h2 id="roomNameDisplay"></h2>
@@ -249,7 +248,7 @@
         <button id="muteButton">Отключить микрофон</button>
       </div>
     </header>
-    <!-- Секция с аудиопотоками подключённых участников -->
+    <!-- Секция аудиопотоков участников -->
     <div id="remoteAudios"></div>
     <!-- Область текстового чата -->
     <div id="chatMessages"></div>
@@ -266,7 +265,7 @@
     <button class="btn" id="retryButton">Повторить попытку</button>
   </div>
 
-  <!-- Элемент для уведомлений (toast) -->
+  <!-- Элемент для toast-уведомлений -->
   <div id="toast"></div>
 
   <script>
@@ -275,7 +274,6 @@
     tg.expand();
 
     /* --------------------- Переменные и утилиты --------------------- */
-    // Генерация уникального идентификатора для каждого участника
     function generateRandomId() {
       return 'id-' + Math.random().toString(36).substr(2, 9);
     }
@@ -283,10 +281,9 @@
     let currentRoom = null;
     let localStream = null;
     let signalingServer = null;
-    let peers = {}; // RTCPeerConnection для каждого участника комнаты
+    let peers = {}; // Объект для RTCPeerConnection каждого участника
     let isMuted = false;
 
-    // Функция для вывода toast-уведомлений
     function showToast(message) {
       const toast = document.getElementById("toast");
       toast.textContent = message;
@@ -294,13 +291,11 @@
       setTimeout(() => { toast.style.opacity = 0; }, 3000);
     }
 
-    // Переключение экранов по id
     function showScreen(screenId) {
       document.querySelectorAll('.screen').forEach(screen => screen.classList.remove('active'));
       document.getElementById(screenId).classList.add('active');
     }
 
-    // Функция для отображения ошибки на специальном экране
     function showErrorScreen(message) {
       document.getElementById("errorMessage").textContent = message;
       showScreen("errorScreen");
@@ -335,7 +330,7 @@
     });
 
     /* --------------------- Управление комнатой --------------------- */
-    // Создание комнаты (доступно, если нет параметра ?room=)
+    // Создание комнаты (если параметр ?room= отсутствует)
     document.getElementById("createRoomButton").addEventListener("click", function() {
       const roomId = 'room-' + Math.random().toString(36).substr(2, 9);
       currentRoom = roomId;
@@ -371,21 +366,19 @@
     function joinRoom(roomId) {
       currentRoom = roomId;
       document.getElementById("roomNameDisplay").textContent = "Комната: " + roomId;
-      // Загружаем историю текстовых сообщений
       if (roomHistory[roomId]) {
         document.getElementById("chatMessages").innerHTML = "";
         roomHistory[roomId].forEach(msg => addMessage(msg.user, msg.text));
       }
-      // Показываем экран подключения
       showScreen("connectingScreen");
       startVoiceChat();
     }
 
     /* --------------------- WebRTC и сигналинг --------------------- */
     const rtcConfig = { iceServers: [{ urls: 'stun:stun.l.google.com:19302' }] };
-    // Инициализация WebSocket-соединения по предоставленному серверу
+
     function initSignaling() {
-      signalingServer = new WebSocket('wss://servwer-yungrezacs-projects.vercel.app/');
+      signalingServer = new WebSocket(location.origin.replace(/^http/, 'ws'));
       signalingServer.onopen = () => {
         signalingServer.send(JSON.stringify({ type: 'join', room: currentRoom, id: myId }));
       };
@@ -408,7 +401,7 @@
         console.error("Signaling error:", error);
       };
     }
-    // Создание оффера для нового участника
+
     function createOffer(peerId) {
       const peerConnection = new RTCPeerConnection(rtcConfig);
       peers[peerId] = peerConnection;
@@ -440,7 +433,7 @@
         })
         .catch(err => console.error("Ошибка создания оффера:", err));
     }
-    // Обработка полученного оффера
+
     function handleOffer(offer, peerId) {
       const peerConnection = new RTCPeerConnection(rtcConfig);
       peers[peerId] = peerConnection;
@@ -473,21 +466,21 @@
         })
         .catch(err => console.error("Ошибка обработки оффера:", err));
     }
-    // Обработка ответа на оффер
+
     function handleAnswer(answer, peerId) {
       const peerConnection = peers[peerId];
       if (peerConnection) {
         peerConnection.setRemoteDescription(answer).catch(err => console.error("Ошибка установки remoteDescription:", err));
       }
     }
-    // Добавление ICE-кандидата
+
     function handleIceCandidate(candidate, peerId) {
       const peerConnection = peers[peerId];
       if (peerConnection) {
         peerConnection.addIceCandidate(candidate).catch(err => console.error("Ошибка добавления ICE кандидата:", err));
       }
     }
-    // Отображение удалённого аудио потока в интерфейсе
+
     function handleRemoteStream(peerId, stream) {
       const remoteAudios = document.getElementById("remoteAudios");
       let audioEl = document.getElementById("audio-" + peerId);
@@ -500,7 +493,7 @@
       }
       audioEl.srcObject = stream;
     }
-    // Запуск голосового чата: запрос к getUserMedia и инициализация сигналинга
+
     function startVoiceChat() {
       if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
         showErrorScreen("Ваш браузер не поддерживает getUserMedia.");
