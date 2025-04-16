@@ -403,10 +403,13 @@
             
             // Настройка кнопки
             tgButton.addEventListener('click', () => {
-                if (window.Telegram?.WebApp) {
-                    Telegram.WebApp.openTelegramLink(redirectUrl);
+                // Проверяем, открыто ли в Telegram WebView
+                if (window.Telegram?.WebApp?.platform) {
+                    // Если открыто в Telegram, открываем Mini App напрямую
+                    Telegram.WebApp.openTelegramLink(`https://t.me/${decodeURIComponent(redirectUrl)}${refCode ? `?startapp=ref&p=${refCode}` : ''}`);
                 } else {
-                    window.location.href = redirectUrl;
+                    // Если открыто в браузере, перенаправляем в бота с параметрами
+                    window.location.href = `https://t.me/PuzzlerefBot?startapp=ref${refCode ? `&p=${refCode}` : ''}&r=${encodeURIComponent(redirectUrl)}`;
                 }
             });
             
@@ -504,7 +507,7 @@
             const refParam = document.getElementById('refParam').value.trim();
             
             // Формируем ссылку для Telegram Mini App
-            const refLink = `https://t.me/furjufjru_bot/startapp=ref&r=${encodeURIComponent(miniAppUrl)}${refParam ? `&p=${encodeURIComponent(refParam)}` : ''}`;
+            const refLink = `${window.location.origin}${window.location.pathname}?r=${encodeURIComponent(miniAppUrl)}${refParam ? `&p=${encodeURIComponent(refParam)}` : ''}`;
             
             document.getElementById('refLink').value = refLink;
             document.getElementById('result').style.display = 'block';
