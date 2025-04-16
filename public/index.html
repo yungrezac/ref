@@ -1,533 +1,575 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-  <meta charset="UTF-8">
-  <!-- Адаптация под мобильные устройства -->
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-  <title>Telegram MiniApp: Голосовой OS-чат</title>
-  <!-- Подключение Telegram Web Apps -->
-  <script src="https://telegram.org/js/telegram-web-app.js"></script>
-  <style>
-    /* Базовый сброс, шрифты и общие настройки */
-    body {
-      margin: 0;
-      padding: 0;
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Ubuntu, sans-serif;
-      background-color: #36393F;
-      color: #FFF;
-      overflow: hidden;
-    }
-    /* Каждый экран (screen) занимает всю область, по умолчанию скрыт */
-    .screen {
-      display: none;
-      height: 100vh;
-      width: 100vw;
-    }
-    .active {
-      display: block;
-      animation: fadeInScreen 0.4s;
-    }
-    @keyframes fadeInScreen {
-      from { opacity: 0; }
-      to { opacity: 1; }
-    }
-    /* Экран приветствия (создания комнаты) */
-    #welcomeScreen {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      text-align: center;
-      padding: 20px;
-      flex-direction: column;
-    }
-    #welcomeScreen h2 {
-      font-size: 26px;
-      margin-bottom: 20px;
-    }
-    .btn {
-      padding: 15px 20px;
-      background-color: #7289DA;
-      border: none;
-      border-radius: 5px;
-      color: #FFF;
-      font-size: 16px;
-      margin-bottom: 15px;
-      width: 80%;
-      cursor: pointer;
-      transition: background-color 0.3s;
-    }
-    .btn:hover {
-      background-color: #5e6fbf;
-    }
-    #welcomeScreen p {
-      font-size: 14px;
-      margin-top: 10px;
-    }
-    /* Экран подключения с индикатором загрузки */
-    #connectingScreen {
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      text-align: center;
-      padding: 20px;
-    }
-    .spinner {
-      border: 6px solid rgba(255, 255, 255, 0.3);
-      border-top: 6px solid #7289DA;
-      border-radius: 50%;
-      width: 50px;
-      height: 50px;
-      animation: spin 1s linear infinite;
-      margin-bottom: 15px;
-    }
-    @keyframes spin {
-      from { transform: rotate(0deg); }
-      to   { transform: rotate(360deg); }
-    }
-    /* Экран ошибки */
-    #errorScreen {
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      text-align: center;
-      padding: 20px;
-    }
-    #errorScreen p {
-      font-size: 16px;
-      margin-bottom: 20px;
-      color: #FF5555;
-    }
-    /* Основной экран чата */
-    #chatScreen {
-      display: flex;
-      flex-direction: column;
-      height: 100vh;
-      width: 100vw;
-    }
-    header {
-      background-color: #202225;
-      padding: 15px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-    header h2 {
-      margin: 0;
-      font-size: 20px;
-    }
-    header .header-buttons {
-      display: flex;
-      gap: 10px;
-    }
-    header button {
-      font-size: 14px;
-      background-color: #5865F2;
-      border: none;
-      border-radius: 3px;
-      color: #FFF;
-      padding: 10px;
-      cursor: pointer;
-      transition: background-color 0.3s;
-    }
-    header button:hover {
-      background-color: #4752c4;
-    }
-    /* Секция с аудиопотоками подключённых участников */
-    #remoteAudios {
-      padding: 10px;
-      background-color: #202225;
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
-      overflow-x: auto;
-    }
-    #remoteAudios audio {
-      width: 80px;
-      height: 80px;
-      border-radius: 50%;
-      background: #5865F2;
-    }
-    /* Область текстового чата */
-    #chatMessages {
-      flex: 1;
-      padding: 15px;
-      background-color: #36393F;
-      overflow-y: auto;
-      word-wrap: break-word;
-    }
-    .message {
-      margin-bottom: 10px;
-      animation: fadeIn 0.3s;
-    }
-    .message span.user {
-      font-weight: bold;
-      color: #00B0F4;
-    }
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(10px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-    /* Форма отправки сообщений */
-    form {
-      display: flex;
-      border-top: 1px solid #333;
-      background-color: #40444B;
-    }
-    form input {
-      flex: 1;
-      padding: 15px;
-      border: none;
-      font-size: 16px;
-      background-color: #40444B;
-      color: #FFF;
-    }
-    form button {
-      padding: 15px;
-      background-color: #5865F2;
-      border: none;
-      font-size: 16px;
-      color: #FFF;
-      cursor: pointer;
-      transition: background-color 0.3s;
-    }
-    form button:hover {
-      background-color: #4752c4;
-    }
-    /* Кнопка повторного подключения к голосовому чату */
-    #voiceChatButton {
-      width: 100%;
-      padding: 15px;
-      border: none;
-      background-color: #43B581;
-      font-size: 16px;
-      color: #FFF;
-      cursor: pointer;
-      transition: background-color 0.3s;
-    }
-    #voiceChatButton:hover {
-      background-color: #369c6d;
-    }
-    /* Toast-уведомление (всплывающее сообщение) */
-    #toast {
-      position: fixed;
-      bottom: 20px;
-      left: 50%;
-      transform: translateX(-50%);
-      background: rgba(0, 0, 0, 0.8);
-      color: #FFF;
-      padding: 12px 20px;
-      border-radius: 5px;
-      opacity: 0;
-      transition: opacity 0.5s;
-      z-index: 1000;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Конструктор Telegram ботов</title>
+    <style>
+        :root {
+            --primary-color: #0088cc;
+            --secondary-color: #f0f2f5;
+            --sidebar-width: 300px;
+        }
+        
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+        }
+        
+        /* Сайдбар */
+        .sidebar {
+            width: var(--sidebar-width);
+            background-color: var(--secondary-color);
+            border-right: 1px solid #ddd;
+            padding: 20px;
+            overflow-y: auto;
+        }
+        
+        .sidebar-section {
+            margin-bottom: 25px;
+        }
+        
+        .sidebar-title {
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: #555;
+            font-size: 14px;
+            text-transform: uppercase;
+        }
+        
+        /* Основное рабочее пространство */
+        .workspace {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        
+        /* Панель инструментов */
+        .toolbar {
+            padding: 10px 20px;
+            background-color: var(--primary-color);
+            color: white;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .toolbar-actions button {
+            background-color: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            padding: 8px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-left: 10px;
+            transition: background-color 0.2s;
+        }
+        
+        .toolbar-actions button:hover {
+            background-color: rgba(255, 255, 255, 0.3);
+        }
+        
+        /* Область редактирования бота */
+        .bot-editor {
+            flex: 1;
+            display: flex;
+            overflow: hidden;
+        }
+        
+        /* Дерево сценариев */
+        .scenarios-tree {
+            width: 250px;
+            border-right: 1px solid #ddd;
+            padding: 15px;
+            overflow-y: auto;
+        }
+        
+        .scenario-item {
+            padding: 8px 10px;
+            margin-bottom: 5px;
+            border-radius: 4px;
+            cursor: pointer;
+            background-color: #f8f8f8;
+            transition: all 0.2s;
+        }
+        
+        .scenario-item:hover {
+            background-color: #e9e9e9;
+        }
+        
+        .scenario-item.active {
+            background-color: var(--primary-color);
+            color: white;
+        }
+        
+        /* Редактор сценария */
+        .scenario-editor {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+        }
+        
+        .scenario-title {
+            font-size: 18px;
+            margin-bottom: 20px;
+            font-weight: 600;
+        }
+        
+        /* Блоки команд */
+        .command-block {
+            background-color: white;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            padding: 15px;
+            margin-bottom: 15px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+        
+        .command-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+        
+        .command-title {
+            font-weight: 600;
+        }
+        
+        .command-actions button {
+            background: none;
+            border: none;
+            color: #777;
+            cursor: pointer;
+            margin-left: 5px;
+        }
+        
+        .command-actions button:hover {
+            color: var(--primary-color);
+        }
+        
+        /* Формы */
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-size: 14px;
+            color: #555;
+        }
+        
+        .form-group input, 
+        .form-group textarea, 
+        .form-group select {
+            width: 100%;
+            padding: 8px 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        
+        .form-group textarea {
+            min-height: 80px;
+            resize: vertical;
+        }
+        
+        /* Кнопки */
+        .btn {
+            padding: 8px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        
+        .btn-primary {
+            background-color: var(--primary-color);
+            color: white;
+        }
+        
+        .btn-secondary {
+            background-color: #e0e0e0;
+            color: #333;
+        }
+        
+        /* Drag and drop элементы */
+        .draggable-item {
+            padding: 10px;
+            background-color: white;
+            border: 1px dashed #ccc;
+            border-radius: 4px;
+            margin-bottom: 8px;
+            cursor: move;
+            text-align: center;
+            transition: all 0.2s;
+        }
+        
+        .draggable-item:hover {
+            border-color: var(--primary-color);
+            background-color: #f5f9ff;
+        }
+        
+        /* Предпросмотр бота */
+        .bot-preview {
+            width: 350px;
+            border-left: 1px solid #ddd;
+            padding: 15px;
+            overflow-y: auto;
+            background-color: #e9ecef;
+        }
+        
+        .preview-container {
+            background-color: white;
+            border-radius: 10px;
+            padding: 15px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            height: 600px;
+            overflow-y: auto;
+        }
+    </style>
 </head>
 <body>
-  <!-- Экран приветствия/создания комнаты -->
-  <div id="welcomeScreen" class="screen">
-    <h2>Добро пожаловать в Голосовой OS-чат</h2>
-    <button class="btn" id="createRoomButton">Создать комнату</button>
-    <p>Если у вас уже есть ссылка от друга – откройте её в браузере.</p>
-  </div>
+    <!-- Сайдбар с элементами бота -->
+    <div class="sidebar">
+        <div class="sidebar-section">
+            <div class="sidebar-title">Основные команды</div>
+            <div class="draggable-item" draggable="true" data-type="command">Команда /start</div>
+            <div class="draggable-item" draggable="true" data-type="command">Команда /help</div>
+            <div class="draggable-item" draggable="true" data-type="command">Произвольная команда</div>
+        </div>
+        
+        <div class="sidebar-section">
+            <div class="sidebar-title">Типы сообщений</div>
+            <div class="draggable-item" draggable="true" data-type="text">Текстовое сообщение</div>
+            <div class="draggable-item" draggable="true" data-type="image">Изображение</div>
+            <div class="draggable-item" draggable="true" data-type="video">Видео</div>
+            <div class="draggable-item" draggable="true" data-type="audio">Аудио</div>
+            <div class="draggable-item" draggable="true" data-type="document">Документ</div>
+        </div>
+        
+        <div class="sidebar-section">
+            <div class="sidebar-title">Интерактивные элементы</div>
+            <div class="draggable-item" draggable="true" data-type="keyboard">Клавиатура</div>
+            <div class="draggable-item" draggable="true" data-type="inline-keyboard">Inline-кнопки</div>
+            <div class="draggable-item" draggable="true" data-type="menu">Меню</div>
+        </div>
+        
+        <div class="sidebar-section">
+            <div class="sidebar-title">Логика бота</div>
+            <div class="draggable-item" draggable="true" data-type="condition">Условие</div>
+            <div class="draggable-item" draggable="true" data-type="variable">Переменная</div>
+            <div class="draggable-item" draggable="true" data-type="api">API запрос</div>
+            <div class="draggable-item" draggable="true" data-type="database">Работа с БД</div>
+        </div>
+        
+        <div class="sidebar-section">
+            <div class="sidebar-title">Дополнительно</div>
+            <div class="draggable-item" draggable="true" data-type="payment">Платежи</div>
+            <div class="draggable-item" draggable="true" data-type="notification">Уведомление</div>
+            <div class="draggable-item" draggable="true" data-type="delay">Задержка</div>
+        </div>
+    </div>
+    
+    <!-- Основное рабочее пространство -->
+    <div class="workspace">
+        <!-- Панель инструментов -->
+        <div class="toolbar">
+            <div class="toolbar-title">
+                <h2>Конструктор Telegram ботов</h2>
+            </div>
+            <div class="toolbar-actions">
+                <button id="save-btn">Сохранить</button>
+                <button id="export-btn">Экспортировать бота</button>
+                <button id="test-btn">Тестировать</button>
+                <button id="publish-btn">Опубликовать</button>
+            </div>
+        </div>
+        
+        <!-- Редактор бота -->
+        <div class="bot-editor">
+            <!-- Дерево сценариев -->
+            <div class="scenarios-tree">
+                <div class="scenario-item active">Главное меню</div>
+                <div class="scenario-item">Регистрация</div>
+                <div class="scenario-item">Оплата</div>
+                <div class="scenario-item">Техподдержка</div>
+                <div class="scenario-item">FAQ</div>
+                <button class="btn btn-primary" style="width: 100%; margin-top: 10px;">+ Добавить сценарий</button>
+            </div>
+            
+            <!-- Редактор сценария -->
+            <div class="scenario-editor">
+                <div class="scenario-title">Главное меню</div>
+                
+                <!-- Команда /start -->
+                <div class="command-block">
+                    <div class="command-header">
+                        <div class="command-title">Команда /start</div>
+                        <div class="command-actions">
+                            <button title="Удалить">🗑️</button>
+                            <button title="Дублировать">⎘</button>
+                            <button title="Настройки">⚙️</button>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Ответ бота:</label>
+                        <textarea>Привет! Я бот-помощник. Чем могу помочь?</textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>Клавиатура:</label>
+                        <input type="text" value="Регистрация | Оплата | Поддержка | FAQ">
+                    </div>
+                </div>
+                
+                <!-- Текстовый ответ -->
+                <div class="command-block">
+                    <div class="command-header">
+                        <div class="command-title">Текстовое сообщение</div>
+                        <div class="command-actions">
+                            <button title="Удалить">🗑️</button>
+                            <button title="Дублировать">⎘</button>
+                            <button title="Настройки">⚙️</button>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Условие (если текст содержит):</label>
+                        <input type="text" placeholder="Оставьте пустым для выполнения всегда">
+                    </div>
+                    <div class="form-group">
+                        <label>Ответ бота:</label>
+                        <textarea>Выберите один из вариантов меню</textarea>
+                    </div>
+                </div>
+                
+                <!-- Inline-кнопки -->
+                <div class="command-block">
+                    <div class="command-header">
+                        <div class="command-title">Inline-кнопки</div>
+                        <div class="command-actions">
+                            <button title="Удалить">🗑️</button>
+                            <button title="Дублировать">⎘</button>
+                            <button title="Настройки">⚙️</button>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Условие:</label>
+                        <input type="text" placeholder="callback_data кнопки">
+                    </div>
+                    <div class="form-group">
+                        <label>Ответ бота:</label>
+                        <textarea>Вы нажали кнопку. Вот дополнительная информация...</textarea>
+                    </div>
+                </div>
+                
+                <button class="btn btn-secondary">+ Добавить действие</button>
+            </div>
+            
+            <!-- Предпросмотр бота -->
+            <div class="bot-preview">
+                <div class="preview-container">
+                    <h3 style="text-align: center; margin-bottom: 20px;">Предпросмотр бота</h3>
+                    
+                    <!-- Пример чата -->
+                    <div style="background-color: #e2f3ff; padding: 10px; border-radius: 10px; margin-bottom: 10px; width: 80%;">
+                        <strong>Пользователь:</strong> /start
+                    </div>
+                    
+                    <div style="background-color: #fff; padding: 10px; border-radius: 10px; margin-bottom: 10px; width: 80%; margin-left: auto; border: 1px solid #e0e0e0;">
+                        <strong>Бот:</strong> Привет! Я бот-помощник. Чем могу помочь?
+                        <div style="margin-top: 10px;">
+                            <button style="padding: 5px 10px; margin-right: 5px; margin-bottom: 5px; background-color: #0088cc; color: white; border: none; border-radius: 5px;">Регистрация</button>
+                            <button style="padding: 5px 10px; margin-right: 5px; margin-bottom: 5px; background-color: #0088cc; color: white; border: none; border-radius: 5px;">Оплата</button>
+                            <button style="padding: 5px 10px; margin-right: 5px; margin-bottom: 5px; background-color: #0088cc; color: white; border: none; border-radius: 5px;">Поддержка</button>
+                            <button style="padding: 5px 10px; margin-right: 5px; margin-bottom: 5px; background-color: #0088cc; color: white; border: none; border-radius: 5px;">FAQ</button>
+                        </div>
+                    </div>
+                    
+                    <div style="background-color: #e2f3ff; padding: 10px; border-radius: 10px; margin-bottom: 10px; width: 80%;">
+                        <strong>Пользователь:</strong> Привет
+                    </div>
+                    
+                    <div style="background-color: #fff; padding: 10px; border-radius: 10px; margin-bottom: 10px; width: 80%; margin-left: auto; border: 1px solid #e0e0e0;">
+                        <strong>Бот:</strong> Выберите один из вариантов меню
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 
-  <!-- Экран подключения -->
-  <div id="connectingScreen" class="screen">
-    <div class="spinner"></div>
-    <p>Соединяемся с голосовым чатом...</p>
-  </div>
-
-  <!-- Основной экран комнаты -->
-  <div id="chatScreen" class="screen">
-    <header>
-      <h2 id="roomNameDisplay"></h2>
-      <div class="header-buttons">
-        <button id="copyLinkButton">Поделиться</button>
-        <button id="muteButton">Отключить микрофон</button>
-      </div>
-    </header>
-    <!-- Секция аудиопотоков участников -->
-    <div id="remoteAudios"></div>
-    <!-- Область текстового чата -->
-    <div id="chatMessages"></div>
-    <form id="messageForm">
-      <input type="text" id="messageInput" placeholder="Ваше сообщение" autocomplete="off" required>
-      <button type="submit">Отправить</button>
-    </form>
-    <button id="voiceChatButton">Переподключиться к голосовому чату</button>
-  </div>
-
-  <!-- Экран ошибки -->
-  <div id="errorScreen" class="screen">
-    <p id="errorMessage">Произошла ошибка</p>
-    <button class="btn" id="retryButton">Повторить попытку</button>
-  </div>
-
-  <!-- Элемент для toast-уведомлений -->
-  <div id="toast"></div>
-
-  <script>
-    // Инициализация Telegram Web Apps
-    const tg = window.Telegram.WebApp;
-    tg.expand();
-
-    /* --------------------- Переменные и утилиты --------------------- */
-    function generateRandomId() {
-      return 'id-' + Math.random().toString(36).substr(2, 9);
-    }
-    let myId = generateRandomId();
-    let currentRoom = null;
-    let localStream = null;
-    let signalingServer = null;
-    let peers = {}; // Объект для RTCPeerConnection каждого участника
-    let isMuted = false;
-
-    function showToast(message) {
-      const toast = document.getElementById("toast");
-      toast.textContent = message;
-      toast.style.opacity = 1;
-      setTimeout(() => { toast.style.opacity = 0; }, 3000);
-    }
-
-    function showScreen(screenId) {
-      document.querySelectorAll('.screen').forEach(screen => screen.classList.remove('active'));
-      document.getElementById(screenId).classList.add('active');
-    }
-
-    function showErrorScreen(message) {
-      document.getElementById("errorMessage").textContent = message;
-      showScreen("errorScreen");
-    }
-
-    /* --------------------- Текстовый чат --------------------- */
-    const roomHistory = {};
-    function addMessage(user, text) {
-      const chatMessages = document.getElementById("chatMessages");
-      const messageEl = document.createElement("div");
-      messageEl.className = "message";
-      messageEl.innerHTML = '<span class="user">' + user + ':</span> ' + text;
-      chatMessages.appendChild(messageEl);
-      chatMessages.scrollTop = chatMessages.scrollHeight;
-      if (currentRoom) {
-        if (!roomHistory[currentRoom]) roomHistory[currentRoom] = [];
-        roomHistory[currentRoom].push({ user, text });
-      }
-    }
-    document.getElementById("messageForm").addEventListener("submit", function(e) {
-      e.preventDefault();
-      const input = document.getElementById("messageInput");
-      if (!currentRoom) {
-        showToast("Сначала создайте или выберите комнату.");
-        return;
-      }
-      const message = input.value.trim();
-      if (message !== "") {
-        addMessage("Вы", message);
-        input.value = "";
-      }
-    });
-
-    /* --------------------- Управление комнатой --------------------- */
-    // Создание комнаты (если параметр ?room= отсутствует)
-    document.getElementById("createRoomButton").addEventListener("click", function() {
-      const roomId = 'room-' + Math.random().toString(36).substr(2, 9);
-      currentRoom = roomId;
-      window.history.pushState({ room: roomId }, "", '?room=' + roomId);
-      joinRoom(roomId);
-    });
-    // Копирование ссылки на комнату
-    document.getElementById("copyLinkButton").addEventListener("click", function() {
-      const url = window.location.href;
-      navigator.clipboard.writeText(url).then(() => {
-        showToast("Ссылка скопирована!");
-      }).catch(() => {
-        showToast("Ошибка копирования ссылки.");
-      });
-    });
-    // Переподключение к голосовому чату
-    document.getElementById("voiceChatButton").addEventListener("click", function() {
-      if (!currentRoom) {
-        showToast("Сначала создайте или выберите комнату.");
-        return;
-      }
-      startVoiceChat();
-    });
-    // Переключение микрофона (mute/unmute)
-    document.getElementById("muteButton").addEventListener("click", function() {
-      if (!localStream) return;
-      isMuted = !isMuted;
-      localStream.getAudioTracks().forEach(track => track.enabled = !isMuted);
-      this.textContent = isMuted ? "Включить микрофон" : "Отключить микрофон";
-      showToast(isMuted ? "Микрофон отключен" : "Микрофон включен");
-    });
-    // Функция подключения к комнате
-    function joinRoom(roomId) {
-      currentRoom = roomId;
-      document.getElementById("roomNameDisplay").textContent = "Комната: " + roomId;
-      if (roomHistory[roomId]) {
-        document.getElementById("chatMessages").innerHTML = "";
-        roomHistory[roomId].forEach(msg => addMessage(msg.user, msg.text));
-      }
-      showScreen("connectingScreen");
-      startVoiceChat();
-    }
-
-    /* --------------------- WebRTC и сигналинг --------------------- */
-    const rtcConfig = { iceServers: [{ urls: 'stun:stun.l.google.com:19302' }] };
-
-    function initSignaling() {
-      signalingServer = new WebSocket(location.origin.replace(/^http/, 'ws'));
-      signalingServer.onopen = () => {
-        signalingServer.send(JSON.stringify({ type: 'join', room: currentRoom, id: myId }));
-      };
-      signalingServer.onmessage = function(event) {
-        const msg = JSON.parse(event.data);
-        if (msg.id === myId) return;
-        if (msg.target && msg.target !== myId) return;
-        if (msg.type === 'join') {
-          createOffer(msg.id);
-        } else if (msg.type === 'offer') {
-          handleOffer(msg.offer, msg.id);
-        } else if (msg.type === 'answer') {
-          handleAnswer(msg.answer, msg.id);
-        } else if (msg.type === 'ice-candidate') {
-          handleIceCandidate(msg.candidate, msg.id);
-        }
-      };
-      signalingServer.onerror = function(error) {
-        showToast("Ошибка подключения к серверу сигнализации");
-        console.error("Signaling error:", error);
-      };
-    }
-
-    function createOffer(peerId) {
-      const peerConnection = new RTCPeerConnection(rtcConfig);
-      peers[peerId] = peerConnection;
-      localStream.getTracks().forEach(track => peerConnection.addTrack(track, localStream));
-      peerConnection.onicecandidate = (event) => {
-        if (event.candidate) {
-          signalingServer.send(JSON.stringify({
-            type: "ice-candidate",
-            candidate: event.candidate,
-            id: myId,
-            target: peerId,
-            room: currentRoom
-          }));
-        }
-      };
-      peerConnection.ontrack = (event) => {
-        handleRemoteStream(peerId, event.streams[0]);
-      };
-      peerConnection.createOffer()
-        .then(offer => peerConnection.setLocalDescription(offer))
-        .then(() => {
-          signalingServer.send(JSON.stringify({
-            type: 'offer',
-            offer: peerConnection.localDescription,
-            id: myId,
-            target: peerId,
-            room: currentRoom
-          }));
-        })
-        .catch(err => console.error("Ошибка создания оффера:", err));
-    }
-
-    function handleOffer(offer, peerId) {
-      const peerConnection = new RTCPeerConnection(rtcConfig);
-      peers[peerId] = peerConnection;
-      localStream.getTracks().forEach(track => peerConnection.addTrack(track, localStream));
-      peerConnection.onicecandidate = (event) => {
-        if (event.candidate) {
-          signalingServer.send(JSON.stringify({
-            type: "ice-candidate",
-            candidate: event.candidate,
-            id: myId,
-            target: peerId,
-            room: currentRoom
-          }));
-        }
-      };
-      peerConnection.ontrack = (event) => {
-        handleRemoteStream(peerId, event.streams[0]);
-      };
-      peerConnection.setRemoteDescription(offer)
-        .then(() => peerConnection.createAnswer())
-        .then(answer => peerConnection.setLocalDescription(answer).then(() => answer))
-        .then(answer => {
-          signalingServer.send(JSON.stringify({
-            type: 'answer',
-            answer: answer,
-            id: myId,
-            target: peerId,
-            room: currentRoom
-          }));
-        })
-        .catch(err => console.error("Ошибка обработки оффера:", err));
-    }
-
-    function handleAnswer(answer, peerId) {
-      const peerConnection = peers[peerId];
-      if (peerConnection) {
-        peerConnection.setRemoteDescription(answer).catch(err => console.error("Ошибка установки remoteDescription:", err));
-      }
-    }
-
-    function handleIceCandidate(candidate, peerId) {
-      const peerConnection = peers[peerId];
-      if (peerConnection) {
-        peerConnection.addIceCandidate(candidate).catch(err => console.error("Ошибка добавления ICE кандидата:", err));
-      }
-    }
-
-    function handleRemoteStream(peerId, stream) {
-      const remoteAudios = document.getElementById("remoteAudios");
-      let audioEl = document.getElementById("audio-" + peerId);
-      if (!audioEl) {
-        audioEl = document.createElement("audio");
-        audioEl.id = "audio-" + peerId;
-        audioEl.autoplay = true;
-        audioEl.controls = false;
-        remoteAudios.appendChild(audioEl);
-      }
-      audioEl.srcObject = stream;
-    }
-
-    function startVoiceChat() {
-      if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-        showErrorScreen("Ваш браузер не поддерживает getUserMedia.");
-        return;
-      }
-      navigator.mediaDevices.getUserMedia({ audio: true })
-        .then(stream => {
-          localStream = stream;
-          showToast("Голосовой чат запущен");
-          if (!signalingServer || signalingServer.readyState !== WebSocket.OPEN) {
-            initSignaling();
-          }
-          setTimeout(() => { showScreen("chatScreen"); }, 500);
-        })
-        .catch(err => {
-          console.error("Ошибка доступа к микрофону:", err);
-          showErrorScreen("Не удалось получить доступ к микрофону. Обновите страницу и попробуйте снова.");
+    <script>
+        // Здесь будет основной JavaScript код для функциональности конструктора
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            // Drag and drop функциональность
+            const draggableItems = document.querySelectorAll('.draggable-item');
+            const scenarioEditor = document.querySelector('.scenario-editor');
+            
+            draggableItems.forEach(item => {
+                item.addEventListener('dragstart', function(e) {
+                    e.dataTransfer.setData('text/plain', item.dataset.type);
+                });
+            });
+            
+            scenarioEditor.addEventListener('dragover', function(e) {
+                e.preventDefault();
+            });
+            
+            scenarioEditor.addEventListener('drop', function(e) {
+                e.preventDefault();
+                const type = e.dataTransfer.getData('text/plain');
+                
+                // Создаем новый блок команды в зависимости от типа
+                let newBlock;
+                
+                switch(type) {
+                    case 'command':
+                        newBlock = createCommandBlock();
+                        break;
+                    case 'text':
+                        newBlock = createTextBlock();
+                        break;
+                    case 'keyboard':
+                        newBlock = createKeyboardBlock();
+                        break;
+                    // Добавьте другие case для разных типов блоков
+                    default:
+                        newBlock = createDefaultBlock(type);
+                }
+                
+                // Вставляем новый блок перед кнопкой "Добавить действие"
+                const addButton = scenarioEditor.querySelector('.btn-secondary');
+                scenarioEditor.insertBefore(newBlock, addButton);
+            });
+            
+            // Функция создания блока команды
+            function createCommandBlock() {
+                const block = document.createElement('div');
+                block.className = 'command-block';
+                block.innerHTML = `
+                    <div class="command-header">
+                        <div class="command-title">Новая команда</div>
+                        <div class="command-actions">
+                            <button title="Удалить">🗑️</button>
+                            <button title="Дублировать">⎘</button>
+                            <button title="Настройки">⚙️</button>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Команда (без /):</label>
+                        <input type="text" placeholder="Введите название команды">
+                    </div>
+                    <div class="form-group">
+                        <label>Ответ бота:</label>
+                        <textarea placeholder="Введите ответ бота на эту команду"></textarea>
+                    </div>
+                `;
+                return block;
+            }
+            
+            // Функция создания текстового блока
+            function createTextBlock() {
+                const block = document.createElement('div');
+                block.className = 'command-block';
+                block.innerHTML = `
+                    <div class="command-header">
+                        <div class="command-title">Текстовый ответ</div>
+                        <div class="command-actions">
+                            <button title="Удалить">🗑️</button>
+                            <button title="Дублировать">⎘</button>
+                            <button title="Настройки">⚙️</button>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Условие (если текст содержит):</label>
+                        <input type="text" placeholder="Оставьте пустым для выполнения всегда">
+                    </div>
+                    <div class="form-group">
+                        <label>Ответ бота:</label>
+                        <textarea placeholder="Введите текст ответа"></textarea>
+                    </div>
+                `;
+                return block;
+            }
+            
+            // Функция создания блока клавиатуры
+            function createKeyboardBlock() {
+                const block = document.createElement('div');
+                block.className = 'command-block';
+                block.innerHTML = `
+                    <div class="command-header">
+                        <div class="command-title">Клавиатура</div>
+                        <div class="command-actions">
+                            <button title="Удалить">🗑️</button>
+                            <button title="Дублировать">⎘</button>
+                            <button title="Настройки">⚙️</button>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Кнопки (разделяйте | для строк):</label>
+                        <input type="text" placeholder="Кнопка 1 | Кнопка 2 | Кнопка 3">
+                    </div>
+                `;
+                return block;
+            }
+            
+            // Функция создания блока по умолчанию
+            function createDefaultBlock(type) {
+                const block = document.createElement('div');
+                block.className = 'command-block';
+                block.innerHTML = `
+                    <div class="command-header">
+                        <div class="command-title">Новый элемент (${type})</div>
+                        <div class="command-actions">
+                            <button title="Удалить">🗑️</button>
+                            <button title="Дублировать">⎘</button>
+                            <button title="Настройки">⚙️</button>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Настройки элемента:</label>
+                        <input type="text" placeholder="Настройте элемент">
+                    </div>
+                `;
+                return block;
+            }
+            
+            // Обработчики кнопок в тулбаре
+            document.getElementById('save-btn').addEventListener('click', function() {
+                alert('Бот сохранен!');
+            });
+            
+            document.getElementById('export-btn').addEventListener('click', function() {
+                alert('Экспорт бота в выбранный формат');
+            });
+            
+            document.getElementById('test-btn').addEventListener('click', function() {
+                alert('Запуск тестового режима бота');
+            });
+            
+            document.getElementById('publish-btn').addEventListener('click', function() {
+                alert('Публикация бота на сервер');
+            });
+            
+            // Переключение между сценариями
+            const scenarioItems = document.querySelectorAll('.scenario-item');
+            scenarioItems.forEach(item => {
+                item.addEventListener('click', function() {
+                    scenarioItems.forEach(i => i.classList.remove('active'));
+                    this.classList.add('active');
+                    // Здесь должна быть логика загрузки другого сценария
+                });
+            });
         });
-    }
-
-    /* --------------------- Обработка загрузки страницы --------------------- */
-    window.addEventListener('load', function() {
-      const params = new URLSearchParams(window.location.search);
-      if (params.has('room')) {
-        const roomId = params.get('room');
-        joinRoom(roomId);
-      } else {
-        showScreen("welcomeScreen");
-      }
-    });
-    // Обработка кнопки Повторить попытку на экране ошибки
-    document.getElementById("retryButton").addEventListener("click", function() {
-      window.location.reload();
-    });
-  </script>
+    </script>
 </body>
 </html>
