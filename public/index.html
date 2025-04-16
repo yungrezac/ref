@@ -3,9 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Реферальная система</title>
+    <title>PuzzleRef Service</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
@@ -762,90 +761,6 @@
         .notification-unread {
             background: var(--primary-light);
         }
-
-        /* Dark mode styles */
-        body.dark-mode {
-            --bg: #121212;
-            --card-bg: #1e1e1e;
-            --text: #ffffff;
-            --text-light: #b0b0b0;
-            --border: #333333;
-            --primary-light: #1a3a4d;
-        }
-
-        body.dark-mode .form-control {
-            background-color: #2d2d2d;
-            color: #ffffff;
-            border-color: #444;
-        }
-
-        body.dark-mode .result-input {
-            background-color: #2d2d2d;
-            color: #ffffff;
-        }
-
-        body.dark-mode .dropdown-content {
-            background-color: #2d2d2d;
-            box-shadow: 0 8px 16px rgba(0,0,0,0.3);
-        }
-
-        body.dark-mode .dropdown-item {
-            color: #ffffff;
-        }
-
-        body.dark-mode .dropdown-item:hover {
-            background-color: #3a3a3a;
-        }
-
-        body.dark-mode .modal-content {
-            background-color: #2d2d2d;
-            color: #ffffff;
-        }
-
-        body.dark-mode .modal-header,
-        body.dark-mode .modal-footer {
-            border-color: #444;
-        }
-
-        body.dark-mode .btn-outline {
-            color: var(--primary);
-            border-color: var(--primary);
-            background-color: transparent;
-        }
-
-        body.dark-mode .btn-outline:hover {
-            background-color: rgba(0, 136, 204, 0.2);
-        }
-
-        /* Loading spinner */
-        .spinner {
-            width: 40px;
-            height: 40px;
-            margin: 20px auto;
-            border: 4px solid rgba(0, 136, 204, 0.1);
-            border-radius: 50%;
-            border-top-color: var(--primary);
-            animation: spin 1s ease-in-out infinite;
-        }
-
-        /* Responsive adjustments */
-        @media (max-width: 480px) {
-            .card-header {
-                padding: 16px;
-            }
-            
-            .card-body {
-                padding: 16px;
-            }
-            
-            .stats-grid {
-                grid-template-columns: 1fr;
-            }
-            
-            .modal-content {
-                width: 95%;
-            }
-        }
     </style>
 </head>
 <body>
@@ -906,7 +821,7 @@
                         <textarea id="campaignDescription" class="form-control" rows="3" placeholder="Описание вашей компании"></textarea>
                     </div>
                     <div class="form-group">
-                        <label for="campaignLink">Ссылка на сайт</label>
+                        <label for="campaignLink">Ссылка на Miniapp</label>
                         <input type="text" id="campaignLink" class="form-control" placeholder="https://example.com">
                     </div>
                     <div class="form-group">
@@ -1048,7 +963,7 @@
                     <!-- Вкладка генератора -->
                     <div class="tab-content active" id="generatorTab">
                         <div class="form-group">
-                            <label for="miniAppUrl"><i class="fas fa-external-link-alt"></i> Ссылка на сайт</label>
+                            <label for="miniAppUrl"><i class="fas fa-external-link-alt"></i> Ссылка на Miniapp</label>
                             <input type="text" id="miniAppUrl" class="form-control" placeholder="https://example.com">
                         </div>
                         <div class="form-group">
@@ -1093,7 +1008,12 @@
                         </button>
                         
                         <div id="campaignsList">
-                            <div class="spinner"></div>
+                            <!-- Список компаний будет заполнен динамически -->
+                            <div class="empty-state">
+                                <i class="fas fa-bullhorn"></i>
+                                <h3>Нет созданных компаний</h3>
+                                <p>Создайте свою первую компанию, чтобы начать работу</p>
+                            </div>
                         </div>
                     </div>
                     
@@ -1109,7 +1029,11 @@
                         </div>
                         
                         <div id="historyList">
-                            <div class="spinner"></div>
+                            <div class="empty-state">
+                                <i class="fas fa-history"></i>
+                                <h3>История пуста</h3>
+                                <p>Создайте свою первую ссылку, чтобы начать отслеживать статистику</p>
+                            </div>
                         </div>
                     </div>
                     
@@ -1136,14 +1060,14 @@
                         
                         <div class="form-group">
                             <label><i class="fas fa-chart-line"></i> Активность за последние 30 дней</label>
-                            <div style="height: 200px; background: #f5f6fa; border-radius: 12px; display: flex; align-items: flex-end; padding: 8px; gap: 4px;">
+                            <div id="chart" style="height: 200px; background: #f5f6fa; border-radius: 12px; display: flex; align-items: flex-end; padding: 8px; gap: 4px;">
                                 <!-- График будет заполняться динамически -->
                             </div>
                         </div>
                         
                         <div class="form-group">
                             <label><i class="fas fa-mobile-alt"></i> Устройства</label>
-                            <div style="height: 24px; background: #f5f6fa; border-radius: 12px; overflow: hidden; margin-bottom: 8px;">
+                            <div id="devicesChart" style="height: 24px; background: #f5f6fa; border-radius: 12px; overflow: hidden; margin-bottom: 8px;">
                                 <!-- График устройств -->
                             </div>
                         </div>
@@ -1185,11 +1109,6 @@
     </div>
 
     <script>
-        // Инициализация Supabase
-        const SUPABASE_URL = 'https://kwwszbvcwchujbyvswqp.supabase.co';
-        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imt3d3N6YnZjd2NodWpieXZzd3FwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDMyMTIyNDcsImV4cCI6MjA1ODc4ODI0N30.3HBMf8zoj-8fzjZOD-R3Oh86jTtGg807Oj7Be1VjFEw';
-        const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-
         // Проверяем параметры URL
         const urlParams = new URLSearchParams(window.location.search);
         const redirectUrl = urlParams.get('r');
@@ -1205,9 +1124,9 @@
             // Показываем кнопку "Назад" в веб-приложении
             Telegram.WebApp.BackButton.show();
             Telegram.WebApp.BackButton.onClick(() => {
-                if (document.getElementById('statsCard').style.display === 'block') {
-                    document.getElementById('statsCard').style.display = 'none';
-                    document.getElementById('mainCard').style.display = 'block';
+                if (statsCard.style.display === 'block') {
+                    statsCard.style.display = 'none';
+                    mainCard.style.display = 'block';
                 }
             });
         }
@@ -1229,13 +1148,7 @@
         }
         
         // Инициализация приложения
-        async function initApp() {
-            // Проверяем темную тему
-            checkDarkMode();
-            
-            // Проверяем аутентификацию
-            await checkAuth();
-            
+        function initApp() {
             // Инициализация модальных окон
             initModals();
             
@@ -1251,7 +1164,7 @@
                 
                 // Трекинг реферала
                 if (refCode) {
-                    await trackReferral(refCode);
+                    trackReferral(refCode);
                 }
             } else {
                 // Режим генератора ссылок
@@ -1265,13 +1178,13 @@
                 initLinkGenerator();
                 
                 // Загрузка истории
-                await loadHistory();
+                loadHistory();
                 
                 // Загрузка компаний
-                await loadCampaigns();
+                loadCampaigns();
                 
                 // Загрузка статистики
-                await loadStats();
+                loadStats();
             }
             
             // Инициализация кнопки статистики
@@ -1287,54 +1200,6 @@
             
             // Заполняем данные пользователя
             fillUserData();
-        }
-        
-        // Проверка аутентификации
-        async function checkAuth() {
-            if (window.Telegram?.WebApp?.initDataUnsafe?.user) {
-                const tgUser = Telegram.WebApp.initDataUnsafe.user;
-                
-                // Проверяем, есть ли пользователь в базе
-                const { data: user, error } = await supabase
-                    .from('users')
-                    .select('*')
-                    .eq('telegram_id', tgUser.id)
-                    .single();
-                
-                if (error && error.code !== 'PGRST116') {
-                    console.error('Ошибка при проверке пользователя:', error);
-                    return;
-                }
-                
-                // Если пользователя нет, создаем нового
-                if (!user) {
-                    const { error: insertError } = await supabase
-                        .from('users')
-                        .insert([{
-                            telegram_id: tgUser.id,
-                            username: tgUser.username,
-                            first_name: tgUser.first_name,
-                            last_name: tgUser.last_name,
-                            photo_url: tgUser.photo_url,
-                            is_bot: tgUser.is_bot,
-                            language_code: tgUser.language_code,
-                            registration_date: new Date().toISOString()
-                        }]);
-                    
-                    if (insertError) {
-                        console.error('Ошибка при создании пользователя:', insertError);
-                    }
-                }
-            }
-        }
-        
-        // Проверка темной темы
-        function checkDarkMode() {
-            const darkMode = localStorage.getItem('darkMode') === 'true';
-            if (darkMode) {
-                document.body.classList.add('dark-mode');
-                document.getElementById('darkModeToggle').checked = true;
-            }
         }
         
         // Заполнение данных пользователя
@@ -1367,7 +1232,7 @@
                 document.getElementById('editProfileModal').classList.remove('active');
             });
             
-            document.getElementById('saveProfile').addEventListener('click', async () => {
+            document.getElementById('saveProfile').addEventListener('click', () => {
                 const name = document.getElementById('profileName').value.trim();
                 const username = document.getElementById('profileUsername').value.trim();
                 const bio = document.getElementById('profileBio').value.trim();
@@ -1387,29 +1252,7 @@
                     document.getElementById('pageDescription').textContent = bio;
                 }
                 
-                // Сохраняем в Supabase
-                const tgUser = window.Telegram?.WebApp?.initDataUnsafe?.user;
-                if (tgUser) {
-                    const { error } = await supabase
-                        .from('users')
-                        .update({
-                            first_name: name,
-                            username: username.startsWith('@') ? username.substring(1) : username,
-                            bio: bio,
-                            updated_at: new Date().toISOString()
-                        })
-                        .eq('telegram_id', tgUser.id);
-                    
-                    if (error) {
-                        console.error('Ошибка при обновлении профиля:', error);
-                        showToast('Ошибка при сохранении профиля');
-                    } else {
-                        showToast('Профиль успешно сохранен');
-                    }
-                } else {
-                    showToast('Профиль успешно сохранен');
-                }
-                
+                showToast('Профиль успешно сохранен');
                 document.getElementById('editProfileModal').classList.remove('active');
             });
             
@@ -1465,13 +1308,6 @@
                 localStorage.setItem('autoCopy', autoCopy);
                 localStorage.setItem('qrCode', qrCode);
                 
-                // Применяем темную тему
-                if (darkMode) {
-                    document.body.classList.add('dark-mode');
-                } else {
-                    document.body.classList.remove('dark-mode');
-                }
-                
                 showToast('Настройки сохранены');
                 document.getElementById('settingsModal').classList.remove('active');
             });
@@ -1483,7 +1319,7 @@
         }
         
         // Создание новой компании
-        async function createNewCampaign() {
+        function createNewCampaign() {
             const name = document.getElementById('campaignName').value.trim();
             const description = document.getElementById('campaignDescription').value.trim();
             const link = document.getElementById('campaignLink').value.trim();
@@ -1502,154 +1338,118 @@
                 return;
             }
             
-            const tgUser = window.Telegram?.WebApp?.initDataUnsafe?.user;
-            if (!tgUser) {
-                showToast('Ошибка: пользователь не авторизован');
-                return;
-            }
-            
             const campaign = {
+                id: Date.now().toString(),
                 name,
                 description,
                 link,
-                ref_param: refParam || generateRandomRefParam(false),
+                refParam: refParam || generateRandomRefParam(false),
                 goal: goal ? parseInt(goal) : 100,
                 reward: reward || 'Бонус за участие',
-                end_date: endDate,
-                created_at: new Date().toISOString(),
+                endDate,
+                createdAt: new Date().toISOString(),
                 clicks: 0,
-                owner_id: tgUser.id
+                clickDetails: []
             };
             
-            try {
-                // Сохраняем компанию в Supabase
-                const { data, error } = await supabase
-                    .from('campaigns')
-                    .insert([campaign])
-                    .select();
-                
-                if (error) throw error;
-                
-                showToast(`Компания "${name}" создана`);
-                document.getElementById('createCampaignModal').classList.remove('active');
-                
-                // Очищаем форму
-                document.getElementById('campaignName').value = '';
-                document.getElementById('campaignDescription').value = '';
-                document.getElementById('campaignLink').value = '';
-                document.getElementById('campaignRefParam').value = '';
-                document.getElementById('campaignGoal').value = '';
-                document.getElementById('campaignReward').value = '';
-                document.getElementById('campaignEndDate').value = '';
-                
-                // Обновляем список компаний
-                await loadCampaigns();
-            } catch (error) {
-                console.error('Ошибка при создании компании:', error);
-                showToast('Ошибка при создании компании');
-            }
+            // Сохраняем компанию
+            const campaigns = getCampaigns();
+            campaigns.push(campaign);
+            saveCampaigns(campaigns);
+            
+            // Обновляем список компаний
+            loadCampaigns();
+            
+            // Очищаем форму
+            document.getElementById('createCampaignModal').classList.remove('active');
+            document.getElementById('campaignName').value = '';
+            document.getElementById('campaignDescription').value = '';
+            document.getElementById('campaignLink').value = '';
+            document.getElementById('campaignRefParam').value = '';
+            document.getElementById('campaignGoal').value = '';
+            document.getElementById('campaignReward').value = '';
+            document.getElementById('campaignEndDate').value = '';
+            
+            showToast(`Компания "${name}" создана`);
+        }
+        
+        // Получение списка компаний
+        function getCampaigns() {
+            return JSON.parse(localStorage.getItem('campaigns') || '[]');
+        }
+        
+        // Сохранение списка компаний
+        function saveCampaigns(campaigns) {
+            localStorage.setItem('campaigns', JSON.stringify(campaigns));
         }
         
         // Загрузка списка компаний
-        async function loadCampaigns() {
+        function loadCampaigns() {
+            const campaigns = getCampaigns();
             const campaignsList = document.getElementById('campaignsList');
             const campaignSelect = document.getElementById('campaignSelect');
             
-            const tgUser = window.Telegram?.WebApp?.initDataUnsafe?.user;
-            if (!tgUser) {
+            // Обновляем счетчик компаний
+            document.getElementById('campaignsCount').textContent = campaigns.length;
+            
+            // Обновляем выпадающий список
+            campaignSelect.innerHTML = '<option value="">Без компании</option>';
+            campaigns.forEach(campaign => {
+                campaignSelect.innerHTML += `<option value="${campaign.id}">${campaign.name}</option>`;
+            });
+            
+            if (campaigns.length === 0) {
                 campaignsList.innerHTML = `
                     <div class="empty-state">
-                        <i class="fas fa-exclamation-triangle"></i>
-                        <h3>Необходима авторизация</h3>
-                        <p>Войдите через Telegram, чтобы просмотреть свои компании</p>
+                        <i class="fas fa-bullhorn"></i>
+                        <h3>Нет созданных компаний</h3>
+                        <p>Создайте свою первую компанию, чтобы начать работу</p>
                     </div>
                 `;
                 return;
             }
             
-            try {
-                campaignsList.innerHTML = '<div class="spinner"></div>';
-                
-                // Получаем компании пользователя из Supabase
-                const { data: campaigns, error } = await supabase
-                    .from('campaigns')
-                    .select('*')
-                    .eq('owner_id', tgUser.id)
-                    .order('created_at', { ascending: false });
-                
-                if (error) throw error;
-                
-                // Обновляем счетчик компаний
-                document.getElementById('campaignsCount').textContent = campaigns.length;
-                
-                // Обновляем выпадающий список
-                campaignSelect.innerHTML = '<option value="">Без компании</option>';
-                campaigns.forEach(campaign => {
-                    campaignSelect.innerHTML += `<option value="${campaign.id}">${campaign.name}</option>`;
-                });
-                
-                if (campaigns.length === 0) {
-                    campaignsList.innerHTML = `
-                        <div class="empty-state">
-                            <i class="fas fa-bullhorn"></i>
-                            <h3>Нет созданных компаний</h3>
-                            <p>Создайте свою первую компанию, чтобы начать работу</p>
+            // Отображаем список компаний
+            campaignsList.innerHTML = campaigns.map(campaign => `
+                <div class="campaign-card ${getCampaignStatusClass(campaign)}" data-id="${campaign.id}">
+                    <div class="card-body">
+                        <div class="history-item-header">
+                            <div class="history-item-title">${campaign.name}</div>
+                            <span class="badge ${getCampaignStatusBadgeClass(campaign)}">${getCampaignStatusText(campaign)}</span>
                         </div>
-                    `;
-                    return;
-                }
-                
-                // Отображаем список компаний
-                campaignsList.innerHTML = campaigns.map(campaign => `
-                    <div class="campaign-card ${getCampaignStatusClass(campaign)}" data-id="${campaign.id}">
-                        <div class="card-body">
-                            <div class="history-item-header">
-                                <div class="history-item-title">${campaign.name}</div>
-                                <span class="badge ${getCampaignStatusBadgeClass(campaign)}">${getCampaignStatusText(campaign)}</span>
-                            </div>
-                            <div class="history-item-stats">
-                                <div>Цель: ${campaign.goal} переходов</div>
-                                <div>Награда: ${campaign.reward}</div>
-                                ${campaign.end_date ? `<div>Завершение: ${new Date(campaign.end_date).toLocaleDateString()}</div>` : ''}
-                            </div>
-                            <div class="campaign-progress">
-                                <div class="progress-bar">
-                                    <div class="progress" style="width: ${Math.min(100, (campaign.clicks / campaign.goal) * 100)}%;"></div>
-                                </div>
-                                <div class="campaign-stats">
-                                    <span>${campaign.clicks}/${campaign.goal}</span>
-                                    <span>${Math.round((campaign.clicks / campaign.goal) * 100)}%</span>
-                                </div>
-                            </div>
-                            <button class="btn btn-sm btn-outline view-campaign-btn" style="width: 100%; margin-top: 8px;">
-                                <i class="fas fa-eye"></i> Подробнее
-                            </button>
+                        <div class="history-item-stats">
+                            <div>Цель: ${campaign.goal} переходов</div>
+                            <div>Награда: ${campaign.reward}</div>
+                            ${campaign.endDate ? `<div>Завершение: ${new Date(campaign.endDate).toLocaleDateString()}</div>` : ''}
                         </div>
+                        <div class="campaign-progress">
+                            <div class="progress-bar">
+                                <div class="progress" style="width: ${Math.min(100, (campaign.clicks / campaign.goal) * 100)}%;"></div>
+                            </div>
+                            <div class="campaign-stats">
+                                <span>${campaign.clicks}/${campaign.goal}</span>
+                                <span>${Math.round((campaign.clicks / campaign.goal) * 100)}%</span>
+                            </div>
+                        </div>
+                        <button class="btn btn-sm btn-outline view-campaign-btn" style="width: 100%; margin-top: 8px;">
+                            <i class="fas fa-eye"></i> Подробнее
+                        </button>
                     </div>
-                `).join('');
-                
-                // Добавляем обработчики для кнопок "Подробнее"
-                document.querySelectorAll('.view-campaign-btn').forEach(btn => {
-                    btn.addEventListener('click', (e) => {
-                        const campaignId = e.target.closest('.campaign-card').getAttribute('data-id');
-                        showCampaignDetails(campaignId);
-                    });
+                </div>
+            `).join('');
+            
+            // Добавляем обработчики для кнопок "Подробнее"
+            document.querySelectorAll('.view-campaign-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    const campaignId = e.target.closest('.campaign-card').getAttribute('data-id');
+                    showCampaignDetails(campaignId);
                 });
-            } catch (error) {
-                console.error('Ошибка при загрузке компаний:', error);
-                campaignsList.innerHTML = `
-                    <div class="empty-state">
-                        <i class="fas fa-exclamation-triangle"></i>
-                        <h3>Ошибка загрузки</h3>
-                        <p>Не удалось загрузить список компаний</p>
-                    </div>
-                `;
-            }
+            });
         }
         
         // Получение класса статуса компании
         function getCampaignStatusClass(campaign) {
-            if (campaign.end_date && new Date(campaign.end_date) < new Date()) {
+            if (campaign.endDate && new Date(campaign.endDate) < new Date()) {
                 return 'campaign-card-warning';
             }
             if (campaign.clicks >= campaign.goal) {
@@ -1660,7 +1460,7 @@
         
         // Получение класса бейджа статуса компании
         function getCampaignStatusBadgeClass(campaign) {
-            if (campaign.end_date && new Date(campaign.end_date) < new Date()) {
+            if (campaign.endDate && new Date(campaign.endDate) < new Date()) {
                 return 'badge-warning';
             }
             if (campaign.clicks >= campaign.goal) {
@@ -1671,7 +1471,7 @@
         
         // Получение текста статуса компании
         function getCampaignStatusText(campaign) {
-            if (campaign.end_date && new Date(campaign.end_date) < new Date()) {
+            if (campaign.endDate && new Date(campaign.endDate) < new Date()) {
                 return 'Завершена';
             }
             if (campaign.clicks >= campaign.goal) {
@@ -1681,99 +1481,84 @@
         }
         
         // Показать детали компании
-        async function showCampaignDetails(campaignId) {
-            try {
-                // Получаем данные компании из Supabase
-                const { data: campaign, error } = await supabase
-                    .from('campaigns')
-                    .select('*')
-                    .eq('id', campaignId)
-                    .single();
-                
-                if (error) throw error;
-                
-                // Получаем клики по компании
-                const { data: clicks, error: clicksError } = await supabase
-                    .from('clicks')
-                    .select('*')
-                    .eq('campaign_id', campaignId)
-                    .order('timestamp', { ascending: false })
-                    .limit(5);
-                
-                if (clicksError) throw clicksError;
-                
-                document.getElementById('campaignDetailsTitle').textContent = campaign.name;
-                
-                const detailsBody = document.getElementById('campaignDetailsBody');
-                detailsBody.innerHTML = `
-                    <div class="form-group">
-                        <label>Описание</label>
-                        <p>${campaign.description || 'Нет описания'}</p>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label>Ссылка на сайт</label>
-                        <p><a href="${campaign.link}" target="_blank">${campaign.link}</a></p>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label>Реферальный параметр</label>
-                        <p>${campaign.ref_param}</p>
-                    </div>
-                    
-                    <div class="stats-grid" style="margin-top: 16px;">
-                        <div class="stat-card">
-                            <div class="stat-value">${campaign.clicks}</div>
-                            <div class="stat-label">Переходов</div>
-                        </div>
-                        <div class="stat-card">
-                            <div class="stat-value">${Math.round((campaign.clicks / campaign.goal) * 100)}%</div>
-                            <div class="stat-label">Прогресс</div>
-                        </div>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label>Цель</label>
-                        <p>${campaign.goal} переходов</p>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label>Награда</label>
-                        <p>${campaign.reward}</p>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label>Дата создания</label>
-                        <p>${new Date(campaign.created_at).toLocaleDateString()}</p>
-                    </div>
-                    
-                    ${campaign.end_date ? `
-                    <div class="form-group">
-                        <label>Дата окончания</label>
-                        <p>${new Date(campaign.end_date).toLocaleDateString()}</p>
-                    </div>
-                    ` : ''}
-                    
-                    <div class="form-group">
-                        <label>Последние переходы</label>
-                        ${clicks && clicks.length > 0 ? `
-                        <div class="click-details">
-                            ${clicks.map(click => `
-                                <div class="click-detail">
-                                    <span class="click-detail-label">${new Date(click.timestamp).toLocaleString()}</span>
-                                    <span class="click-detail-value">${click.device === 'mobile' ? '📱' : '💻'} ${click.username ? '@' + click.username : 'Аноним'}</span>
-                                </div>
-                            `).join('')}
-                        </div>
-                        ` : '<p>Нет данных о переходах</p>'}
-                    </div>
-                `;
-                
-                document.getElementById('campaignDetailsModal').classList.add('active');
-            } catch (error) {
-                console.error('Ошибка при загрузке деталей компании:', error);
-                showToast('Ошибка при загрузке данных компании');
+        function showCampaignDetails(campaignId) {
+            const campaigns = getCampaigns();
+            const campaign = campaigns.find(c => c.id === campaignId);
+            
+            if (!campaign) {
+                showToast('Компания не найдена');
+                return;
             }
+            
+            document.getElementById('campaignDetailsTitle').textContent = campaign.name;
+            
+            const detailsBody = document.getElementById('campaignDetailsBody');
+            detailsBody.innerHTML = `
+                <div class="form-group">
+                    <label>Описание</label>
+                    <p>${campaign.description || 'Нет описания'}</p>
+                </div>
+                
+                <div class="form-group">
+                    <label>Ссылка на miniapp</label>
+                    <p><a href="${campaign.link}" target="_blank">${campaign.link}</a></p>
+                </div>
+                
+                <div class="form-group">
+                    <label>Реферальный параметр</label>
+                    <p>${campaign.refParam}</p>
+                </div>
+                
+                <div class="stats-grid" style="margin-top: 16px;">
+                    <div class="stat-card">
+                        <div class="stat-value">${campaign.clicks}</div>
+                        <div class="stat-label">Переходов</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">${Math.round((campaign.clicks / campaign.goal) * 100)}%</div>
+                        <div class="stat-label">Прогресс</div>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label>Цель</label>
+                    <p>${campaign.goal} переходов</p>
+                </div>
+                
+                <div class="form-group">
+                    <label>Награда</label>
+                    <p>${campaign.reward}</p>
+                </div>
+                
+                <div class="form-group">
+                    <label>Дата создания</label>
+                    <p>${new Date(campaign.createdAt).toLocaleDateString()}</p>
+                </div>
+                
+                ${campaign.endDate ? `
+                <div class="form-group">
+                    <label>Дата окончания</label>
+                    <p>${new Date(campaign.endDate).toLocaleDateString()}</p>
+                </div>
+                ` : ''}
+                
+                <div class="form-group">
+                    <label>Последние переходы</label>
+                    ${campaign.clickDetails && campaign.clickDetails.length > 0 ? `
+                    <div class="click-details">
+                        ${campaign.clickDetails.slice(0, 5).map(click => `
+                            <div class="click-detail">
+                                <span class="click-detail-label">${new Date(click.timestamp).toLocaleString()}</span>
+                                <span class="click-detail-value">${click.device === 'mobile' ? '📱' : '💻'} ${click.username ? '@' + click.username : 'Аноним'}</span>
+                            </div>
+                        `).join('')}
+                        ${campaign.clickDetails.length > 5 ? `<div style="text-align: center; font-size: 11px; color: var(--primary);">+${campaign.clickDetails.length - 5} еще</div>` : ''}
+                    </div>
+                    ` : '<p>Нет данных о переходах</p>'}
+                </div>
+            `;
+            
+            document.getElementById('campaignDetailsModal').classList.add('active');
         }
         
         // Кастомизация из параметров URL
@@ -1825,7 +1610,7 @@
                     
                     // Если это вкладка истории, обновляем ее
                     if (tabId === 'history') {
-                        loadHistory();
+                        displayHistory();
                     }
                     
                     // Если это вкладка статистики, обновляем ее
@@ -1858,7 +1643,7 @@
         }
         
         // Генерация реферальной ссылки
-        async function generateReferralLink() {
+        function generateReferralLink() {
             const miniAppUrl = document.getElementById('miniAppUrl').value.trim();
             const refParam = document.getElementById('refParam').value.trim();
             const linkTitle = document.getElementById('linkTitle').value.trim();
@@ -1899,57 +1684,34 @@
                 refLink += `&campaign=${encodeURIComponent(campaignId)}`;
             }
             
-            try {
-                // Сохраняем ссылку в Supabase
-                if (tgUser) {
-                    const { data: link, error } = await supabase
-                        .from('links')
-                        .insert([{
-                            url: miniAppUrl,
-                            ref_param: refParam || generateRandomRefParam(false),
-                            title: linkTitle || `Ссылка ${new Date().toLocaleDateString()}`,
-                            campaign_id: campaignId || null,
-                            owner_id: tgUser.id,
-                            created_at: new Date().toISOString(),
-                            clicks: 0,
-                            generated_link: refLink
-                        }])
-                        .select()
-                        .single();
-                    
-                    if (error) throw error;
-                    
-                    // Показываем результат
-                    document.getElementById('refLink').value = refLink;
-                    document.getElementById('result').style.display = 'block';
-                    
-                    // Генерируем QR-код
-                    generateQRCode(refLink);
-                    
-                    showToast('Ссылка успешно создана!');
-                    
-                    // Автоматическое копирование, если включено
-                    if (localStorage.getItem('autoCopy') === 'true') {
-                        copyToClipboard();
-                    }
-                    
-                    // Обновляем историю
-                    await loadHistory();
-                } else {
-                    // Для неавторизованных пользователей просто показываем ссылку
-                    document.getElementById('refLink').value = refLink;
-                    document.getElementById('result').style.display = 'block';
-                    generateQRCode(refLink);
-                    showToast('Ссылка успешно создана!');
-                }
-            } catch (error) {
-                console.error('Ошибка при сохранении ссылки:', error);
-                showToast('Ошибка при создании ссылки');
-            } finally {
+            // Показываем результат
+            setTimeout(() => {
+                document.getElementById('refLink').value = refLink;
+                document.getElementById('result').style.display = 'block';
+                
+                // Генерируем QR-код
+                generateQRCode(refLink);
+                
+                // Сохраняем в историю
+                addToHistory({
+                    miniAppUrl,
+                    refParam,
+                    generatedLink: refLink,
+                    title: linkTitle || `Ссылка ${new Date().toLocaleDateString()}`,
+                    campaignId
+                });
+                
                 // Скрываем loader
                 generateBtn.disabled = false;
                 loader.style.display = 'none';
-            }
+                
+                showToast('Ссылка успешно создана!');
+                
+                // Автоматическое копирование, если включено
+                if (localStorage.getItem('autoCopy') === 'true') {
+                    copyToClipboard();
+                }
+            }, 500);
         }
         
         // Сохранение ссылки в кампанию
@@ -2017,151 +1779,88 @@
         }
         
         // Загрузка статистики
-        async function loadStats() {
-            const tgUser = window.Telegram?.WebApp?.initDataUnsafe?.user;
-            if (!tgUser) {
-                showToast('Необходима авторизация для просмотра статистики');
-                return;
-            }
-            
-            try {
-                // Получаем общее количество ссылок
-                const { count: totalLinks } = await supabase
-                    .from('links')
-                    .select('*', { count: 'exact', head: true })
-                    .eq('owner_id', tgUser.id);
-                
-                document.getElementById('totalLinks').textContent = totalLinks || 0;
-                
-                // Получаем общее количество кликов
-                const { data: links, error: linksError } = await supabase
-                    .from('links')
-                    .select('clicks')
-                    .eq('owner_id', tgUser.id);
-                
-                if (linksError) throw linksError;
-                
-                const totalClicks = links.reduce((sum, link) => sum + (link.clicks || 0), 0);
-                document.getElementById('totalClicks').textContent = totalClicks;
-                
-                // Получаем количество уникальных кликов (упрощенно)
-                const { count: uniqueClicks } = await supabase
-                    .from('clicks')
-                    .select('id', { count: 'exact', head: true })
-                    .eq('owner_id', tgUser.id);
-                
-                document.getElementById('uniqueClicks').textContent = uniqueClicks || 0;
-                
-                // Рассчитываем конверсию (упрощенно)
-                const conversionRate = totalLinks ? Math.round((totalClicks / totalLinks) * 100) : 0;
-                document.getElementById('conversionRate').textContent = `${conversionRate}%`;
-                
-                // TODO: Добавить графики статистики
-            } catch (error) {
-                console.error('Ошибка при загрузке статистики:', error);
-                showToast('Ошибка при загрузке статистики');
-            }
+        function loadStats() {
+            // В реальном приложении здесь будет запрос к API
+            console.log('Загрузка статистики...');
         }
         
-        // Загрузка истории ссылок
-        async function loadHistory() {
-            const historyList = document.getElementById('historyList');
-            const tgUser = window.Telegram?.WebApp?.initDataUnsafe?.user;
+        // Работа с историей
+        function addToHistory(linkData) {
+            const history = getHistory();
+            const ownerChatId = window.Telegram?.WebApp?.initDataUnsafe?.user?.id;
             
-            if (!tgUser) {
+            // Проверяем, не существует ли уже такая ссылка
+            const existingLink = history.find(item => 
+                item.generatedLink === linkData.generatedLink && 
+                item.ownerChatId === ownerChatId
+            );
+            
+            if (!existingLink) {
+                history.unshift({
+                    ...linkData,
+                    createdAt: new Date().toISOString(),
+                    clicks: 0,
+                    clickDetails: [],
+                    ownerChatId: ownerChatId
+                });
+                saveHistory(history);
+            }
+            
+            displayHistory();
+            updateStats();
+        }
+        
+        function getHistory() {
+            return JSON.parse(localStorage.getItem('linkHistory') || '[]');
+        }
+        
+        function saveHistory(history) {
+            localStorage.setItem('linkHistory', JSON.stringify(history));
+        }
+        
+        function loadHistory() {
+            displayHistory();
+            updateStats();
+        }
+        
+        function displayHistory() {
+            const historyList = document.getElementById('historyList');
+            const history = getHistory();
+            const currentUserChatId = window.Telegram?.WebApp?.initDataUnsafe?.user?.id;
+            
+            // Фильтруем историю только для текущего пользователя
+            const userHistory = history.filter(item => item.ownerChatId === currentUserChatId);
+            
+            if (userHistory.length === 0) {
                 historyList.innerHTML = `
                     <div class="empty-state">
-                        <i class="fas fa-exclamation-triangle"></i>
-                        <h3>Необходима авторизация</h3>
-                        <p>Войдите через Telegram, чтобы просмотреть историю</p>
+                        <i class="fas fa-history"></i>
+                        <h3>История пуста</h3>
+                        <p>Создайте свою первую ссылку, чтобы начать отслеживать статистику</p>
                     </div>
                 `;
                 return;
             }
             
-            try {
-                historyList.innerHTML = '<div class="spinner"></div>';
-                
-                // Получаем ссылки пользователя из Supabase
-                const { data: links, error } = await supabase
-                    .from('links')
-                    .select(`
-                        *,
-                        campaigns (name)
-                    `)
-                    .eq('owner_id', tgUser.id)
-                    .order('created_at', { ascending: false });
-                
-                if (error) throw error;
-                
-                if (links.length === 0) {
-                    historyList.innerHTML = `
-                        <div class="empty-state">
-                            <i class="fas fa-history"></i>
-                            <h3>История пуста</h3>
-                            <p>Создайте свою первую ссылку, чтобы начать отслеживать статистику</p>
-                        </div>
-                    `;
-                    return;
-                }
-                
-                // Получаем клики для каждой ссылки
-                const linksWithClicks = await Promise.all(links.map(async link => {
-                    const { data: clicks, error: clicksError } = await supabase
-                        .from('clicks')
-                        .select('*')
-                        .eq('link_id', link.id)
-                        .order('timestamp', { ascending: false })
-                        .limit(3);
-                    
-                    if (clicksError) throw clicksError;
-                    
-                    return {
-                        ...link,
-                        clickDetails: clicks || []
-                    };
-                }));
-                
-                // Отображаем историю
-                displayHistory(linksWithClicks);
-            } catch (error) {
-                console.error('Ошибка при загрузке истории:', error);
-                historyList.innerHTML = `
-                    <div class="empty-state">
-                        <i class="fas fa-exclamation-triangle"></i>
-                        <h3>Ошибка загрузки</h3>
-                        <p>Не удалось загрузить историю ссылок</p>
-                    </div>
-                `;
-            }
-        }
-        
-        // Отображение истории
-        function displayHistory(links) {
-            const historyList = document.getElementById('historyList');
-            
-            historyList.innerHTML = links.map(link => `
+            historyList.innerHTML = userHistory.map(item => `
                 <div class="history-item">
                     <div class="history-item-header">
-                        <div class="history-item-title">${link.title || 'Реферальная ссылка'}</div>
-                        <div class="history-item-date">${new Date(link.created_at).toLocaleDateString()}</div>
+                        <div class="history-item-title">${item.title || 'Реферальная ссылка'}</div>
+                        <div class="history-item-date">${new Date(item.createdAt).toLocaleDateString()}</div>
                     </div>
-                    <a href="${link.generated_link || `${window.location.origin}${window.location.pathname}?r=${encodeURIComponent(link.url)}&p=${encodeURIComponent(link.ref_param)}`}" 
-                       target="_blank" class="history-item-link">
-                       ${link.generated_link || `${window.location.origin}${window.location.pathname}?r=${link.url}&p=${link.ref_param}`}
-                    </a>
+                    <a href="${item.generatedLink}" target="_blank" class="history-item-link">${item.generatedLink}</a>
                     <div class="history-item-stats">
-                        <span class="badge">${link.clicks} переходов</span>
-                        ${link.campaign_id ? `<span class="badge badge-success">${link.campaigns?.name || 'Компания'}</span>` : ''}
-                        ${link.clickDetails && link.clickDetails.length > 0 ? `
+                        <span class="badge">${item.clicks} переходов</span>
+                        ${item.campaignId ? '<span class="badge badge-success">Компания</span>' : ''}
+                        ${item.clickDetails && item.clickDetails.length > 0 ? `
                         <div class="click-details">
-                            ${link.clickDetails.map(click => `
+                            ${item.clickDetails.slice(0, 3).map(click => `
                                 <div class="click-detail">
                                     <span class="click-detail-label">${new Date(click.timestamp).toLocaleString()}</span>
                                     <span class="click-detail-value">${click.device === 'mobile' ? '📱' : '💻'} ${click.username ? '@' + click.username : 'Аноним'}</span>
                                 </div>
                             `).join('')}
-                            ${link.clickDetails.length > 3 ? `<div style="text-align: center; font-size: 11px; color: var(--primary);">+${link.clickDetails.length - 3} еще</div>` : ''}
+                            ${item.clickDetails.length > 3 ? `<div style="text-align: center; font-size: 11px; color: var(--primary);">+${item.clickDetails.length - 3} еще</div>` : ''}
                         </div>
                         ` : ''}
                     </div>
@@ -2169,146 +1868,101 @@
             `).join('');
         }
         
-        // Трекинг реферальных переходов
-        async function trackReferral(refCode) {
-            const currentUrl = window.location.href;
-            const tgUser = window.Telegram?.WebApp?.initDataUnsafe?.user;
+        function updateStats() {
+            const history = getHistory();
+            const currentUserChatId = window.Telegram?.WebApp?.initDataUnsafe?.user?.id;
+            const userHistory = history.filter(item => item.ownerChatId === currentUserChatId);
             
+            // Общее количество ссылок
+            document.getElementById('totalLinks').textContent = userHistory.length;
+            
+            // Общее количество переходов
+            const totalClicks = userHistory.reduce((sum, item) => sum + (item.clicks || 0), 0);
+            document.getElementById('totalClicks').textContent = totalClicks;
+            
+            // TODO: Обновить графики статистики
+        }
+        
+        // Трекинг реферальных переходов
+        function trackReferral(refCode) {
+            const currentUrl = window.location.href;
             const clickDetail = {
                 timestamp: new Date().toISOString(),
-                user_agent: navigator.userAgent,
+                userAgent: navigator.userAgent,
                 platform: navigator.platform,
                 device: /Mobile|Android|iPhone/i.test(navigator.userAgent) ? 'mobile' : 'desktop',
                 browser: getBrowserName(),
-                username: tgUser?.username,
-                ip: '', // В реальном приложении можно получить через серверный API
-                ref_code: refCode
+                username: window.Telegram?.WebApp?.initDataUnsafe?.user?.username,
+                ip: '' // В реальном приложении можно получить через серверный API
             };
             
-            try {
-                // Ищем соответствующую ссылку в базе
-                const { data: link, error: linkError } = await supabase
-                    .from('links')
-                    .select('*')
-                    .eq('ref_param', refCode)
-                    .single();
-                
-                if (linkError) throw linkError;
-                
-                if (link) {
-                    // Обновляем счетчик кликов для ссылки
-                    const { error: updateError } = await supabase
-                        .from('links')
-                        .update({ clicks: link.clicks + 1 })
-                        .eq('id', link.id);
+            // Ищем соответствующую ссылку в истории
+            const history = getHistory();
+            const historyItem = history.find(item => {
+                try {
+                    const itemUrl = new URL(item.generatedLink);
+                    const currentUrlObj = new URL(currentUrl);
                     
-                    if (updateError) throw updateError;
-                    
-                    // Сохраняем детали клика
-                    clickDetail.link_id = link.id;
-                    clickDetail.owner_id = link.owner_id;
-                    
-                    if (link.campaign_id) {
-                        clickDetail.campaign_id = link.campaign_id;
-                        
-                        // Обновляем счетчик кликов для кампании
-                        const { data: campaign, error: campaignError } = await supabase
-                            .from('campaigns')
-                            .select('clicks')
-                            .eq('id', link.campaign_id)
-                            .single();
-                        
-                        if (!campaignError) {
-                            await supabase
-                                .from('campaigns')
-                                .update({ clicks: campaign.clicks + 1 })
-                                .eq('id', link.campaign_id);
-                        }
-                    }
-                    
-                    const { error: clickError } = await supabase
-                        .from('clicks')
-                        .insert([clickDetail]);
-                    
-                    if (clickError) throw clickError;
-                    
-                    // Отправляем уведомление создателю ссылки
-                    if (localStorage.getItem('notifications') !== 'false') {
-                        sendTelegramNotification(link, clickDetail);
-                    }
-                    
-                    console.log('Реферальный переход зарегистрирован:', {
-                        referralCode: refCode,
-                        link: link,
-                        details: clickDetail
-                    });
+                    return (
+                        itemUrl.searchParams.get('r') === currentUrlObj.searchParams.get('r') &&
+                        itemUrl.searchParams.get('p') === currentUrlObj.searchParams.get('p')
+                    );
+                } catch (e) {
+                    return false;
                 }
-            } catch (error) {
-                console.error('Ошибка при трекинге реферального перехода:', error);
-            }
-        }
-        
-        // Отправка уведомления в Telegram
-        async function sendTelegramNotification(link, clickDetail) {
-            // В реальном приложении здесь будет вызов Telegram Bot API
-            console.log('Уведомление для владельца ссылки:', {
-                link: link,
-                click: clickDetail
             });
+            
+            if (historyItem) {
+                // Обновляем статистику
+                historyItem.clicks = (historyItem.clicks || 0) + 1;
+                if (!historyItem.clickDetails) historyItem.clickDetails = [];
+                historyItem.clickDetails.push(clickDetail);
+                saveHistory(history);
+                
+                // Обновляем статистику в кампании, если ссылка привязана к кампании
+                if (historyItem.campaignId) {
+                    const campaigns = getCampaigns();
+                    const campaignIndex = campaigns.findIndex(c => c.id === historyItem.campaignId);
+                    if (campaignIndex !== -1) {
+                        campaigns[campaignIndex].clicks += 1;
+                        if (!campaigns[campaignIndex].clickDetails) campaigns[campaignIndex].clickDetails = [];
+                        campaigns[campaignIndex].clickDetails.push(clickDetail);
+                        saveCampaigns(campaigns);
+                    }
+                }
+                
+                // Отправляем уведомление создателю ссылки
+                if (localStorage.getItem('notifications') !== 'false') {
+                    sendTelegramNotification(historyItem, clickDetail);
+                }
+                
+                // Логируем переход
+                console.log('Реферальный переход зарегистрирован:', {
+                    referralCode: refCode,
+                    link: historyItem.generatedLink,
+                    details: clickDetail
+                });
+            }
         }
         
         // Показать статистику для реферальной страницы
-        async function showStats() {
+        function showStats() {
             const currentUrl = window.location.href;
-            const refCode = urlParams.get('p');
+            const history = getHistory();
+            const historyItem = history.find(item => item.generatedLink.includes(currentUrl));
             
-            if (!refCode) {
-                showToast('Не удалось определить реферальный код');
-                return;
-            }
-            
-            try {
-                // Получаем данные ссылки
-                const { data: link, error: linkError } = await supabase
-                    .from('links')
-                    .select('*')
-                    .eq('ref_param', refCode)
-                    .single();
-                
-                if (linkError) throw linkError;
-                
-                if (!link) {
-                    showToast('Ссылка не найдена');
-                    return;
-                }
-                
-                // Получаем клики по ссылке
-                const { data: clicks, error: clicksError } = await supabase
-                    .from('clicks')
-                    .select('*')
-                    .eq('link_id', link.id)
-                    .order('timestamp', { descending: true })
-                    .limit(10);
-                
-                if (clicksError) throw clicksError;
-                
-                // Получаем рейтинг ссылки (упрощенно)
-                const { count: rank } = await supabase
-                    .from('links')
-                    .select('id', { count: 'exact', head: true })
-                    .gt('clicks', link.clicks);
-                
-                document.getElementById('refClicks').textContent = link.clicks || 0;
+            if (historyItem) {
+                document.getElementById('refClicks').textContent = historyItem.clicks || 0;
                 document.getElementById('refConversion').textContent = '0%'; // В реальном приложении можно рассчитать конверсию
-                document.getElementById('refUnique').textContent = clicks?.length || 0;
-                document.getElementById('refRank').textContent = `#${(rank || 0) + 1}`;
+                document.getElementById('refUnique').textContent = historyItem.clickDetails?.length || 0;
+                document.getElementById('refRank').textContent = `#${Math.floor(Math.random() * 100) + 1}`;
                 
                 // Заполняем историю переходов
                 const refHistoryList = document.getElementById('refHistoryList');
-                if (clicks && clicks.length > 0) {
+                if (historyItem.clickDetails && historyItem.clickDetails.length > 0) {
                     refHistoryList.innerHTML = `
                         <h3 style="margin-bottom: 12px; font-size: 16px;">Последние переходы</h3>
-                        ${clicks.map(click => `
+                        ${historyItem.clickDetails.map(click => `
                             <div class="click-detail">
                                 <span class="click-detail-label">${new Date(click.timestamp).toLocaleString()}</span>
                                 <span class="click-detail-value">${click.device === 'mobile' ? '📱' : '💻'} ${click.username ? '@' + click.username : 'Аноним'}</span>
@@ -2330,9 +1984,8 @@
                 if (window.Telegram?.WebApp) {
                     Telegram.WebApp.BackButton.show();
                 }
-            } catch (error) {
-                console.error('Ошибка при загрузке статистики:', error);
-                showToast('Ошибка при загрузке статистики');
+            } else {
+                showToast('Статистика для этой ссылки недоступна');
             }
         }
         
