@@ -26,7 +26,7 @@
     .active {
       display: block;
     }
-    /* --- Экран создания комнаты --- */
+    /* --- Экран создания комнаты (доступен только при прямом переходе в приложение) --- */
     #createRoomScreen {
       display: flex;
       justify-content: center;
@@ -90,8 +90,6 @@
       overflow-x: auto;
     }
     #remoteAudios audio {
-      /* Скрываем стандартные элементы управления.
-         Можно добавить мини-иконки участников по необходимости */
       width: 80px;
       height: 80px;
       border-radius: 50%;
@@ -166,7 +164,7 @@
   </style>
 </head>
 <body>
-  <!-- Экран создания комнаты (доступен только при прямом переходе в приложение) -->
+  <!-- Экран создания комнаты (доступен только при прямом переходе) -->
   <div id="createRoomScreen" class="screen">
     <div>
       <h2>Создать приватную комнату</h2>
@@ -201,15 +199,15 @@
     tg.expand();
 
     /* --------------------- Переменные и базовые функции --------------------- */
-    // Для идентификации текущего участника
+    // Генерация уникального id для каждого участника
     function generateRandomId() {
       return 'id-' + Math.random().toString(36).substr(2, 9);
     }
-    let myId = generateRandomId(); // у каждого участника уникальный id
+    let myId = generateRandomId(); // уникальный идентификатор
     let currentRoom = null;
     let localStream = null;
     let signalingServer = null;
-    let peers = {}; // объект, где хранятся RTCPeerConnection по id участников
+    let peers = {}; // объект, где хранятся RTCPeerConnection для каждого участника
 
     // Toast-уведомление
     function showToast(message) {
@@ -258,8 +256,8 @@
     });
 
     /* --------------------- Логика создания и открытия комнаты --------------------- */
-    // Если пользователь заходит напрямую (без ?room=) – позволяет создать комнату,
-    // иначе (при переходе по ссылке) сразу происходит подключение к существующей комнате.
+    // Если пользователь заходит напрямую (без ?room=) – позволяет создать комнату.
+    // При переходе по ссылке с параметром сразу происходит подключение.
     document.getElementById("createRoomButton").addEventListener("click", function() {
       const roomId = 'room-' + Math.random().toString(36).substr(2, 9);
       currentRoom = roomId;
@@ -291,25 +289,25 @@
     });
 
     /* --------------------- WebRTC для голосового общения --------------------- */
-    // Конфигурация для RTCPeerConnection (используется публичный STUN-сервер)
+    // Конфигурация RTCPeerConnection (используем публичный STUN-сервер)
     const rtcConfig = { iceServers: [{ urls: 'stun:stun.l.google.com:19302' }] };
 
     // Инициализация сигналингового соединения через WebSocket
     function initSignaling() {
-      // ЗАМЕНИТЕ ниже URL на адрес вашего сигналингового сервера
-      signalingServer = new WebSocket('wss://your.signaling.server.com');
+      // Используем предоставленный вебсокет сервер:
+      signalingServer = new WebSocket('wss://servwer-yungrezacs-projects.vercel.app/');
       signalingServer.onopen = () => {
         // При соединении отправляем сообщение о присоединении к комнате
         signalingServer.send(JSON.stringify({ type: 'join', room: currentRoom, id: myId }));
       };
       signalingServer.onmessage = function(event) {
         const msg = JSON.parse(event.data);
-        // Если сообщение предназначено для другого или от самого себя – игнорируем
+        // Игнорируем сообщения от самого себя или если target не равен нашему id (если указан)
         if (msg.id === myId) return;
         if (msg.target && msg.target !== myId) return;
         // Обработка типов сообщений
         if (msg.type === 'join') {
-          // Когда новый участник присоединяется, инициатор создаёт оффер для установления соединения
+          // Когда новый участник присоединяется, инициатор создаёт оффер
           createOffer(msg.id);
         } else if (msg.type === 'offer') {
           handleOffer(msg.offer, msg.id);
@@ -346,9 +344,7 @@
         handleRemoteStream(peerId, event.streams[0]);
       };
       peerConnection.createOffer()
-        .then(offer => {
-          return peerConnection.setLocalDescription(offer);
-        })
+        .then(offer => peerConnection.setLocalDescription(offer))
         .then(() => {
           signalingServer.send(JSON.stringify({
             type: 'offer',
@@ -382,9 +378,7 @@
       };
       peerConnection.setRemoteDescription(offer)
         .then(() => peerConnection.createAnswer())
-        .then(answer => {
-          return peerConnection.setLocalDescription(answer).then(() => answer);
-        })
+        .then(answer => peerConnection.setLocalDescription(answer).then(() => answer))
         .then(answer => {
           signalingServer.send(JSON.stringify({
             type: 'answer',
@@ -401,8 +395,7 @@
     function handleAnswer(answer, peerId) {
       const peerConnection = peers[peerId];
       if (peerConnection) {
-        peerConnection.setRemoteDescription(answer)
-          .catch(err => console.error("Ошибка установки remoteDescription:", err));
+        peerConnection.setRemoteDescription(answer).catch(err => console.error("Ошибка установки remoteDescription:", err));
       }
     }
 
@@ -417,26 +410,23 @@
     // Добавление удалённого аудио потока в интерфейс
     function handleRemoteStream(peerId, stream) {
       const remoteAudios = document.getElementById("remoteAudios");
-      // Если для данного участника уже создан audio-элемент – обновляем источник
       let audioEl = document.getElementById("audio-" + peerId);
       if (!audioEl) {
         audioEl = document.createElement("audio");
         audioEl.id = "audio-" + peerId;
         audioEl.autoplay = true;
-        // Без элементов управления – можно стилизовать как аватар участника
         audioEl.controls = false;
         remoteAudios.appendChild(audioEl);
       }
       audioEl.srcObject = stream;
     }
 
-    // Запуск голосового чата: запрос доступа к микрофону, сохранение локального потока и инициализация сигналинга
+    // Запуск голосового чата: запрос доступа к микрофону и инициализация сигналинга
     function startVoiceChat() {
       navigator.mediaDevices.getUserMedia({ audio: true })
         .then(stream => {
           localStream = stream;
           showToast("Голосовой чат запущен в комнате: " + currentRoom);
-          // Инициализируем сигналинговое соединение (если ещё не установлено)
           if (!signalingServer || signalingServer.readyState !== WebSocket.OPEN) {
             initSignaling();
           }
@@ -451,11 +441,9 @@
     window.addEventListener('load', function() {
       const params = new URLSearchParams(window.location.search);
       if (params.has('room')) {
-        // Если зашли по ссылке с параметром комнаты – подключаемся к ней
         const roomId = params.get('room');
         joinRoom(roomId);
       } else {
-        // Если прямой переход – показываем экран создания комнаты
         showScreen("createRoomScreen");
       }
     });
