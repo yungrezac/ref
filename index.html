@@ -2,22 +2,22 @@
 <html lang="ru">
 <head>
   <meta charset="UTF-8">
-  <!-- Настройка для мобильных устройств -->
+  <!-- Адаптация под мобильные устройства -->
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
   <title>Telegram MiniApp: Голосовой OS-чат</title>
   <!-- Подключение Telegram Web Apps -->
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
   <style>
-    /* --- Базовый сброс и стили --- */
+    /* Базовый сброс, шрифты и общие настройки */
     body {
       margin: 0;
       padding: 0;
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Ubuntu, sans-serif;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Ubuntu, sans-serif;
       background-color: #36393F;
       color: #FFF;
       overflow: hidden;
     }
-    /* Все экраны (скрины) приложения скрыты, отображается только .active */
+    /* Каждый экран (screen) занимает всю область, по умолчанию скрыт */
     .screen {
       display: none;
       height: 100vh;
@@ -25,17 +25,23 @@
     }
     .active {
       display: block;
+      animation: fadeInScreen 0.4s;
     }
-    /* --- Экран создания комнаты (доступен только при прямом переходе в приложение) --- */
-    #createRoomScreen {
+    @keyframes fadeInScreen {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+    /* Экран приветствия (создания комнаты) */
+    #welcomeScreen {
       display: flex;
       justify-content: center;
       align-items: center;
       text-align: center;
       padding: 20px;
+      flex-direction: column;
     }
-    #createRoomScreen h2 {
-      font-size: 24px;
+    #welcomeScreen h2 {
+      font-size: 26px;
       margin-bottom: 20px;
     }
     .btn {
@@ -48,12 +54,53 @@
       margin-bottom: 15px;
       width: 80%;
       cursor: pointer;
+      transition: background-color 0.3s;
     }
-    #createRoomScreen p {
+    .btn:hover {
+      background-color: #5e6fbf;
+    }
+    #welcomeScreen p {
       font-size: 14px;
       margin-top: 10px;
     }
-    /* --- Экран открытой комнаты --- */
+    /* Экран подключения с индикатором загрузки */
+    #connectingScreen {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      padding: 20px;
+    }
+    /* Спиннер подключения */
+    .spinner {
+      border: 6px solid rgba(255, 255, 255, 0.3);
+      border-top: 6px solid #7289DA;
+      border-radius: 50%;
+      width: 50px;
+      height: 50px;
+      animation: spin 1s linear infinite;
+      margin-bottom: 15px;
+    }
+    @keyframes spin {
+      from { transform: rotate(0deg); }
+      to   { transform: rotate(360deg); }
+    }
+    /* Экран ошибки */
+    #errorScreen {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      padding: 20px;
+    }
+    #errorScreen p {
+      font-size: 16px;
+      margin-bottom: 20px;
+      color: #FF5555;
+    }
+    /* Основной экран чата */
     #chatScreen {
       display: flex;
       flex-direction: column;
@@ -71,6 +118,10 @@
       margin: 0;
       font-size: 20px;
     }
+    header .header-buttons {
+      display: flex;
+      gap: 10px;
+    }
     header button {
       font-size: 14px;
       background-color: #5865F2;
@@ -79,8 +130,12 @@
       color: #FFF;
       padding: 10px;
       cursor: pointer;
+      transition: background-color 0.3s;
     }
-    /* Блок для аудио потока подключённых участников */
+    header button:hover {
+      background-color: #4752c4;
+    }
+    /* Блок с аудиопотоками участников */
     #remoteAudios {
       padding: 10px;
       background-color: #202225;
@@ -136,8 +191,12 @@
       font-size: 16px;
       color: #FFF;
       cursor: pointer;
+      transition: background-color 0.3s;
     }
-    /* Кнопка для повторного подключения к голосовому чату */
+    form button:hover {
+      background-color: #4752c4;
+    }
+    /* Кнопка для повторного подключения к голосовому чату в чате */
     #voiceChatButton {
       width: 100%;
       padding: 15px;
@@ -146,8 +205,12 @@
       font-size: 16px;
       color: #FFF;
       cursor: pointer;
+      transition: background-color 0.3s;
     }
-    /* Стиль для toast-уведомлений */
+    #voiceChatButton:hover {
+      background-color: #369c6d;
+    }
+    /* Toast-уведомление (всплывающее сообщение) */
     #toast {
       position: fixed;
       bottom: 20px;
@@ -164,22 +227,29 @@
   </style>
 </head>
 <body>
-  <!-- Экран создания комнаты (доступен только при прямом переходе) -->
-  <div id="createRoomScreen" class="screen">
-    <div>
-      <h2>Создать приватную комнату</h2>
-      <button class="btn" id="createRoomButton">Создать комнату</button>
-      <p>Комната создаётся только при прямом переходе в приложение. Для входа – получите ссылку от друга.</p>
-    </div>
+  <!-- Экран приветствия/создания комнаты -->
+  <div id="welcomeScreen" class="screen">
+    <h2>Добро пожаловать в Голосовой OS-чат</h2>
+    <button class="btn" id="createRoomButton">Создать комнату</button>
+    <p>Если у вас уже есть ссылка от друга – откройте её в браузере.</p>
   </div>
 
-  <!-- Экран открытой комнаты -->
+  <!-- Экран подключения (индикатор загрузки) -->
+  <div id="connectingScreen" class="screen">
+    <div class="spinner"></div>
+    <p>Соединяемся с голосовым чатом...</p>
+  </div>
+
+  <!-- Основной экран комнаты (текстовый чат + голос) -->
   <div id="chatScreen" class="screen">
     <header>
       <h2 id="roomNameDisplay"></h2>
-      <button id="copyLinkButton">Поделиться</button>
+      <div class="header-buttons">
+        <button id="copyLinkButton">Поделиться</button>
+        <button id="muteButton">Отключить микрофон</button>
+      </div>
     </header>
-    <!-- Блок для отображения подключённых участников (их аудио потоки) -->
+    <!-- Секция с аудиопотоками подключённых участников -->
     <div id="remoteAudios"></div>
     <!-- Область текстового чата -->
     <div id="chatMessages"></div>
@@ -190,7 +260,13 @@
     <button id="voiceChatButton">Переподключиться к голосовому чату</button>
   </div>
 
-  <!-- Элемент для уведомлений -->
+  <!-- Экран ошибки -->
+  <div id="errorScreen" class="screen">
+    <p id="errorMessage">Произошла ошибка</p>
+    <button class="btn" id="retryButton">Повторить попытку</button>
+  </div>
+
+  <!-- Элемент для уведомлений (toast) -->
   <div id="toast"></div>
 
   <script>
@@ -198,18 +274,19 @@
     const tg = window.Telegram.WebApp;
     tg.expand();
 
-    /* --------------------- Переменные и базовые функции --------------------- */
-    // Генерация уникального id для каждого участника
+    /* --------------------- Переменные и утилиты --------------------- */
+    // Генерация уникального идентификатора для каждого участника
     function generateRandomId() {
       return 'id-' + Math.random().toString(36).substr(2, 9);
     }
-    let myId = generateRandomId(); // уникальный идентификатор
+    let myId = generateRandomId();
     let currentRoom = null;
     let localStream = null;
     let signalingServer = null;
-    let peers = {}; // объект, где хранятся RTCPeerConnection для каждого участника
+    let peers = {}; // RTCPeerConnection для каждого участника комнаты
+    let isMuted = false;
 
-    // Toast-уведомление
+    // Функция для вывода toast-уведомлений
     function showToast(message) {
       const toast = document.getElementById("toast");
       toast.textContent = message;
@@ -217,16 +294,20 @@
       setTimeout(() => { toast.style.opacity = 0; }, 3000);
     }
 
-    // Переключение между экранами
+    // Переключение экранов по id
     function showScreen(screenId) {
       document.querySelectorAll('.screen').forEach(screen => screen.classList.remove('active'));
       document.getElementById(screenId).classList.add('active');
     }
 
-    /* --------------------- Текстовый чат --------------------- */
-    // Локальное хранение истории сообщений (демо‑вариант)
-    const roomHistory = {};
+    // Функция для отображения ошибки на специальном экране
+    function showErrorScreen(message) {
+      document.getElementById("errorMessage").textContent = message;
+      showScreen("errorScreen");
+    }
 
+    /* --------------------- Текстовый чат --------------------- */
+    const roomHistory = {};
     function addMessage(user, text) {
       const chatMessages = document.getElementById("chatMessages");
       const messageEl = document.createElement("div");
@@ -234,13 +315,11 @@
       messageEl.innerHTML = '<span class="user">' + user + ':</span> ' + text;
       chatMessages.appendChild(messageEl);
       chatMessages.scrollTop = chatMessages.scrollHeight;
-      // Сохранение в локальную историю
       if (currentRoom) {
         if (!roomHistory[currentRoom]) roomHistory[currentRoom] = [];
         roomHistory[currentRoom].push({ user, text });
       }
     }
-
     document.getElementById("messageForm").addEventListener("submit", function(e) {
       e.preventDefault();
       const input = document.getElementById("messageInput");
@@ -255,30 +334,15 @@
       }
     });
 
-    /* --------------------- Логика создания и открытия комнаты --------------------- */
-    // Если пользователь заходит напрямую (без ?room=) – позволяет создать комнату.
-    // При переходе по ссылке с параметром сразу происходит подключение.
+    /* --------------------- Управление комнатой --------------------- */
+    // Создание комнаты (доступно, если нет параметра ?room=)
     document.getElementById("createRoomButton").addEventListener("click", function() {
       const roomId = 'room-' + Math.random().toString(36).substr(2, 9);
       currentRoom = roomId;
-      // Обновляем URL с параметром ?room=
       window.history.pushState({ room: roomId }, "", '?room=' + roomId);
       joinRoom(roomId);
     });
-
-    function joinRoom(roomId) {
-      currentRoom = roomId;
-      document.getElementById("roomNameDisplay").textContent = "Комната: " + roomId;
-      showScreen("chatScreen");
-      // Загружаем локальную историю текстовых сообщений, если есть
-      if (roomHistory[roomId]) {
-        document.getElementById("chatMessages").innerHTML = "";
-        roomHistory[roomId].forEach(msg => addMessage(msg.user, msg.text));
-      }
-      // Запуск голосового подключения
-      startVoiceChat();
-    }
-
+    // Копирование ссылки на комнату
     document.getElementById("copyLinkButton").addEventListener("click", function() {
       const url = window.location.href;
       navigator.clipboard.writeText(url).then(() => {
@@ -287,27 +351,49 @@
         showToast("Ошибка копирования ссылки.");
       });
     });
+    // Переподключение к голосовому чату
+    document.getElementById("voiceChatButton").addEventListener("click", function() {
+      if (!currentRoom) {
+        showToast("Сначала создайте или выберите комнату.");
+        return;
+      }
+      startVoiceChat();
+    });
+    // Переключение микрофона (mute/unmute)
+    document.getElementById("muteButton").addEventListener("click", function() {
+      if (!localStream) return;
+      isMuted = !isMuted;
+      localStream.getAudioTracks().forEach(track => track.enabled = !isMuted);
+      this.textContent = isMuted ? "Включить микрофон" : "Отключить микрофон";
+      showToast(isMuted ? "Микрофон отключен" : "Микрофон включен");
+    });
+    // Функция подключения к комнате
+    function joinRoom(roomId) {
+      currentRoom = roomId;
+      document.getElementById("roomNameDisplay").textContent = "Комната: " + roomId;
+      // Загружаем историю текстовых сообщений
+      if (roomHistory[roomId]) {
+        document.getElementById("chatMessages").innerHTML = "";
+        roomHistory[roomId].forEach(msg => addMessage(msg.user, msg.text));
+      }
+      // Показываем экран подключения
+      showScreen("connectingScreen");
+      startVoiceChat();
+    }
 
-    /* --------------------- WebRTC для голосового общения --------------------- */
-    // Конфигурация RTCPeerConnection (используем публичный STUN-сервер)
+    /* --------------------- WebRTC и сигналинг --------------------- */
     const rtcConfig = { iceServers: [{ urls: 'stun:stun.l.google.com:19302' }] };
-
-    // Инициализация сигналингового соединения через WebSocket
+    // Инициализация WebSocket-соединения по предоставленному серверу
     function initSignaling() {
-      // Используем предоставленный вебсокет сервер:
       signalingServer = new WebSocket('wss://servwer-yungrezacs-projects.vercel.app/');
       signalingServer.onopen = () => {
-        // При соединении отправляем сообщение о присоединении к комнате
         signalingServer.send(JSON.stringify({ type: 'join', room: currentRoom, id: myId }));
       };
       signalingServer.onmessage = function(event) {
         const msg = JSON.parse(event.data);
-        // Игнорируем сообщения от самого себя или если target не равен нашему id (если указан)
         if (msg.id === myId) return;
         if (msg.target && msg.target !== myId) return;
-        // Обработка типов сообщений
         if (msg.type === 'join') {
-          // Когда новый участник присоединяется, инициатор создаёт оффер
           createOffer(msg.id);
         } else if (msg.type === 'offer') {
           handleOffer(msg.offer, msg.id);
@@ -322,12 +408,10 @@
         console.error("Signaling error:", error);
       };
     }
-
-    // Создание соединения и отправка оффера (инициатор)
+    // Создание оффера для нового участника
     function createOffer(peerId) {
       const peerConnection = new RTCPeerConnection(rtcConfig);
       peers[peerId] = peerConnection;
-      // Добавляем локальные аудио дорожки
       localStream.getTracks().forEach(track => peerConnection.addTrack(track, localStream));
       peerConnection.onicecandidate = (event) => {
         if (event.candidate) {
@@ -356,8 +440,7 @@
         })
         .catch(err => console.error("Ошибка создания оффера:", err));
     }
-
-    // Обработка полученного оффера (ретиватор)
+    // Обработка полученного оффера
     function handleOffer(offer, peerId) {
       const peerConnection = new RTCPeerConnection(rtcConfig);
       peers[peerId] = peerConnection;
@@ -390,24 +473,21 @@
         })
         .catch(err => console.error("Ошибка обработки оффера:", err));
     }
-
-    // Обработка полученного ответа на оффер
+    // Обработка ответа на оффер
     function handleAnswer(answer, peerId) {
       const peerConnection = peers[peerId];
       if (peerConnection) {
         peerConnection.setRemoteDescription(answer).catch(err => console.error("Ошибка установки remoteDescription:", err));
       }
     }
-
-    // Обработка ICE-кандидата
+    // Добавление ICE-кандидата
     function handleIceCandidate(candidate, peerId) {
       const peerConnection = peers[peerId];
       if (peerConnection) {
         peerConnection.addIceCandidate(candidate).catch(err => console.error("Ошибка добавления ICE кандидата:", err));
       }
     }
-
-    // Добавление удалённого аудио потока в интерфейс
+    // Отображение удалённого аудио потока в интерфейсе
     function handleRemoteStream(peerId, stream) {
       const remoteAudios = document.getElementById("remoteAudios");
       let audioEl = document.getElementById("audio-" + peerId);
@@ -420,20 +500,24 @@
       }
       audioEl.srcObject = stream;
     }
-
-    // Запуск голосового чата: запрос доступа к микрофону и инициализация сигналинга
+    // Запуск голосового чата: запрос к getUserMedia и инициализация сигналинга
     function startVoiceChat() {
+      if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+        showErrorScreen("Ваш браузер не поддерживает getUserMedia.");
+        return;
+      }
       navigator.mediaDevices.getUserMedia({ audio: true })
         .then(stream => {
           localStream = stream;
-          showToast("Голосовой чат запущен в комнате: " + currentRoom);
+          showToast("Голосовой чат запущен");
           if (!signalingServer || signalingServer.readyState !== WebSocket.OPEN) {
             initSignaling();
           }
+          setTimeout(() => { showScreen("chatScreen"); }, 500);
         })
         .catch(err => {
           console.error("Ошибка доступа к микрофону:", err);
-          showToast("Не удалось получить доступ к микрофону. Нажмите кнопку для повторной попытки.");
+          showErrorScreen("Не удалось получить доступ к микрофону. Обновите страницу и попробуйте снова.");
         });
     }
 
@@ -444,8 +528,12 @@
         const roomId = params.get('room');
         joinRoom(roomId);
       } else {
-        showScreen("createRoomScreen");
+        showScreen("welcomeScreen");
       }
+    });
+    // Обработка кнопки Повторить попытку на экране ошибки
+    document.getElementById("retryButton").addEventListener("click", function() {
+      window.location.reload();
     });
   </script>
 </body>
