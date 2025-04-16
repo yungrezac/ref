@@ -245,16 +245,29 @@
       joinRoom(roomId);
     });
 
-    // Функция подключения к комнате
+    // Функция подключения к комнате и загрузки истории (если есть)
     function joinRoom(roomId) {
       currentRoom = roomId;
       document.getElementById("roomNameDisplay").textContent = "Комната: " + roomId;
       showScreen("chatScreen");
-      // Загружаем историю сообщений (если есть)
+      // Загружаем историю сообщений, если она существует
       if (roomHistory[roomId]) {
         document.getElementById("chatMessages").innerHTML = "";
         roomHistory[roomId].forEach(msg => addMessage(msg.user, msg.text));
       }
+    }
+
+    // Функция запуска голосового чата
+    function startVoiceChat() {
+      navigator.mediaDevices.getUserMedia({ audio: true })
+        .then(function(stream) {
+          showToast("Голосовой чат запущен в комнате: " + currentRoom);
+          // Здесь можно реализовать передачу аудиопотока через WebRTC или WebSocket
+        })
+        .catch(function(err) {
+          console.error("Ошибка доступа к микрофону:", err);
+          showToast("Не удалось получить доступ к микрофону. Нажмите кнопку для повторной попытки.");
+        });
     }
 
     // Копирование ссылки на комнату
@@ -267,21 +280,13 @@
       });
     });
 
-    // Голосовой чат (демо-реализация)
+    // Голосовой чат — по клику на кнопку
     document.getElementById("voiceChatButton").addEventListener("click", function() {
       if (!currentRoom) {
         showToast("Сначала создайте или выберите комнату.");
         return;
       }
-      navigator.mediaDevices.getUserMedia({ audio: true })
-        .then(function(stream) {
-          showToast("Голосовой чат запущен в комнате: " + currentRoom);
-          // Реализацию передачи аудио можно добавить через WebRTC или WebSocket
-        })
-        .catch(function(err) {
-          console.error("Ошибка доступа к микрофону:", err);
-          showToast("Не удалось получить доступ к микрофону.");
-        });
+      startVoiceChat();
     });
 
     // При загрузке страницы проверяем наличие параметра ?room=
@@ -290,6 +295,11 @@
       if (params.has('room')) {
         const roomId = params.get('room');
         joinRoom(roomId);
+        // Попытка автоматически запустить голосовой чат через небольшую задержку,
+        // чтобы экран успел отобразиться. Учтите, что браузер может заблокировать автозапуск.
+        setTimeout(() => {
+          startVoiceChat();
+        }, 500);
       } else {
         showScreen("createRoomScreen");
       }
