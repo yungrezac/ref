@@ -168,13 +168,14 @@
             </div>
             <div class="form-group">
                 <label>Реферальный ID (необязательно)</label>
-                <input type="text" id="ref-id" class="form-control" placeholder="ref123">
+                <input type="text" id="ref-id" class="form-control" placeholder="Оставьте пустым для автогенерации">
             </div>
             <button id="gen-btn" class="btn">Создать ссылку</button>
             
             <div id="result" class="result">
                 <div id="short-link" class="short-link"></div>
                 <button id="copy-btn" class="btn secondary">Копировать ссылку</button>
+                <button id="redirect-btn" class="btn" style="display: none;">Перейти по ссылке</button>
             </div>
         </div>
     </div>
@@ -184,6 +185,7 @@
         const params = new URLSearchParams(location.search);
         const appId = params.get('app');
         const refId = params.get('ref');
+        const redirect = params.get('redirect');
         
         // Элементы интерфейса
         const refView = document.getElementById('ref-view');
@@ -191,10 +193,21 @@
         const openBtn = document.getElementById('open-btn');
         const genBtn = document.getElementById('gen-btn');
         const copyBtn = document.getElementById('copy-btn');
+        const redirectBtn = document.getElementById('redirect-btn');
         const shortLink = document.getElementById('short-link');
         
         // Базовая часть URL без параметров
         const baseUrl = location.origin + location.pathname;
+        
+        // Автоматическое перенаправление если есть параметр redirect
+        if (redirect === 'true' && appId) {
+            const appUrl = `https://t.me/${appId}`;
+            if (window.Telegram?.WebApp) {
+                Telegram.WebApp.openTelegramLink(appUrl);
+            } else {
+                location.href = appUrl;
+            }
+        }
         
         if (appId) {
             // Режим реферальной ссылки
@@ -222,7 +235,7 @@
             // Генерация короткой ссылки
             genBtn.onclick = () => {
                 const appUrl = document.getElementById('app-url').value.trim();
-                const refId = document.getElementById('ref-id').value.trim();
+                let refId = document.getElementById('ref-id').value.trim();
                 
                 if (!appUrl) return alert('Введите ссылку на Mini App');
                 
@@ -230,13 +243,19 @@
                 const appUsername = extractUsername(appUrl);
                 if (!appUsername) return alert('Некорректная ссылка на Mini App');
                 
-                // Формируем короткую ссылку
-                let refLink = `${baseUrl}?app=${appUsername}`;
-                if (refId) refLink += `&ref=${encodeURIComponent(refId)}`;
+                // Генерируем реферальный ID если не указан
+                if (!refId) {
+                    refId = generateRefId();
+                    document.getElementById('ref-id').value = refId;
+                }
+                
+                // Формируем короткую ссылку с параметром redirect
+                let refLink = `${baseUrl}?app=${appUsername}&ref=${encodeURIComponent(refId)}&redirect=true`;
                 
                 // Показываем результат
                 shortLink.textContent = refLink;
                 document.getElementById('result').style.display = 'block';
+                redirectBtn.style.display = 'block';
                 
                 // Настраиваем кнопку копирования
                 copyBtn.onclick = () => {
@@ -244,6 +263,15 @@
                         copyBtn.textContent = 'Скопировано!';
                         setTimeout(() => copyBtn.textContent = 'Копировать ссылку', 2000);
                     });
+                };
+                
+                // Настраиваем кнопку перенаправления
+                redirectBtn.onclick = () => {
+                    if (window.Telegram?.WebApp) {
+                        Telegram.WebApp.openTelegramLink(refLink);
+                    } else {
+                        location.href = refLink;
+                    }
                 };
             };
         }
@@ -262,6 +290,16 @@
             }
             
             return null;
+        }
+        
+        function generateRefId() {
+            // Генерация случайного реферального ID (8 символов)
+            const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+            let result = '';
+            for (let i = 0; i < 8; i++) {
+                result += chars.charAt(Math.floor(Math.random() * chars.length));
+            }
+            return result;
         }
         
         function trackReferral(refId) {
