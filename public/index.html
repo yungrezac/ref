@@ -500,19 +500,17 @@
                 return;
             }
             
-            let refLink = `${window.location.origin}${window.location.pathname}?r=${encodeURIComponent(miniAppUrl)}`;
-            
+            // Создаем параметры для Mini App
             const refParam = document.getElementById('refParam').value.trim();
-            if (refParam) {
-                refLink += `&p=${encodeURIComponent(refParam)}`;
-            }
+            
+            // Формируем ссылку для Telegram Mini App
+            const refLink = `https://t.me/furjufjru_bot/startapp=ref&r=${encodeURIComponent(miniAppUrl)}${refParam ? `&p=${encodeURIComponent(refParam)}` : ''}`;
             
             document.getElementById('refLink').value = refLink;
             document.getElementById('result').style.display = 'block';
             
-            // Сохраняем в историю с полным URL
-            const fullRefLink = refLink + (refParam ? `&p=${encodeURIComponent(refParam)}` : '');
-            historyManager.addLink(miniAppUrl, refParam, fullRefLink);
+            // Сохраняем в историю
+            historyManager.addLink(miniAppUrl, refParam, refLink);
         }
         
         function copyToClipboard() {
@@ -573,17 +571,31 @@
                 const BOT_TOKEN = '7030085123:AAGxRwbTC-Kwr4TBpFxuhymfdDXKMzhIn6E';
                 const message = `🔗 Новый переход по вашей реферальной ссылке!\n\n👤 Пользователь: @${username}\n🌐 Ссылка: ${historyItem.miniAppUrl}\n📱 Устройство: ${clickDetail.device}\n🌍 Браузер: ${clickDetail.browser}`;
                 
-                fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        chat_id: historyItem.ownerChatId, // ID чата создателя ссылки
-                        text: message,
-                        parse_mode: 'HTML'
+                // Проверяем наличие chat_id создателя ссылки
+                if (historyItem.ownerChatId) {
+                    console.log('Отправка уведомления владельцу:', historyItem.ownerChatId);
+                    
+                    fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            chat_id: historyItem.ownerChatId,
+                            text: message,
+                            parse_mode: 'HTML'
+                        })
                     })
-                }).catch(console.error);
+                    .then(response => response.json())
+                    .then(data => {
+                        console.log('Уведомление отправлено:', data);
+                    })
+                    .catch(error => {
+                        console.error('Ошибка отправки уведомления:', error);
+                    });
+                } else {
+                    console.log('Chat ID владельца ссылки не найден');
+                }
                 
                 console.log('Переход зарегистрирован:', {
                     referralCode: refCode,
