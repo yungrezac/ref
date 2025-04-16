@@ -2,13 +2,13 @@
 <html lang="ru">
 <head>
   <meta charset="UTF-8">
-  <!-- Мобильный viewport -->
+  <!-- Настройка для мобильных устройств -->
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-  <title>Telegram MiniApp OS-чат с WebSocket</title>
+  <title>Telegram MiniApp OS-чат</title>
   <!-- Подключение Telegram Web Apps -->
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
   <style>
-    /* Основной сброс стилей и базовая настройка */
+    /* Базовые стили и сброс */
     body {
       margin: 0;
       padding: 0;
@@ -17,7 +17,7 @@
       color: #FFF;
       overflow: hidden;
     }
-    /* Скрины приложения */
+    /* Экран (скрин) приложения — только активный виден */
     .screen {
       display: none;
       height: 100vh;
@@ -80,17 +80,17 @@
       padding: 10px;
       cursor: pointer;
     }
-    /* Область сообщений */
+    /* Область с сообщениями */
     #chatMessages {
       flex: 1;
       padding: 15px;
       background-color: #36393F;
       overflow-y: auto;
+      word-wrap: break-word;
     }
     .message {
       margin-bottom: 10px;
       animation: fadeIn 0.3s;
-      word-wrap: break-word;
     }
     .message span.user {
       font-weight: bold;
@@ -132,7 +132,7 @@
       color: #FFF;
       cursor: pointer;
     }
-    /* Toast-уведомления */
+    /* Toast-уведомление */
     #toast {
       position: fixed;
       bottom: 20px;
@@ -180,42 +180,7 @@
     const tg = window.Telegram.WebApp;
     tg.expand();
 
-    // --- WebSocket ---
-    let socket = null;
-    const WEBSOCKET_URL = "ws://yourserver.com"; // Замените на адрес вашего WebSocket-сервера
-
-    function initWebSocket() {
-      socket = new WebSocket(WEBSOCKET_URL);
-      socket.addEventListener("open", () => {
-        showToast("Соединение установлено");
-        // При открытии соединения отправляем команду join на сервер
-        socket.send(JSON.stringify({
-          type: "join",
-          room: currentRoom,
-          user: tg.initDataUnsafe ? tg.initDataUnsafe.user.first_name : "Аноним"
-        }));
-      });
-      socket.addEventListener("message", (event) => {
-        try {
-          const data = JSON.parse(event.data);
-          // При получении сообщения проверяем, что оно относится к текущей комнате
-          if (data.type === "message" && data.room === currentRoom) {
-            addMessage(data.user, data.text);
-          }
-        } catch (err) {
-          console.error("Ошибка парсинга:", err);
-        }
-      });
-      socket.addEventListener("close", () => {
-        showToast("Соединение закрыто");
-      });
-      socket.addEventListener("error", () => {
-        showToast("Ошибка соединения");
-      });
-    }
-    // --- Конец WebSocket ---
-
-    // Функция показа уведомлений (toast)
+    // Функция вывода toast-уведомлений
     function showToast(message) {
       const toast = document.getElementById("toast");
       toast.textContent = message;
@@ -236,9 +201,12 @@
       document.getElementById(screenId).classList.add('active');
     }
 
+    // Локальное хранение истории сообщений (демо-вариант)
+    const roomHistory = {};
+
     let currentRoom = null;
 
-    // Функция для вывода сообщения в чат
+    // Функция добавления сообщения в чат
     function addMessage(user, text) {
       const chatMessages = document.getElementById("chatMessages");
       const messageEl = document.createElement("div");
@@ -246,29 +214,24 @@
       messageEl.innerHTML = '<span class="user">' + user + ':</span> ' + text;
       chatMessages.appendChild(messageEl);
       chatMessages.scrollTop = chatMessages.scrollHeight;
+      // Сохраняем сообщение в локальную историю
+      if (currentRoom) {
+        if (!roomHistory[currentRoom]) roomHistory[currentRoom] = [];
+        roomHistory[currentRoom].push({ user, text });
+      }
     }
 
-    // Обработка отправки сообщения
+    // Отправка сообщения
     document.getElementById("messageForm").addEventListener("submit", function(e) {
       e.preventDefault();
       const input = document.getElementById("messageInput");
-      const message = input.value.trim();
       if (!currentRoom) {
         showToast("Сначала создайте или выберите комнату.");
         return;
       }
+      const message = input.value.trim();
       if (message !== "") {
-        // Выводим сообщение у себя
         addMessage("Вы", message);
-        // Отправляем сообщение на сервер, если соединение установлено
-        if (socket && socket.readyState === WebSocket.OPEN) {
-          socket.send(JSON.stringify({
-            type: "message",
-            room: currentRoom,
-            user: tg.initDataUnsafe ? tg.initDataUnsafe.user.first_name : "Аноним",
-            text: message
-          }));
-        }
         input.value = "";
       }
     });
@@ -277,7 +240,7 @@
     document.getElementById("createRoomButton").addEventListener("click", function() {
       const roomId = generateRoomId();
       currentRoom = roomId;
-      // Обновляем URL с параметром room, чтобы можно было поделиться ссылкой
+      // Обновляем URL с параметром ?room=
       window.history.pushState({ room: roomId }, "", '?room=' + roomId);
       joinRoom(roomId);
     });
@@ -287,11 +250,14 @@
       currentRoom = roomId;
       document.getElementById("roomNameDisplay").textContent = "Комната: " + roomId;
       showScreen("chatScreen");
-      // Инициализация WebSocket для комнаты
-      initWebSocket();
+      // Загружаем историю сообщений (если есть)
+      if (roomHistory[roomId]) {
+        document.getElementById("chatMessages").innerHTML = "";
+        roomHistory[roomId].forEach(msg => addMessage(msg.user, msg.text));
+      }
     }
 
-    // Обработка копирования ссылки на комнату
+    // Копирование ссылки на комнату
     document.getElementById("copyLinkButton").addEventListener("click", function() {
       const url = window.location.href;
       navigator.clipboard.writeText(url).then(() => {
@@ -301,7 +267,7 @@
       });
     });
 
-    // Обработка голосового чата (демо-версия)
+    // Голосовой чат (демо-реализация)
     document.getElementById("voiceChatButton").addEventListener("click", function() {
       if (!currentRoom) {
         showToast("Сначала создайте или выберите комнату.");
@@ -310,7 +276,7 @@
       navigator.mediaDevices.getUserMedia({ audio: true })
         .then(function(stream) {
           showToast("Голосовой чат запущен в комнате: " + currentRoom);
-          // Здесь можно реализовать передачу аудио через WebRTC или WebSocket
+          // Реализацию передачи аудио можно добавить через WebRTC или WebSocket
         })
         .catch(function(err) {
           console.error("Ошибка доступа к микрофону:", err);
