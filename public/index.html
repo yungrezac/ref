@@ -436,12 +436,14 @@
             
             addLink(miniAppUrl, refParam, generatedLink) {
                 const history = this.getHistory();
+                const ownerChatId = window.Telegram?.WebApp?.initDataUnsafe?.user?.id;
                 history.unshift({
                     miniAppUrl,
                     refParam,
                     generatedLink,
                     createdAt: new Date().toISOString(),
-                    clicks: 0
+                    clicks: 0,
+                    ownerChatId: ownerChatId // Сохраняем ID создателя ссылки
                 });
                 this.saveHistory(history);
                 this.displayHistory();
@@ -508,8 +510,9 @@
             document.getElementById('refLink').value = refLink;
             document.getElementById('result').style.display = 'block';
             
-            // Сохраняем в историю
-            historyManager.addLink(miniAppUrl, refParam, refLink);
+            // Сохраняем в историю с полным URL
+            const fullRefLink = refLink + (refParam ? `&p=${encodeURIComponent(refParam)}` : '');
+            historyManager.addLink(miniAppUrl, refParam, fullRefLink);
         }
         
         function copyToClipboard() {
@@ -527,31 +530,67 @@
         function trackReferral(refCode) {
             const history = historyManager.getHistory();
             const currentUrl = window.location.href;
-            const currentUrlObj = new URL(currentUrl);
             
             // Ищем соответствующую ссылку в истории
             const historyItem = history.find(item => {
-                // Проверяем соответствие URL и реферального кода
-                const itemUrl = new URL(item.generatedLink);
-                return itemUrl.searchParams.get('r') === currentUrlObj.searchParams.get('r') &&
-                       itemUrl.searchParams.get('p') === currentUrlObj.searchParams.get('p');
+                const itemUrlParams = new URL(item.generatedLink).searchParams;
+                const currentUrlParams = new URL(currentUrl).searchParams;
+                
+                // Проверяем совпадение параметров r и p
+                const rMatch = itemUrlParams.get('r') === currentUrlParams.get('r');
+                const pMatch = (!itemUrlParams.get('p') && !currentUrlParams.get('p')) || 
+                             (itemUrlParams.get('p') === currentUrlParams.get('p'));
+                
+                return rMatch && pMatch;
             });
             
             if (historyItem) {
-                // Добавляем информацию о переходе
+                // Инициализируем массив для деталей кликов если его нет
                 if (!historyItem.clickDetails) {
                     historyItem.clickDetails = [];
                 }
                 
-                historyItem.clickDetails.push({
+                // Добавляем подробную информацию о переходе
+                const clickDetail = {
                     timestamp: new Date().toISOString(),
                     userAgent: navigator.userAgent,
-                    platform: navigator.platform
-                });
+                    platform: navigator.platform,
+                    device: /Mobile|Android|iPhone/i.test(navigator.userAgent) ? 'mobile' : 'desktop',
+                    browser: navigator.userAgent.match(/(chrome|safari|firefox|edge|opera(?=\/))\/?\s*(\d+)/i)[1],
+                };
                 
+                historyItem.clickDetails.push(clickDetail);
                 historyItem.clicks = historyItem.clickDetails.length;
+                
+                // Сохраняем обновленную историю
                 historyManager.saveHistory(history);
                 historyManager.displayHistory();
+
+                // Получаем username из Telegram WebApp
+                const username = window.Telegram?.WebApp?.initDataUnsafe?.user?.username || 'Неизвестный пользователь';
+                
+                // Отправляем уведомление создателю ссылки
+                const BOT_TOKEN = '7030085123:AAGxRwbTC-Kwr4TBpFxuhymfdDXKMzhIn6E';
+                const message = `🔗 Новый переход по вашей реферальной ссылке!\n\n👤 Пользователь: @${username}\n🌐 Ссылка: ${historyItem.miniAppUrl}\n📱 Устройство: ${clickDetail.device}\n🌍 Браузер: ${clickDetail.browser}`;
+                
+                fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        chat_id: historyItem.ownerChatId, // ID чата создателя ссылки
+                        text: message,
+                        parse_mode: 'HTML'
+                    })
+                }).catch(console.error);
+                
+                console.log('Переход зарегистрирован:', {
+                    referralCode: refCode,
+                    totalClicks: historyItem.clicks,
+                    details: clickDetail,
+                    username: username
+                });
             }
             
             console.log('Реферал зарегистрирован:', refCode);
