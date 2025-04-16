@@ -134,51 +134,6 @@
             animation: pulse 2s infinite;
         }
 
-        .stats-container {
-            margin-top: 20px;
-            text-align: left;
-            display: none;
-        }
-
-        .stats-table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 10px;
-        }
-
-        .stats-table th, .stats-table td {
-            padding: 8px;
-            border-bottom: 1px solid #dfe6e9;
-            text-align: left;
-        }
-
-        .stats-table th {
-            background-color: var(--light);
-            font-weight: 500;
-        }
-
-        .stats-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 10px;
-        }
-
-        .stats-title {
-            font-weight: 500;
-            color: var(--dark);
-        }
-
-        .refresh-btn {
-            background: var(--primary);
-            color: white;
-            border: none;
-            padding: 5px 10px;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 12px;
-        }
-
         @keyframes pulse {
             0% { transform: scale(1); }
             50% { transform: scale(1.02); }
@@ -204,24 +159,6 @@
         
         <div id="ref-view">
             <button id="open-btn" class="btn pulse">Перейти в приложение</button>
-            <div id="stats-container" class="stats-container">
-                <div class="stats-header">
-                    <div class="stats-title">Статистика переходов</div>
-                    <button id="refresh-btn" class="refresh-btn">Обновить</button>
-                </div>
-                <table class="stats-table">
-                    <thead>
-                        <tr>
-                            <th>Дата</th>
-                            <th>Переходы</th>
-                            <th>Уникальные</th>
-                        </tr>
-                    </thead>
-                    <tbody id="stats-body">
-                        <!-- Статистика будет загружена здесь -->
-                    </tbody>
-                </table>
-            </div>
         </div>
         
         <div id="gen-form" style="display: none;">
@@ -238,25 +175,6 @@
             <div id="result" class="result">
                 <div id="short-link" class="short-link"></div>
                 <button id="copy-btn" class="btn secondary">Копировать ссылку</button>
-                
-                <div id="link-stats-container" class="stats-container">
-                    <div class="stats-header">
-                        <div class="stats-title">Статистика по ссылке</div>
-                        <button id="link-refresh-btn" class="refresh-btn">Обновить</button>
-                    </div>
-                    <table class="stats-table">
-                        <thead>
-                            <tr>
-                                <th>Дата</th>
-                                <th>Переходы</th>
-                                <th>Уникальные</th>
-                            </tr>
-                        </thead>
-                        <tbody id="link-stats-body">
-                            <!-- Статистика по ссылке будет загружена здесь -->
-                        </tbody>
-                    </table>
-                </div>
             </div>
         </div>
     </div>
@@ -266,7 +184,6 @@
         const params = new URLSearchParams(location.search);
         const appId = params.get('app');
         const refId = params.get('ref');
-        const linkId = params.get('link'); // Для просмотра статистики по конкретной ссылке
         
         // Элементы интерфейса
         const refView = document.getElementById('ref-view');
@@ -275,95 +192,60 @@
         const genBtn = document.getElementById('gen-btn');
         const copyBtn = document.getElementById('copy-btn');
         const shortLink = document.getElementById('short-link');
-        const statsContainer = document.getElementById('stats-container');
-        const statsBody = document.getElementById('stats-body');
-        const refreshBtn = document.getElementById('refresh-btn');
-        const linkStatsContainer = document.getElementById('link-stats-container');
-        const linkStatsBody = document.getElementById('link-stats-body');
-        const linkRefreshBtn = document.getElementById('link-refresh-btn');
         
         // Базовая часть URL без параметров
         const baseUrl = location.origin + location.pathname;
         
-        // Имитация базы данных (в реальном приложении заменить на API)
-        const localStorageKey = 'puzzleRefStats';
-        let statsDB = JSON.parse(localStorage.getItem(localStorageKey)) || {};
-        
-        // Инициализация приложения
-        initApp();
-        
-        function initApp() {
-            if (linkId) {
-                // Режим просмотра статистики по ссылке
-                showLinkStats(linkId);
-                genForm.style.display = 'none';
-                refView.style.display = 'block';
-                document.getElementById('open-btn').style.display = 'none';
-            } 
-            else if (appId) {
-                // Режим реферальной ссылки
-                genForm.style.display = 'none';
-                
-                // Устанавливаем ссылку для перехода
-                const appUrl = `https://t.me/${appId}`;
-                openBtn.onclick = () => {
-                    // Записываем переход в статистику
-                    recordClick(appId, refId);
-                    
-                    if (window.Telegram?.WebApp) {
-                        Telegram.WebApp.openTelegramLink(appUrl);
-                    } else {
-                        location.href = appUrl;
-                    }
-                };
-                
-                // Показываем статистику, если это владелец ссылки
-                if (isLinkOwner(appId, refId)) {
-                    showStats(appId, refId);
+        if (appId) {
+            // Режим реферальной ссылки
+            genForm.style.display = 'none';
+            
+            // Устанавливаем ссылку для перехода
+            const appUrl = `https://t.me/${appId}`;
+            openBtn.onclick = () => {
+                if (window.Telegram?.WebApp) {
+                    Telegram.WebApp.openTelegramLink(appUrl);
+                } else {
+                    location.href = appUrl;
                 }
-            } else {
-                // Режим генератора
-                refView.style.display = 'none';
-                genForm.style.display = 'block';
+            };
+            
+            // Отправляем реферальные данные (если есть)
+            if (refId) {
+                trackReferral(refId);
+            }
+        } else {
+            // Режим генератора
+            refView.style.display = 'none';
+            genForm.style.display = 'block';
+            
+            // Генерация короткой ссылки
+            genBtn.onclick = () => {
+                const appUrl = document.getElementById('app-url').value.trim();
+                const refId = document.getElementById('ref-id').value.trim();
                 
-                // Генерация короткой ссылки
-                genBtn.onclick = generateLink;
+                if (!appUrl) return alert('Введите ссылку на Mini App');
                 
-                // Настройка кнопки копирования
+                // Извлекаем username из ссылки (t.me/username)
+                const appUsername = extractUsername(appUrl);
+                if (!appUsername) return alert('Некорректная ссылка на Mini App');
+                
+                // Формируем короткую ссылку
+                let refLink = `${baseUrl}?app=${appUsername}`;
+                if (refId) refLink += `&ref=${encodeURIComponent(refId)}`;
+                
+                // Показываем результат
+                shortLink.textContent = refLink;
+                document.getElementById('result').style.display = 'block';
+                
+                // Настраиваем кнопку копирования
                 copyBtn.onclick = () => {
-                    navigator.clipboard.writeText(shortLink.textContent).then(() => {
+                    navigator.clipboard.writeText(refLink).then(() => {
                         copyBtn.textContent = 'Скопировано!';
                         setTimeout(() => copyBtn.textContent = 'Копировать ссылку', 2000);
                     });
                 };
-            }
-            
-            // Настройка кнопок обновления статистики
-            if (refreshBtn) refreshBtn.onclick = () => showStats(appId, refId);
-            if (linkRefreshBtn) linkRefreshBtn.onclick = () => showLinkStats(linkId);
-        }
-        
-        function generateLink() {
-            const appUrl = document.getElementById('app-url').value.trim();
-            const refId = document.getElementById('ref-id').value.trim();
-            
-            if (!appUrl) return alert('Введите ссылку на Mini App');
-            
-            // Извлекаем username из ссылки (t.me/username)
-            const appUsername = extractUsername(appUrl);
-            if (!appUsername) return alert('Некорректная ссылка на Mini App');
-            
-            // Формируем короткую ссылку
-            let refLink = `${baseUrl}?app=${appUsername}`;
-            if (refId) refLink += `&ref=${encodeURIComponent(refId)}`;
-            
-            // Показываем результат
-            shortLink.textContent = refLink;
-            document.getElementById('result').style.display = 'block';
-            
-            // Показываем статистику по этой ссылке
-            const linkId = generateLinkId(appUsername, refId);
-            showLinkStats(linkId);
+            };
         }
         
         function extractUsername(url) {
@@ -382,132 +264,9 @@
             return null;
         }
         
-        function generateLinkId(appId, refId) {
-            return refId ? `${appId}_${refId}` : appId;
-        }
-        
-        function recordClick(appId, refId) {
-            const linkId = generateLinkId(appId, refId);
-            const today = new Date().toISOString().split('T')[0];
-            const userKey = getUniqueUserKey();
-            
-            // Инициализация записи, если её нет
-            if (!statsDB[linkId]) {
-                statsDB[linkId] = {
-                    appId,
-                    refId,
-                    created: new Date().toISOString(),
-                    stats: {}
-                };
-            }
-            
-            // Инициализация статистики за день
-            if (!statsDB[linkId].stats[today]) {
-                statsDB[linkId].stats[today] = {
-                    total: 0,
-                    unique: []
-                };
-            }
-            
-            // Увеличиваем счетчик общих переходов
-            statsDB[linkId].stats[today].total += 1;
-            
-            // Добавляем уникального пользователя (если ещё нет)
-            if (!statsDB[linkId].stats[today].unique.includes(userKey)) {
-                statsDB[linkId].stats[today].unique.push(userKey);
-            }
-            
-            // Сохраняем в localStorage
-            localStorage.setItem(localStorageKey, JSON.stringify(statsDB));
-            
-            // В реальном приложении здесь должна быть отправка данных на сервер
-            console.log('Записан переход:', { appId, refId, linkId, userKey });
-        }
-        
-        function getUniqueUserKey() {
-            // Генерируем ключ пользователя на основе доступных данных
-            if (window.Telegram?.WebApp?.initDataUnsafe?.user?.id) {
-                return `tg_${Telegram.WebApp.initDataUnsafe.user.id}`;
-            }
-            
-            // Если нет данных Telegram, используем localStorage
-            let userId = localStorage.getItem('puzzleRefUserId');
-            if (!userId) {
-                userId = `anon_${Math.random().toString(36).substr(2, 9)}`;
-                localStorage.setItem('puzzleRefUserId', userId);
-            }
-            return userId;
-        }
-        
-        function isLinkOwner(appId, refId) {
-            // Проверяем, является ли текущий пользователь владельцем ссылки
-            // В реальном приложении нужно проверять через Telegram WebApp.initData
-            return refId && window.Telegram?.WebApp?.initDataUnsafe?.user?.username === refId;
-        }
-        
-        function showStats(appId, refId) {
-            const linkId = generateLinkId(appId, refId);
-            
-            if (!statsDB[linkId]) {
-                statsBody.innerHTML = '<tr><td colspan="3">Нет данных о переходах</td></tr>';
-                statsContainer.style.display = 'block';
-                return;
-            }
-            
-            // Сортируем даты по убыванию
-            const dates = Object.keys(statsDB[linkId].stats).sort().reverse();
-            
-            // Формируем таблицу статистики
-            let html = '';
-            dates.forEach(date => {
-                const dayStats = statsDB[linkId].stats[date];
-                html += `
-                    <tr>
-                        <td>${formatDate(date)}</td>
-                        <td>${dayStats.total}</td>
-                        <td>${dayStats.unique.length}</td>
-                    </tr>
-                `;
-            });
-            
-            statsBody.innerHTML = html;
-            statsContainer.style.display = 'block';
-        }
-        
-        function showLinkStats(linkId) {
-            if (!statsDB[linkId]) {
-                linkStatsBody.innerHTML = '<tr><td colspan="3">Нет данных о переходах</td></tr>';
-                linkStatsContainer.style.display = 'block';
-                return;
-            }
-            
-            // Сортируем даты по убыванию
-            const dates = Object.keys(statsDB[linkId].stats).sort().reverse();
-            
-            // Формируем таблицу статистики
-            let html = '';
-            dates.forEach(date => {
-                const dayStats = statsDB[linkId].stats[date];
-                html += `
-                    <tr>
-                        <td>${formatDate(date)}</td>
-                        <td>${dayStats.total}</td>
-                        <td>${dayStats.unique.length}</td>
-                    </tr>
-                `;
-            });
-            
-            linkStatsBody.innerHTML = html;
-            linkStatsContainer.style.display = 'block';
-        }
-        
-        function formatDate(dateStr) {
-            const date = new Date(dateStr);
-            return date.toLocaleDateString('ru-RU', {
-                day: '2-digit',
-                month: '2-digit',
-                year: 'numeric'
-            });
+        function trackReferral(refId) {
+            // Здесь можно добавить отправку данных на сервер
+            console.log('Реферал:', refId);
         }
     </script>
 </body>
