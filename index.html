@@ -1,99 +1,57 @@
 <!DOCTYPE html>
-<html data-wf-page="5f327db2c1689cc2c5adf3f9" data-wf-site="5f055c68c84aef5e75811c34" data-wf-status="1" class="w-mod-js w-mod-ix wf-ubuntu-n7-active wf-ubuntu-n4-active wf-ubuntu-i4-active wf-ubuntu-n3-active wf-ubuntu-i7-active wf-ubuntu-i5-active wf-ubuntu-n5-active wf-ubuntu-i3-active wf-active">
+<html>
 <head>
     <meta charset="utf-8">
     <title>PuzzleRef ://</title>
-    <meta name="robots" content="all">
-    <meta content="Откройте PuzzleRef :// в Telegram 🤘" name="description">
-    <meta content="PuzzleRef ://" property="og:title">
-    <meta content="Откройте PuzzleRef :// в Telegram 🤘" property="og:description">
-    <meta content="https://i.imgur.com/Os1nGNg.jpg" property="og:image">
-    <meta content="PuzzleRef ://" property="twitter:title">
-    <meta content="Откройте PuzzleRef :// в Telegram 🤘" property="twitter:description">
-    <meta content="https://i.imgur.com/Os1nGNg.jpg" property="twitter:image">
-    <meta property="og:type" content="website">
-    <meta content="summary_large_image" name="twitter:card">
-    <meta content="width=device-width, initial-scale=1" name="viewport">
-    <meta content="Webflow" name="generator">
-    <link href="https://cp.puzzlebot.top/images/puzzleBot_favicon.png" rel="shortcut icon" type="image/x-icon">
-    <link href="https://cp.puzzlebot.top/images/puzzleBot_favicon.png" rel="apple-touch-icon">
-    <link href="https://cp.puzzlebot.top/images/puzzleBot_favicon.png" rel="mask-icon">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <link href="https://fonts.googleapis.com/css2?family=Ubuntu:wght@300;400;500;700&display=swap" rel="stylesheet">
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
         :root {
-            --primary-color: #0088cc;
-            --secondary-color: #34b7f1;
-            --accent-color: #6c5ce7;
-            --text-color: #2d3436;
-            --light-text: #636e72;
-            --bg-color: #f5f6fa;
-            --card-bg: #ffffff;
-            --border-radius: 16px;
-            --box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
-            --transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
-        }
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
+            --primary: #0088cc;
+            --secondary: #34b7f1;
+            --accent: #6c5ce7;
+            --dark: #2d3436;
+            --light: #f5f6fa;
+            --white: #ffffff;
+            --gray: #636e72;
+            --radius: 16px;
+            --shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+            --transition: all 0.3s ease;
         }
 
         body {
             font-family: 'Ubuntu', sans-serif;
-            background-color: var(--bg-color);
-            color: var(--text-color);
+            background: var(--light);
+            color: var(--dark);
             line-height: 1.6;
-            -webkit-font-smoothing: antialiased;
-        }
-
-        .container {
+            margin: 0;
+            padding: 20px;
+            min-height: 100vh;
             display: flex;
             justify-content: center;
             align-items: center;
-            min-height: 100vh;
-            padding: 20px;
         }
 
         .card {
-            background: var(--card-bg);
-            border-radius: var(--border-radius);
-            box-shadow: var(--box-shadow);
+            background: var(--white);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
             width: 100%;
             max-width: 420px;
-            padding: 40px;
+            padding: 30px;
             text-align: center;
             transition: var(--transition);
         }
 
-        .avatar-container {
-            position: relative;
-            margin: 0 auto 20px;
-            width: 120px;
-            height: 120px;
-        }
-
-        .avatar-border {
-            position: absolute;
-            top: -5px;
-            left: -5px;
-            right: -5px;
-            bottom: -5px;
-            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
-            border-radius: 50%;
-            z-index: 0;
-            animation: rotate 6s linear infinite;
-        }
-
         .avatar {
-            position: relative;
-            width: 100%;
-            height: 100%;
+            width: 100px;
+            height: 100px;
             border-radius: 50%;
+            border: 4px solid var(--white);
+            box-shadow: 0 0 0 4px var(--primary);
+            margin: 0 auto 20px;
             overflow: hidden;
-            border: 4px solid white;
-            z-index: 1;
         }
 
         .avatar img {
@@ -103,204 +61,201 @@
         }
 
         h1 {
-            font-size: 28px;
-            font-weight: 700;
+            font-size: 24px;
             margin-bottom: 8px;
-            color: var(--text-color);
+            color: var(--dark);
         }
 
         .username {
-            display: inline-block;
-            margin: 10px 0;
-            color: var(--primary-color);
+            display: block;
+            color: var(--primary);
             font-weight: 500;
+            margin: 10px 0;
             text-decoration: none;
-            transition: var(--transition);
-        }
-
-        .username:hover {
-            color: var(--secondary-color);
-            transform: translateY(-2px);
         }
 
         .description {
-            color: var(--light-text);
-            margin-bottom: 30px;
-            font-size: 16px;
+            color: var(--gray);
+            margin-bottom: 25px;
         }
 
         .btn {
-            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
-            color: white;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: var(--white);
             border: none;
-            padding: 14px 28px;
+            padding: 12px 24px;
             border-radius: 50px;
             font-size: 16px;
             font-weight: 500;
             cursor: pointer;
             width: 100%;
             transition: var(--transition);
-            box-shadow: 0 4px 15px rgba(0, 136, 204, 0.3);
-            position: relative;
-            overflow: hidden;
+            margin-top: 10px;
         }
 
         .btn:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 8px 20px rgba(0, 136, 204, 0.4);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 136, 204, 0.3);
         }
 
-        .btn:active {
-            transform: translateY(1px);
-        }
-
-        .btn::after {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(135deg, var(--secondary-color), var(--primary-color));
-            opacity: 0;
-            transition: var(--transition);
-            z-index: -1;
-        }
-
-        .btn:hover::after {
-            opacity: 1;
-        }
-
-        .generator-form {
-            display: none;
-            margin-top: 30px;
-            padding-top: 25px;
-            border-top: 1px solid rgba(0, 0, 0, 0.05);
+        .btn.secondary {
+            background: var(--accent);
         }
 
         .form-group {
-            margin-bottom: 20px;
+            margin-bottom: 15px;
             text-align: left;
-        }
-
-        .form-group label {
-            display: block;
-            margin-bottom: 8px;
-            font-weight: 500;
-            color: var(--light-text);
-            font-size: 14px;
         }
 
         .form-control {
             width: 100%;
-            padding: 12px 16px;
-            border: 1px solid #dfe6e9;
-            border-radius: 8px;
-            font-size: 14px;
-            transition: var(--transition);
-        }
-
-        .form-control:focus {
-            border-color: var(--primary-color);
-            box-shadow: 0 0 0 3px rgba(0, 136, 204, 0.1);
-            outline: none;
-        }
-
-        .result {
-            display: none;
-            margin-top: 20px;
-            animation: fadeIn 0.5s ease;
-        }
-
-        .result-input {
-            width: 100%;
             padding: 12px;
             border: 1px solid #dfe6e9;
             border-radius: 8px;
-            background: #f8f9fa;
-            margin-bottom: 15px;
             font-size: 14px;
+            margin-top: 5px;
         }
 
-        .copy-btn {
-            background: var(--accent-color);
-            color: white;
+        .result {
+            margin-top: 20px;
+            display: none;
         }
 
-        .copy-btn:hover {
-            background: #5649d6;
-        }
-
-        @keyframes rotate {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
+        .short-link {
+            font-size: 14px;
+            word-break: break-all;
+            padding: 10px;
+            background: var(--light);
+            border-radius: 8px;
+            margin-bottom: 10px;
         }
 
         .pulse {
             animation: pulse 2s infinite;
         }
 
-        @keyframes pulse {
-            0% { box-shadow: 0 0 0 0 rgba(52, 183, 241, 0.7); }
-            70% { box-shadow: 0 0 0 10px rgba(52, 183, 241, 0); }
-            100% { box-shadow: 0 0 0 0 rgba(52, 183, 241, 0); }
+        .stats-container {
+            margin-top: 20px;
+            text-align: left;
+            display: none;
         }
 
-        /* Responsive adjustments */
+        .stats-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+
+        .stats-table th, .stats-table td {
+            padding: 8px;
+            border-bottom: 1px solid #dfe6e9;
+            text-align: left;
+        }
+
+        .stats-table th {
+            background-color: var(--light);
+            font-weight: 500;
+        }
+
+        .stats-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .stats-title {
+            font-weight: 500;
+            color: var(--dark);
+        }
+
+        .refresh-btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.02); }
+            100% { transform: scale(1); }
+        }
+
         @media (max-width: 480px) {
             .card {
-                padding: 30px 20px;
-            }
-            
-            h1 {
-                font-size: 24px;
-            }
-            
-            .avatar-container {
-                width: 100px;
-                height: 100px;
+                padding: 20px;
             }
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <div class="card">
-            <div class="avatar-container">
-                <div class="avatar-border"></div>
-                <div class="avatar">
-                    <img id="avatarImage" src="https://pbt.storage.yandexcloud.net/cp_avatars/AgACAgIAAxUAAWf-xKkXxvc7CxsIzRj6wWh-XE6XAAJn-jEbzNyZS8T7Ny2Bcmv1AQADAgADYQADNgQ.jpg" alt="PuzzleRef Avatar">
+    <div class="card">
+        <div class="avatar">
+            <img src="https://pbt.storage.yandexcloud.net/cp_avatars/AgACAgIAAxUAAWf-xKkXxvc7CxsIzRj6wWh-XE6XAAJn-jEbzNyZS8T7Ny2Bcmv1AQADAgADYQADNgQ.jpg">
+        </div>
+        
+        <h1 id="title">PuzzleRef ://</h1>
+        <a href="https://t.me/PuzzlerefBot" id="username" class="username">@PuzzlerefBot</a>
+        <p id="desc" class="description">Реферальная система для Mini-App</p>
+        
+        <div id="ref-view">
+            <button id="open-btn" class="btn pulse">Перейти в приложение</button>
+            <div id="stats-container" class="stats-container">
+                <div class="stats-header">
+                    <div class="stats-title">Статистика переходов</div>
+                    <button id="refresh-btn" class="refresh-btn">Обновить</button>
                 </div>
+                <table class="stats-table">
+                    <thead>
+                        <tr>
+                            <th>Дата</th>
+                            <th>Переходы</th>
+                            <th>Уникальные</th>
+                        </tr>
+                    </thead>
+                    <tbody id="stats-body">
+                        <!-- Статистика будет загружена здесь -->
+                    </tbody>
+                </table>
             </div>
-            
-            <h1 id="pageTitle">PuzzleRef ://</h1>
-            <a id="usernameLink" href="https://t.me/PuzzlerefBot" class="username">@PuzzlerefBot</a>
-            <p id="pageDescription" class="description">Реферальная система для твоих Mini-App</p>
-            
-            <!-- Реферальная кнопка -->
-            <div id="refButtonContainer">
-                <button id="tgButton" class="btn pulse">Перейти в приложение</button>
+        </div>
+        
+        <div id="gen-form" style="display: none;">
+            <div class="form-group">
+                <label>Ссылка на Mini App</label>
+                <input type="text" id="app-url" class="form-control" placeholder="https://t.me/your_mini_app">
             </div>
+            <div class="form-group">
+                <label>Реферальный ID (необязательно)</label>
+                <input type="text" id="ref-id" class="form-control" placeholder="ref123">
+            </div>
+            <button id="gen-btn" class="btn">Создать ссылку</button>
             
-            <!-- Форма генератора -->
-            <div id="generatorForm" class="generator-form">
-                <div class="form-group">
-                    <label for="miniAppUrl">Ссылка на Mini App</label>
-                    <input type="text" id="miniAppUrl" class="form-control" placeholder="https://t.me/your_mini_app">
-                </div>
-                <div class="form-group">
-                    <label for="refParam">Реферальный параметр (необязательно)</label>
-                    <input type="text" id="refParam" class="form-control" placeholder="ref12345">
-                </div>
-                <button id="generateBtn" class="btn">Создать ссылку</button>
-                <div id="result" class="result">
-                    <input type="text" id="refLink" class="result-input" readonly>
-                    <button id="copyBtn" class="btn copy-btn">Копировать ссылку</button>
+            <div id="result" class="result">
+                <div id="short-link" class="short-link"></div>
+                <button id="copy-btn" class="btn secondary">Копировать ссылку</button>
+                
+                <div id="link-stats-container" class="stats-container">
+                    <div class="stats-header">
+                        <div class="stats-title">Статистика по ссылке</div>
+                        <button id="link-refresh-btn" class="refresh-btn">Обновить</button>
+                    </div>
+                    <table class="stats-table">
+                        <thead>
+                            <tr>
+                                <th>Дата</th>
+                                <th>Переходы</th>
+                                <th>Уникальные</th>
+                            </tr>
+                        </thead>
+                        <tbody id="link-stats-body">
+                            <!-- Статистика по ссылке будет загружена здесь -->
+                        </tbody>
+                    </table>
                 </div>
             </div>
         </div>
@@ -308,105 +263,251 @@
 
     <script>
         // Проверяем параметры URL
-        const urlParams = new URLSearchParams(window.location.search);
-        const redirectUrl = urlParams.get('redirect');
-        const refCode = urlParams.get('ref');
-        const username = urlParams.get('username');
-        const title = urlParams.get('title');
-        const description = urlParams.get('description');
-        const imageUrl = urlParams.get('image');
+        const params = new URLSearchParams(location.search);
+        const appId = params.get('app');
+        const refId = params.get('ref');
+        const linkId = params.get('link'); // Для просмотра статистики по конкретной ссылке
         
-        // Элементы DOM
-        const tgButton = document.getElementById('tgButton');
-        const refButtonContainer = document.getElementById('refButtonContainer');
-        const generatorForm = document.getElementById('generatorForm');
-        const usernameLink = document.getElementById('usernameLink');
-        const pageTitle = document.getElementById('pageTitle');
-        const pageDescription = document.getElementById('pageDescription');
-        const avatarImage = document.getElementById('avatarImage');
+        // Элементы интерфейса
+        const refView = document.getElementById('ref-view');
+        const genForm = document.getElementById('gen-form');
+        const openBtn = document.getElementById('open-btn');
+        const genBtn = document.getElementById('gen-btn');
+        const copyBtn = document.getElementById('copy-btn');
+        const shortLink = document.getElementById('short-link');
+        const statsContainer = document.getElementById('stats-container');
+        const statsBody = document.getElementById('stats-body');
+        const refreshBtn = document.getElementById('refresh-btn');
+        const linkStatsContainer = document.getElementById('link-stats-container');
+        const linkStatsBody = document.getElementById('link-stats-body');
+        const linkRefreshBtn = document.getElementById('link-refresh-btn');
         
-        if (redirectUrl) {
-            // Режим реферальной страницы
-            generatorForm.style.display = 'none';
-            
-            // Кастомизация контента
-            if (title) pageTitle.textContent = decodeURIComponent(title);
-            if (description) pageDescription.textContent = decodeURIComponent(description);
-            if (imageUrl) avatarImage.src = decodeURIComponent(imageUrl);
-            if (username) {
-                usernameLink.textContent = `@${decodeURIComponent(username)}`;
-                usernameLink.href = `https://t.me/${decodeURIComponent(username)}`;
-            }
-            
-            // Настройка кнопки
-            tgButton.addEventListener('click', () => {
-                if (window.Telegram?.WebApp) {
-                    Telegram.WebApp.openTelegramLink(redirectUrl);
-                } else {
-                    window.location.href = redirectUrl;
+        // Базовая часть URL без параметров
+        const baseUrl = location.origin + location.pathname;
+        
+        // Имитация базы данных (в реальном приложении заменить на API)
+        const localStorageKey = 'puzzleRefStats';
+        let statsDB = JSON.parse(localStorage.getItem(localStorageKey)) || {};
+        
+        // Инициализация приложения
+        initApp();
+        
+        function initApp() {
+            if (linkId) {
+                // Режим просмотра статистики по ссылке
+                showLinkStats(linkId);
+                genForm.style.display = 'none';
+                refView.style.display = 'block';
+                document.getElementById('open-btn').style.display = 'none';
+            } 
+            else if (appId) {
+                // Режим реферальной ссылки
+                genForm.style.display = 'none';
+                
+                // Устанавливаем ссылку для перехода
+                const appUrl = `https://t.me/${appId}`;
+                openBtn.onclick = () => {
+                    // Записываем переход в статистику
+                    recordClick(appId, refId);
+                    
+                    if (window.Telegram?.WebApp) {
+                        Telegram.WebApp.openTelegramLink(appUrl);
+                    } else {
+                        location.href = appUrl;
+                    }
+                };
+                
+                // Показываем статистику, если это владелец ссылки
+                if (isLinkOwner(appId, refId)) {
+                    showStats(appId, refId);
                 }
-            });
-            
-            // Трекинг реферала
-            if (refCode) {
-                trackReferral(refCode);
+            } else {
+                // Режим генератора
+                refView.style.display = 'none';
+                genForm.style.display = 'block';
+                
+                // Генерация короткой ссылки
+                genBtn.onclick = generateLink;
+                
+                // Настройка кнопки копирования
+                copyBtn.onclick = () => {
+                    navigator.clipboard.writeText(shortLink.textContent).then(() => {
+                        copyBtn.textContent = 'Скопировано!';
+                        setTimeout(() => copyBtn.textContent = 'Копировать ссылку', 2000);
+                    });
+                };
             }
-        } else {
-            // Режим генератора ссылок
-            refButtonContainer.style.display = 'none';
-            generatorForm.style.display = 'block';
             
-            // Логика генерации ссылки
-            document.getElementById('generateBtn').addEventListener('click', generateReferralLink);
-            document.getElementById('copyBtn').addEventListener('click', copyToClipboard);
+            // Настройка кнопок обновления статистики
+            if (refreshBtn) refreshBtn.onclick = () => showStats(appId, refId);
+            if (linkRefreshBtn) linkRefreshBtn.onclick = () => showLinkStats(linkId);
         }
         
-        function generateReferralLink() {
-            const miniAppUrl = document.getElementById('miniAppUrl').value.trim();
+        function generateLink() {
+            const appUrl = document.getElementById('app-url').value.trim();
+            const refId = document.getElementById('ref-id').value.trim();
             
-            if (!miniAppUrl) {
-                alert('Пожалуйста, введите ссылку на Mini App');
+            if (!appUrl) return alert('Введите ссылку на Mini App');
+            
+            // Извлекаем username из ссылки (t.me/username)
+            const appUsername = extractUsername(appUrl);
+            if (!appUsername) return alert('Некорректная ссылка на Mini App');
+            
+            // Формируем короткую ссылку
+            let refLink = `${baseUrl}?app=${appUsername}`;
+            if (refId) refLink += `&ref=${encodeURIComponent(refId)}`;
+            
+            // Показываем результат
+            shortLink.textContent = refLink;
+            document.getElementById('result').style.display = 'block';
+            
+            // Показываем статистику по этой ссылке
+            const linkId = generateLinkId(appUsername, refId);
+            showLinkStats(linkId);
+        }
+        
+        function extractUsername(url) {
+            // Извлекаем username из различных форматов ссылок
+            const patterns = [
+                /t\.me\/([a-zA-Z0-9_]+)/,
+                /tg:\/\/resolve\?domain=([a-zA-Z0-9_]+)/,
+                /https?:\/\/telegram\.me\/([a-zA-Z0-9_]+)/
+            ];
+            
+            for (const pattern of patterns) {
+                const match = url.match(pattern);
+                if (match) return match[1];
+            }
+            
+            return null;
+        }
+        
+        function generateLinkId(appId, refId) {
+            return refId ? `${appId}_${refId}` : appId;
+        }
+        
+        function recordClick(appId, refId) {
+            const linkId = generateLinkId(appId, refId);
+            const today = new Date().toISOString().split('T')[0];
+            const userKey = getUniqueUserKey();
+            
+            // Инициализация записи, если её нет
+            if (!statsDB[linkId]) {
+                statsDB[linkId] = {
+                    appId,
+                    refId,
+                    created: new Date().toISOString(),
+                    stats: {}
+                };
+            }
+            
+            // Инициализация статистики за день
+            if (!statsDB[linkId].stats[today]) {
+                statsDB[linkId].stats[today] = {
+                    total: 0,
+                    unique: []
+                };
+            }
+            
+            // Увеличиваем счетчик общих переходов
+            statsDB[linkId].stats[today].total += 1;
+            
+            // Добавляем уникального пользователя (если ещё нет)
+            if (!statsDB[linkId].stats[today].unique.includes(userKey)) {
+                statsDB[linkId].stats[today].unique.push(userKey);
+            }
+            
+            // Сохраняем в localStorage
+            localStorage.setItem(localStorageKey, JSON.stringify(statsDB));
+            
+            // В реальном приложении здесь должна быть отправка данных на сервер
+            console.log('Записан переход:', { appId, refId, linkId, userKey });
+        }
+        
+        function getUniqueUserKey() {
+            // Генерируем ключ пользователя на основе доступных данных
+            if (window.Telegram?.WebApp?.initDataUnsafe?.user?.id) {
+                return `tg_${Telegram.WebApp.initDataUnsafe.user.id}`;
+            }
+            
+            // Если нет данных Telegram, используем localStorage
+            let userId = localStorage.getItem('puzzleRefUserId');
+            if (!userId) {
+                userId = `anon_${Math.random().toString(36).substr(2, 9)}`;
+                localStorage.setItem('puzzleRefUserId', userId);
+            }
+            return userId;
+        }
+        
+        function isLinkOwner(appId, refId) {
+            // Проверяем, является ли текущий пользователь владельцем ссылки
+            // В реальном приложении нужно проверять через Telegram WebApp.initData
+            return refId && window.Telegram?.WebApp?.initDataUnsafe?.user?.username === refId;
+        }
+        
+        function showStats(appId, refId) {
+            const linkId = generateLinkId(appId, refId);
+            
+            if (!statsDB[linkId]) {
+                statsBody.innerHTML = '<tr><td colspan="3">Нет данных о переходах</td></tr>';
+                statsContainer.style.display = 'block';
                 return;
             }
             
-            let refLink = `${window.location.origin}${window.location.pathname}?redirect=${encodeURIComponent(miniAppUrl)}`;
+            // Сортируем даты по убыванию
+            const dates = Object.keys(statsDB[linkId].stats).sort().reverse();
             
-            const refParam = document.getElementById('refParam').value.trim();
-            if (refParam) {
-                refLink += `&ref=${encodeURIComponent(refParam)}`;
+            // Формируем таблицу статистики
+            let html = '';
+            dates.forEach(date => {
+                const dayStats = statsDB[linkId].stats[date];
+                html += `
+                    <tr>
+                        <td>${formatDate(date)}</td>
+                        <td>${dayStats.total}</td>
+                        <td>${dayStats.unique.length}</td>
+                    </tr>
+                `;
+            });
+            
+            statsBody.innerHTML = html;
+            statsContainer.style.display = 'block';
+        }
+        
+        function showLinkStats(linkId) {
+            if (!statsDB[linkId]) {
+                linkStatsBody.innerHTML = '<tr><td colspan="3">Нет данных о переходах</td></tr>';
+                linkStatsContainer.style.display = 'block';
+                return;
             }
             
-            // Добавляем параметры для кастомизации
-            refLink += `&title=${encodeURIComponent(pageTitle.textContent)}`;
-            refLink += `&description=${encodeURIComponent(pageDescription.textContent)}`;
-            refLink += `&image=${encodeURIComponent(avatarImage.src)}`;
-            refLink += `&username=${encodeURIComponent(usernameLink.textContent.substring(1))}`;
+            // Сортируем даты по убыванию
+            const dates = Object.keys(statsDB[linkId].stats).sort().reverse();
             
-            document.getElementById('refLink').value = refLink;
-            document.getElementById('result').style.display = 'block';
+            // Формируем таблицу статистики
+            let html = '';
+            dates.forEach(date => {
+                const dayStats = statsDB[linkId].stats[date];
+                html += `
+                    <tr>
+                        <td>${formatDate(date)}</td>
+                        <td>${dayStats.total}</td>
+                        <td>${dayStats.unique.length}</td>
+                    </tr>
+                `;
+            });
+            
+            linkStatsBody.innerHTML = html;
+            linkStatsContainer.style.display = 'block';
         }
         
-        function copyToClipboard() {
-            const refLinkInput = document.getElementById('refLink');
-            refLinkInput.select();
-            document.execCommand('copy');
-            
-            const copyBtn = document.getElementById('copyBtn');
-            copyBtn.textContent = 'Скопировано!';
-            setTimeout(() => {
-                copyBtn.textContent = 'Копировать ссылку';
-            }, 2000);
-        }
-        
-        function trackReferral(refCode) {
-            // Здесь можно реализовать отправку данных на сервер
-            console.log('Реферал зарегистрирован:', refCode);
-            // Пример:
-            // fetch('/api/track', {
-            //     method: 'POST',
-            //     headers: { 'Content-Type': 'application/json' },
-            //     body: JSON.stringify({ referralCode: refCode })
-            // });
+        function formatDate(dateStr) {
+            const date = new Date(dateStr);
+            return date.toLocaleDateString('ru-RU', {
+                day: '2-digit',
+                month: '2-digit',
+                year: 'numeric'
+            });
         }
     </script>
 </body>
