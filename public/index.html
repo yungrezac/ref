@@ -345,17 +345,33 @@
             word-break: break-all;
             color: var(--primary-color);
         }
+        
+        .click-details {
+            margin-top: 10px;
+            padding-left: 15px;
+        }
+        
+        .click-detail {
+            font-size: 12px;
+            padding: 5px;
+            margin: 5px 0;
+            background: rgba(0,0,0,0.03);
+            border-radius: 4px;
+        }
+        
+        details summary {
+            cursor: pointer;
+            color: var(--primary-color);
+            font-size: 13px;
+            margin-top: 5px;
+        }
     </style>
 
     <script>
         // Проверяем параметры URL
         const urlParams = new URLSearchParams(window.location.search);
-        const redirectUrl = urlParams.get('redirect');
-        const refCode = urlParams.get('ref');
-        const username = urlParams.get('username');
-        const title = urlParams.get('title');
-        const description = urlParams.get('description');
-        const imageUrl = urlParams.get('image');
+        const redirectUrl = urlParams.get('r');
+        const refCode = urlParams.get('p');
         
         // Элементы DOM
         const tgButton = document.getElementById('tgButton');
@@ -370,7 +386,13 @@
             // Режим реферальной страницы
             generatorForm.style.display = 'none';
             
-            // Кастомизация контента
+            // Декодируем параметры из URL
+            const title = urlParams.get('title');
+            const description = urlParams.get('description');
+            const imageUrl = urlParams.get('image');
+            const username = urlParams.get('username');
+            
+            // Кастомизация контента если параметры есть
             if (title) pageTitle.textContent = decodeURIComponent(title);
             if (description) pageDescription.textContent = decodeURIComponent(description);
             if (imageUrl) avatarImage.src = decodeURIComponent(imageUrl);
@@ -445,7 +467,20 @@
                         ${item.refParam ? `<div>Реф. параметр: ${item.refParam}</div>` : ''}
                         <div class="history-item-stats">
                             Создано: ${new Date(item.createdAt).toLocaleString()}<br>
-                            Переходов: ${item.clicks}
+                            Всего переходов: ${item.clicks}<br>
+                            ${item.clickDetails ? `
+                            <details>
+                                <summary>Детали переходов</summary>
+                                <div class="click-details">
+                                    ${item.clickDetails.map(click => `
+                                        <div class="click-detail">
+                                            ${new Date(click.timestamp).toLocaleString()}<br>
+                                            <small>${click.platform}</small>
+                                        </div>
+                                    `).join('')}
+                                </div>
+                            </details>
+                            ` : ''}
                         </div>
                         <div class="history-item-link">${item.generatedLink}</div>
                     </div>
@@ -463,18 +498,12 @@
                 return;
             }
             
-            let refLink = `${window.location.origin}${window.location.pathname}?redirect=${encodeURIComponent(miniAppUrl)}`;
+            let refLink = `${window.location.origin}${window.location.pathname}?r=${encodeURIComponent(miniAppUrl)}`;
             
             const refParam = document.getElementById('refParam').value.trim();
             if (refParam) {
-                refLink += `&ref=${encodeURIComponent(refParam)}`;
+                refLink += `&p=${encodeURIComponent(refParam)}`;
             }
-            
-            // Добавляем параметры для кастомизации
-            refLink += `&title=${encodeURIComponent(pageTitle.textContent)}`;
-            refLink += `&description=${encodeURIComponent(pageDescription.textContent)}`;
-            refLink += `&image=${encodeURIComponent(avatarImage.src)}`;
-            refLink += `&username=${encodeURIComponent(usernameLink.textContent.substring(1))}`;
             
             document.getElementById('refLink').value = refLink;
             document.getElementById('result').style.display = 'block';
@@ -496,18 +525,33 @@
         }
         
         function trackReferral(refCode) {
-            // Обновляем статистику в истории
             const history = historyManager.getHistory();
             const currentUrl = window.location.href;
+            const currentUrlObj = new URL(currentUrl);
             
+            // Ищем соответствующую ссылку в истории
             const historyItem = history.find(item => {
-                const linkUrl = new URL(item.generatedLink);
-                const currentUrlObj = new URL(currentUrl);
-                return linkUrl.searchParams.get('ref') === currentUrlObj.searchParams.get('ref');
+                // Проверяем соответствие URL и реферального кода
+                const itemUrl = new URL(item.generatedLink);
+                return itemUrl.searchParams.get('r') === currentUrlObj.searchParams.get('r') &&
+                       itemUrl.searchParams.get('p') === currentUrlObj.searchParams.get('p');
             });
             
             if (historyItem) {
-                historyManager.incrementClicks(historyItem.generatedLink);
+                // Добавляем информацию о переходе
+                if (!historyItem.clickDetails) {
+                    historyItem.clickDetails = [];
+                }
+                
+                historyItem.clickDetails.push({
+                    timestamp: new Date().toISOString(),
+                    userAgent: navigator.userAgent,
+                    platform: navigator.platform
+                });
+                
+                historyItem.clicks = historyItem.clickDetails.length;
+                historyManager.saveHistory(history);
+                historyManager.displayHistory();
             }
             
             console.log('Реферал зарегистрирован:', refCode);
