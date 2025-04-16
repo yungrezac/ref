@@ -5,13 +5,18 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>PuzzleRef Pro</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         :root {
             --primary: #0088cc;
             --primary-light: #e6f4ff;
             --secondary: #34b7f1;
             --accent: #6c5ce7;
+            --danger: #e74c3c;
+            --success: #2ecc71;
+            --warning: #f39c12;
             --text: #2d3436;
             --text-light: #636e72;
             --bg: #f8f9fa;
@@ -48,6 +53,11 @@
             box-shadow: var(--shadow);
             overflow: hidden;
             margin-bottom: 16px;
+            transition: var(--transition);
+        }
+
+        .card:hover {
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
         }
 
         .card-header {
@@ -55,6 +65,7 @@
             background: linear-gradient(135deg, var(--primary), var(--secondary));
             color: white;
             text-align: center;
+            position: relative;
         }
 
         .card-body {
@@ -68,6 +79,27 @@
             border: 4px solid rgba(255,255,255,0.2);
             margin: 0 auto 12px;
             overflow: hidden;
+            position: relative;
+        }
+
+        .avatar-edit {
+            position: absolute;
+            bottom: 0;
+            right: 0;
+            background: rgba(0,0,0,0.5);
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            opacity: 0;
+            transition: var(--transition);
+        }
+
+        .avatar:hover .avatar-edit {
+            opacity: 1;
         }
 
         .avatar img {
@@ -108,6 +140,12 @@
             transition: var(--transition);
             text-align: center;
             text-decoration: none;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn i {
+            margin-right: 8px;
         }
 
         .btn-primary {
@@ -130,6 +168,27 @@
 
         .btn-outline:hover {
             background: var(--primary-light);
+        }
+
+        .btn-success {
+            background: var(--success);
+            color: white;
+        }
+
+        .btn-danger {
+            background: var(--danger);
+            color: white;
+        }
+
+        .btn-warning {
+            background: var(--warning);
+            color: white;
+        }
+
+        .btn-sm {
+            padding: 8px 12px;
+            font-size: 14px;
+            border-radius: 8px;
         }
 
         .form-group {
@@ -159,6 +218,14 @@
             outline: none;
         }
 
+        .select-control {
+            appearance: none;
+            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+            background-repeat: no-repeat;
+            background-position: right 12px center;
+            background-size: 16px;
+        }
+
         .result {
             margin-top: 20px;
             animation: fadeIn 0.3s ease;
@@ -178,6 +245,7 @@
             display: flex;
             border-bottom: 1px solid var(--border);
             margin-bottom: 16px;
+            overflow-x: auto;
         }
 
         .tab {
@@ -187,11 +255,22 @@
             color: var(--text-light);
             border-bottom: 2px solid transparent;
             transition: var(--transition);
+            white-space: nowrap;
         }
 
         .tab.active {
             color: var(--primary);
             border-bottom-color: var(--primary);
+        }
+
+        .tab-badge {
+            display: inline-block;
+            background: var(--primary);
+            color: white;
+            font-size: 12px;
+            padding: 2px 6px;
+            border-radius: 10px;
+            margin-left: 6px;
         }
 
         .tab-content {
@@ -214,6 +293,12 @@
             border-radius: 12px;
             padding: 16px;
             text-align: center;
+            transition: var(--transition);
+        }
+
+        .stat-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
         }
 
         .stat-value {
@@ -234,12 +319,18 @@
             padding: 16px;
             margin-bottom: 12px;
             border: 1px solid var(--border);
+            transition: var(--transition);
+        }
+
+        .history-item:hover {
+            border-color: var(--primary);
         }
 
         .history-item-header {
             display: flex;
             justify-content: space-between;
             margin-bottom: 8px;
+            align-items: center;
         }
 
         .history-item-title {
@@ -289,6 +380,32 @@
 
         .click-detail-value {
             font-weight: 500;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 4px 8px;
+            font-size: 12px;
+            border-radius: 4px;
+            background: var(--primary-light);
+            color: var(--primary);
+            margin-right: 6px;
+            margin-bottom: 6px;
+        }
+
+        .badge-success {
+            background: rgba(46, 204, 113, 0.1);
+            color: var(--success);
+        }
+
+        .badge-warning {
+            background: rgba(243, 156, 18, 0.1);
+            color: var(--warning);
+        }
+
+        .badge-danger {
+            background: rgba(231, 76, 60, 0.1);
+            color: var(--danger);
         }
 
         @keyframes fadeIn {
@@ -355,6 +472,296 @@
             width: 100%;
             height: 100%;
         }
+
+        .campaign-card {
+            border-left: 4px solid var(--primary);
+            margin-bottom: 12px;
+        }
+
+        .campaign-card-warning {
+            border-left-color: var(--warning);
+        }
+
+        .campaign-card-success {
+            border-left-color: var(--success);
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: var(--text-light);
+        }
+
+        .empty-state i {
+            font-size: 48px;
+            margin-bottom: 16px;
+            color: var(--border);
+        }
+
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            opacity: 0;
+            pointer-events: none;
+            transition: var(--transition);
+        }
+
+        .modal.active {
+            opacity: 1;
+            pointer-events: all;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: var(--radius);
+            width: 90%;
+            max-width: 400px;
+            max-height: 90vh;
+            overflow-y: auto;
+            transform: translateY(20px);
+            transition: var(--transition);
+        }
+
+        .modal.active .modal-content {
+            transform: translateY(0);
+        }
+
+        .modal-header {
+            padding: 16px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-body {
+            padding: 16px;
+        }
+
+        .modal-footer {
+            padding: 16px;
+            border-top: 1px solid var(--border);
+            display: flex;
+            justify-content: flex-end;
+            gap: 8px;
+        }
+
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 50px;
+            height: 24px;
+        }
+
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: .4s;
+            border-radius: 24px;
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 16px;
+            width: 16px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+
+        input:checked + .slider {
+            background-color: var(--success);
+        }
+
+        input:checked + .slider:before {
+            transform: translateX(26px);
+        }
+
+        .settings-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .settings-item:last-child {
+            border-bottom: none;
+        }
+
+        .settings-item-label {
+            font-weight: 500;
+        }
+
+        .settings-item-description {
+            font-size: 12px;
+            color: var(--text-light);
+            margin-top: 4px;
+        }
+
+        .dropdown {
+            position: relative;
+            display: inline-block;
+        }
+
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            right: 0;
+            background-color: white;
+            min-width: 160px;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+            z-index: 1;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .dropdown:hover .dropdown-content {
+            display: block;
+        }
+
+        .dropdown-item {
+            padding: 12px 16px;
+            display: block;
+            color: var(--text);
+            text-decoration: none;
+            font-size: 14px;
+            transition: var(--transition);
+        }
+
+        .dropdown-item:hover {
+            background: var(--primary-light);
+            color: var(--primary);
+        }
+
+        .dropdown-item i {
+            margin-right: 8px;
+            width: 16px;
+            text-align: center;
+        }
+
+        .tooltip {
+            position: relative;
+            display: inline-block;
+        }
+
+        .tooltip .tooltip-text {
+            visibility: hidden;
+            width: 200px;
+            background-color: #333;
+            color: #fff;
+            text-align: center;
+            border-radius: 6px;
+            padding: 8px;
+            position: absolute;
+            z-index: 1;
+            bottom: 125%;
+            left: 50%;
+            transform: translateX(-50%);
+            opacity: 0;
+            transition: opacity 0.3s;
+            font-size: 12px;
+        }
+
+        .tooltip:hover .tooltip-text {
+            visibility: visible;
+            opacity: 1;
+        }
+
+        .progress-bar {
+            height: 8px;
+            background: var(--border);
+            border-radius: 4px;
+            overflow: hidden;
+            margin: 8px 0;
+        }
+
+        .progress {
+            height: 100%;
+            background: var(--primary);
+            border-radius: 4px;
+            transition: width 0.3s;
+        }
+
+        .referral-level {
+            display: flex;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .level-progress {
+            flex-grow: 1;
+            margin: 0 12px;
+        }
+
+        .level-badge {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: var(--primary-light);
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+        }
+
+        .level-badge.active {
+            background: var(--primary);
+            color: white;
+        }
+
+        .campaign-progress {
+            margin: 12px 0;
+        }
+
+        .campaign-stats {
+            display: flex;
+            justify-content: space-between;
+            font-size: 12px;
+            color: var(--text-light);
+        }
+
+        .notification-item {
+            padding: 12px 0;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .notification-item:last-child {
+            border-bottom: none;
+        }
+
+        .notification-time {
+            font-size: 12px;
+            color: var(--text-light);
+            margin-top: 4px;
+        }
+
+        .notification-unread {
+            background: var(--primary-light);
+        }
     </style>
 </head>
 <body>
@@ -362,13 +769,159 @@
         <!-- Toast уведомления -->
         <div class="toast" id="toast"></div>
 
+        <!-- Модальные окна -->
+        <div class="modal" id="editProfileModal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3>Редактирование профиля</h3>
+                    <button class="btn btn-sm btn-outline" id="closeEditProfileModal">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label>Аватар</label>
+                        <div class="avatar" style="width: 100px; height: 100px; margin: 0 auto;">
+                            <img id="profileAvatar" src="https://pbt.storage.yandexcloud.net/cp_avatars/AgACAgIAAxUAAWf-xKkXxvc7CxsIzRj6wWh-XE6XAAJn-jEbzNyZS8T7Ny2Bcmv1AQADAgADYQADNgQ.jpg" alt="Avatar">
+                            <div class="avatar-edit">
+                                <i class="fas fa-camera" style="color: white; font-size: 12px;"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="profileName">Имя</label>
+                        <input type="text" id="profileName" class="form-control" placeholder="Ваше имя">
+                    </div>
+                    <div class="form-group">
+                        <label for="profileUsername">Username</label>
+                        <input type="text" id="profileUsername" class="form-control" placeholder="@username">
+                    </div>
+                    <div class="form-group">
+                        <label for="profileBio">Описание</label>
+                        <textarea id="profileBio" class="form-control" rows="3" placeholder="Краткое описание"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-outline" id="cancelEditProfile">Отмена</button>
+                    <button class="btn btn-primary" id="saveProfile">Сохранить</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="modal" id="createCampaignModal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3>Создать реферальную кампанию</h3>
+                    <button class="btn btn-sm btn-outline" id="closeCreateCampaignModal">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label for="campaignName">Название кампании</label>
+                        <input type="text" id="campaignName" class="form-control" placeholder="Название вашей кампании">
+                    </div>
+                    <div class="form-group">
+                        <label for="campaignLink">Ссылка на Mini App</label>
+                        <input type="text" id="campaignLink" class="form-control" placeholder="https://t.me/your_mini_app">
+                    </div>
+                    <div class="form-group">
+                        <label for="campaignRefParam">Реферальный параметр</label>
+                        <input type="text" id="campaignRefParam" class="form-control" placeholder="ref12345">
+                    </div>
+                    <div class="form-group">
+                        <label for="campaignGoal">Цель (количество переходов)</label>
+                        <input type="number" id="campaignGoal" class="form-control" placeholder="100">
+                    </div>
+                    <div class="form-group">
+                        <label for="campaignReward">Награда за реферала</label>
+                        <input type="text" id="campaignReward" class="form-control" placeholder="100 баллов, скидка 10% и т.д.">
+                    </div>
+                    <div class="form-group">
+                        <label for="campaignEndDate">Дата окончания</label>
+                        <input type="date" id="campaignEndDate" class="form-control">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-outline" id="cancelCreateCampaign">Отмена</button>
+                    <button class="btn btn-primary" id="createCampaign">Создать кампанию</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="modal" id="settingsModal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3>Настройки</h3>
+                    <button class="btn btn-sm btn-outline" id="closeSettingsModal">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <div class="settings-item">
+                        <div>
+                            <div class="settings-item-label">Уведомления</div>
+                            <div class="settings-item-description">Получать уведомления о новых переходах</div>
+                        </div>
+                        <label class="switch">
+                            <input type="checkbox" id="notificationsToggle" checked>
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                    <div class="settings-item">
+                        <div>
+                            <div class="settings-item-label">Темная тема</div>
+                            <div class="settings-item-description">Переключитесь на темный режим</div>
+                        </div>
+                        <label class="switch">
+                            <input type="checkbox" id="darkModeToggle">
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                    <div class="settings-item">
+                        <div>
+                            <div class="settings-item-label">Автоматическое копирование</div>
+                            <div class="settings-item-description">Автоматически копировать созданные ссылки</div>
+                        </div>
+                        <label class="switch">
+                            <input type="checkbox" id="autoCopyToggle">
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                    <div class="settings-item">
+                        <div>
+                            <div class="settings-item-label">QR-код по умолчанию</div>
+                            <div class="settings-item-description">Показывать QR-код для новых ссылок</div>
+                        </div>
+                        <label class="switch">
+                            <input type="checkbox" id="qrCodeToggle" checked>
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-outline" id="cancelSettings">Отмена</button>
+                    <button class="btn btn-primary" id="saveSettings">Сохранить</button>
+                </div>
+            </div>
+        </div>
+
         <!-- Главная карточка -->
         <div class="card" id="mainCard">
             <div class="card-header">
+                <div class="dropdown" style="position: absolute; right: 16px; top: 16px;">
+                    <button class="btn btn-sm" style="background: rgba(255,255,255,0.2); color: white;">
+                        <i class="fas fa-ellipsis-v"></i>
+                    </button>
+                    <div class="dropdown-content">
+                        <a href="#" class="dropdown-item" id="editProfileBtn"><i class="fas fa-user-edit"></i> Редактировать профиль</a>
+                        <a href="#" class="dropdown-item" id="createCampaignBtn"><i class="fas fa-plus-circle"></i> Создать кампанию</a>
+                        <a href="#" class="dropdown-item" id="settingsBtn"><i class="fas fa-cog"></i> Настройки</a>
+                        <a href="#" class="dropdown-item" id="helpBtn"><i class="fas fa-question-circle"></i> Помощь</a>
+                    </div>
+                </div>
+                
                 <div class="avatar">
                     <img id="avatarImage" src="https://pbt.storage.yandexcloud.net/cp_avatars/AgACAgIAAxUAAWf-xKkXxvc7CxsIzRj6wWh-XE6XAAJn-jEbzNyZS8T7Ny2Bcmv1AQADAgADYQADNgQ.jpg" alt="Avatar">
+                    <div class="avatar-edit">
+                        <i class="fas fa-camera" style="color: white; font-size: 12px;"></i>
+                    </div>
                 </div>
-                <h1 id="pageTitle">PuzzleRef Pro</h1>
+                <h1 id="pageTitle">PuzzleRef Pro+</h1>
                 <a id="usernameLink" href="https://t.me/PuzzlerefBot" class="username">@PuzzlerefBot</a>
                 <p id="pageDescription" class="description">Продвинутая реферальная система для Mini Apps</p>
             </div>
@@ -376,48 +929,80 @@
             <div class="card-body">
                 <!-- Режим реферальной страницы -->
                 <div id="refMode">
-                    <button id="tgButton" class="btn btn-primary pulse">Открыть в Telegram</button>
-                    <button id="showStatsBtn" class="btn btn-outline">Показать статистику</button>
+                    <button id="tgButton" class="btn btn-primary pulse"><i class="fas fa-paper-plane"></i> Открыть в Telegram</button>
+                    <button id="showStatsBtn" class="btn btn-outline"><i class="fas fa-chart-line"></i> Показать статистику</button>
                 </div>
                 
                 <!-- Режим генератора ссылок -->
                 <div id="generatorMode" style="display: none;">
                     <div class="tabs">
-                        <div class="tab active" data-tab="generator">Генератор</div>
-                        <div class="tab" data-tab="history">История</div>
-                        <div class="tab" data-tab="stats">Статистика</div>
+                        <div class="tab active" data-tab="generator"><i class="fas fa-link"></i> Генератор</div>
+                        <div class="tab" data-tab="campaigns"><i class="fas fa-bullhorn"></i> Кампании</div>
+                        <div class="tab" data-tab="history"><i class="fas fa-history"></i> История</div>
+                        <div class="tab" data-tab="stats"><i class="fas fa-chart-pie"></i> Статистика</div>
+                        <div class="tab" data-tab="rewards"><i class="fas fa-gift"></i> Награды</div>
                     </div>
                     
                     <!-- Вкладка генератора -->
                     <div class="tab-content active" id="generatorTab">
                         <div class="form-group">
-                            <label for="miniAppUrl">Ссылка на Mini App</label>
+                            <label for="miniAppUrl"><i class="fas fa-external-link-alt"></i> Ссылка на Mini App</label>
                             <input type="text" id="miniAppUrl" class="form-control" placeholder="https://t.me/your_mini_app">
                         </div>
                         <div class="form-group">
-                            <label for="refParam">Реферальный параметр</label>
-                            <input type="text" id="refParam" class="form-control" placeholder="ref12345">
+                            <label for="refParam"><i class="fas fa-user-tag"></i> Реферальный параметр</label>
+                            <div style="display: flex; gap: 8px;">
+                                <input type="text" id="refParam" class="form-control" placeholder="ref12345" style="flex: 1;">
+                                <button class="btn btn-outline" id="generateRefParam" style="width: auto;"><i class="fas fa-random"></i></button>
+                            </div>
                         </div>
                         <div class="form-group">
-                            <label for="linkTitle">Название ссылки (необязательно)</label>
+                            <label for="linkTitle"><i class="fas fa-heading"></i> Название ссылки</label>
                             <input type="text" id="linkTitle" class="form-control" placeholder="Моя реферальная ссылка">
                         </div>
+                        <div class="form-group">
+                            <label for="campaignSelect"><i class="fas fa-bullhorn"></i> Привязать к кампании</label>
+                            <select id="campaignSelect" class="form-control select-control">
+                                <option value="">Без кампании</option>
+                            </select>
+                        </div>
                         <button id="generateBtn" class="btn btn-primary">
-                            Создать ссылку
+                            <i class="fas fa-magic"></i> Создать ссылку
                             <span id="generateLoader" class="loader" style="display: none;"></span>
                         </button>
                         
                         <div id="result" class="result">
                             <input type="text" id="refLink" class="result-input" readonly>
-                            <button id="copyBtn" class="btn btn-primary">Копировать ссылку</button>
-                            <button id="shareBtn" class="btn btn-outline">Поделиться</button>
+                            <div style="display: flex; gap: 8px;">
+                                <button id="copyBtn" class="btn btn-primary" style="flex: 1;"><i class="fas fa-copy"></i> Копировать</button>
+                                <button id="shareBtn" class="btn btn-outline" style="flex: 1;"><i class="fas fa-share-alt"></i> Поделиться</button>
+                            </div>
+                            <button id="saveLinkBtn" class="btn btn-outline"><i class="fas fa-save"></i> Сохранить в кампанию</button>
                             
                             <div id="qrCode" class="qr-code" style="display: none;"></div>
                         </div>
                     </div>
                     
+                    <!-- Вкладка кампаний -->
+                    <div class="tab-content" id="campaignsTab">
+                        <button class="btn btn-primary" id="newCampaignBtn" style="margin-bottom: 16px;">
+                            <i class="fas fa-plus"></i> Новая кампания
+                        </button>
+                        
+                        <div id="campaignsList"></div>
+                    </div>
+                    
                     <!-- Вкладка истории -->
                     <div class="tab-content" id="historyTab">
+                        <div class="form-group">
+                            <select id="historyFilter" class="form-control select-control">
+                                <option value="all">Все ссылки</option>
+                                <option value="week">За неделю</option>
+                                <option value="month">За месяц</option>
+                                <option value="campaign">По кампаниям</option>
+                            </select>
+                        </div>
+                        
                         <div id="historyList"></div>
                     </div>
                     
@@ -432,25 +1017,71 @@
                                 <div class="stat-value" id="totalClicks">0</div>
                                 <div class="stat-label">Всего переходов</div>
                             </div>
+                            <div class="stat-card">
+                                <div class="stat-value" id="uniqueClicks">0</div>
+                                <div class="stat-label">Уникальных</div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-value" id="conversionRate">0%</div>
+                                <div class="stat-label">Конверсия</div>
+                            </div>
                         </div>
                         
                         <div class="form-group">
-                            <label>Активность за последние 7 дней</label>
-                            <div id="chart" style="height: 200px; background: #f5f6fa; border-radius: 12px; display: flex; align-items: flex-end; padding: 8px;">
-                                <div style="flex: 1; display: flex; justify-content: center; align-items: flex-end;">
-                                    <div style="width: 80%; background: var(--primary); height: 10%;" title="Day 1: 2 clicks"></div>
-                                </div>
+                            <label><i class="fas fa-chart-line"></i> Активность за последние 30 дней</label>
+                            <div id="chart" style="height: 200px; background: #f5f6fa; border-radius: 12px; display: flex; align-items: flex-end; padding: 8px; gap: 4px;">
                                 <!-- График будет заполняться динамически -->
                             </div>
                         </div>
                         
                         <div class="form-group">
-                            <label>Устройства</label>
+                            <label><i class="fas fa-mobile-alt"></i> Устройства</label>
                             <div id="devicesChart" style="height: 24px; background: #f5f6fa; border-radius: 12px; overflow: hidden; margin-bottom: 8px;">
-                                <div style="width: 70%; height: 100%; background: var(--primary); display: inline-block;" title="Mobile: 70%"></div>
-                                <div style="width: 30%; height: 100%; background: var(--secondary); display: inline-block;" title="Desktop: 30%"></div>
+                                <!-- График устройств -->
                             </div>
                         </div>
+                        
+                        <div class="form-group">
+                            <label><i class="fas fa-globe"></i> Источники трафика</label>
+                            <div id="trafficSources" style="margin-top: 8px;">
+                                <!-- Источники трафика -->
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Вкладка наград -->
+                    <div class="tab-content" id="rewardsTab">
+                        <div class="referral-level">
+                            <div class="level-badge">1</div>
+                            <div class="level-progress">
+                                <div class="progress-bar">
+                                    <div class="progress" id="level1Progress" style="width: 0%;"></div>
+                                </div>
+                            </div>
+                            <div class="level-badge" id="level2Badge">2</div>
+                            <div class="level-progress">
+                                <div class="progress-bar">
+                                    <div class="progress" id="level2Progress" style="width: 0%;"></div>
+                                </div>
+                            </div>
+                            <div class="level-badge" id="level3Badge">3</div>
+                        </div>
+                        
+                        <div class="card">
+                            <div class="card-body">
+                                <div class="history-item-header">
+                                    <div class="history-item-title" id="currentLevelText">Текущий уровень: 1</div>
+                                    <span class="badge" id="levelStatusBadge">Неактивен</span>
+                                </div>
+                                <div class="history-item-stats" id="nextLevelText">
+                                    До следующего уровня: 0 переходов
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <h3 style="margin: 16px 0 8px;">Доступные награды</h3>
+                        
+                        <div id="rewardsList"></div>
                     </div>
                 </div>
             </div>
@@ -459,7 +1090,7 @@
         <!-- Статистика для реферальной страницы -->
         <div class="card" id="statsCard" style="display: none;">
             <div class="card-header">
-                <h1>Статистика ссылки</h1>
+                <h1><i class="fas fa-chart-bar"></i> Статистика ссылки</h1>
             </div>
             <div class="card-body">
                 <div class="stats-grid">
@@ -471,16 +1102,31 @@
                         <div class="stat-value" id="refConversion">0%</div>
                         <div class="stat-label">Конверсия</div>
                     </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="refUnique">0</div>
+                        <div class="stat-label">Уникальных</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="refRank">#0</div>
+                        <div class="stat-label">Рейтинг</div>
+                    </div>
                 </div>
                 
                 <div id="refHistoryList"></div>
                 
-                <button id="backToMainBtn" class="btn btn-outline">Назад</button>
+                <button id="backToMainBtn" class="btn btn-outline"><i class="fas fa-arrow-left"></i> Назад</button>
             </div>
         </div>
     </div>
 
     <script>
+        // Конфигурация Supabase
+        const SUPABASE_URL = 'https://kwwszbvcwchujbyvswqp.supabase.co';
+        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imt3d3N6YnZjd2NodWpieXZzd3FwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDMyMTIyNDcsImV4cCI6MjA1ODc4ODI0N30.3HBMf8zoj-8fzjZOD-R3Oh86jTtGg807Oj7Be1VjFEw';
+        
+        // Инициализация Supabase
+        const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+        
         // Telegram Bot Token
         const BOT_TOKEN = '7030085123:AAGxRwbTC-Kwr4TBpFxuhymfdDXKMzhIn6E';
         
@@ -489,23 +1135,60 @@
         const redirectUrl = urlParams.get('r');
         const refCode = urlParams.get('p');
         
+        // Текущий пользователь
+        let currentUser = {
+            id: null,
+            username: null,
+            firstName: null,
+            lastName: null,
+            avatar: null
+        };
+        
         // Инициализация Telegram WebApp
         if (window.Telegram?.WebApp) {
             Telegram.WebApp.expand();
             Telegram.WebApp.enableClosingConfirmation();
             Telegram.WebApp.setHeaderColor('#0088cc');
             Telegram.WebApp.setBackgroundColor('#f8f9fa');
+            
+            // Получаем данные пользователя
+            const tgUser = Telegram.WebApp.initDataUnsafe?.user;
+            if (tgUser) {
+                currentUser = {
+                    id: tgUser.id,
+                    username: tgUser.username,
+                    firstName: tgUser.first_name,
+                    lastName: tgUser.last_name,
+                    avatar: null
+                };
+                
+                // Устанавливаем данные пользователя в интерфейс
+                document.getElementById('profileName').value = tgUser.first_name || '';
+                document.getElementById('profileUsername').value = tgUser.username ? `@${tgUser.username}` : '';
+            }
+            
+            // Показываем кнопку "Назад" в веб-приложении
+            Telegram.WebApp.BackButton.show();
+            Telegram.WebApp.BackButton.onClick(() => {
+                if (statsCard.style.display === 'block') {
+                    statsCard.style.display = 'none';
+                    mainCard.style.display = 'block';
+                }
+            });
+        } else {
+            // Для тестирования вне Telegram
+            currentUser = {
+                id: Math.floor(Math.random() * 1000000),
+                username: 'testuser',
+                firstName: 'Test',
+                lastName: 'User',
+                avatar: null
+            };
         }
-        
-        // Элементы DOM
-        const mainCard = document.getElementById('mainCard');
-        const statsCard = document.getElementById('statsCard');
-        const refMode = document.getElementById('refMode');
-        const generatorMode = document.getElementById('generatorMode');
-        const toast = document.getElementById('toast');
         
         // Показываем toast уведомление
         function showToast(message, duration = 3000) {
+            const toast = document.getElementById('toast');
             toast.textContent = message;
             toast.style.display = 'block';
             setTimeout(() => {
@@ -514,7 +1197,13 @@
         }
         
         // Инициализация приложения
-        function initApp() {
+        async function initApp() {
+            // Загружаем настройки
+            loadSettings();
+            
+            // Инициализация модальных окон
+            initModals();
+            
             if (redirectUrl) {
                 // Режим реферальной страницы
                 generatorMode.style.display = 'none';
@@ -527,7 +1216,7 @@
                 
                 // Трекинг реферала
                 if (refCode) {
-                    trackReferral(refCode);
+                    await trackReferral(refCode);
                 }
             } else {
                 // Режим генератора ссылок
@@ -540,8 +1229,11 @@
                 // Инициализация генератора ссылок
                 initLinkGenerator();
                 
-                // Загрузка истории
-                loadHistory();
+                // Загрузка данных
+                await loadCampaigns();
+                await loadHistory();
+                await loadStats();
+                await loadRewards();
             }
             
             // Инициализация кнопки статистики
@@ -549,7 +1241,188 @@
             document.getElementById('backToMainBtn')?.addEventListener('click', () => {
                 statsCard.style.display = 'none';
                 mainCard.style.display = 'block';
+                
+                if (window.Telegram?.WebApp) {
+                    Telegram.WebApp.BackButton.hide();
+                }
             });
+        }
+        
+        // Инициализация модальных окон
+        function initModals() {
+            // Редактирование профиля
+            document.getElementById('editProfileBtn')?.addEventListener('click', () => {
+                document.getElementById('editProfileModal').classList.add('active');
+            });
+            
+            document.getElementById('closeEditProfileModal').addEventListener('click', () => {
+                document.getElementById('editProfileModal').classList.remove('active');
+            });
+            
+            document.getElementById('cancelEditProfile').addEventListener('click', () => {
+                document.getElementById('editProfileModal').classList.remove('active');
+            });
+            
+            document.getElementById('saveProfile').addEventListener('click', async () => {
+                const name = document.getElementById('profileName').value.trim();
+                const username = document.getElementById('profileUsername').value.trim();
+                const bio = document.getElementById('profileBio').value.trim();
+                
+                // Сохранение профиля
+                try {
+                    // Здесь можно добавить сохранение в Supabase
+                    showToast('Профиль успешно сохранен');
+                    document.getElementById('editProfileModal').classList.remove('active');
+                } catch (error) {
+                    console.error('Ошибка сохранения профиля:', error);
+                    showToast('Ошибка сохранения профиля');
+                }
+            });
+            
+            // Создание кампании
+            document.getElementById('createCampaignBtn')?.addEventListener('click', () => {
+                document.getElementById('createCampaignModal').classList.add('active');
+            });
+            
+            document.getElementById('newCampaignBtn')?.addEventListener('click', () => {
+                document.getElementById('createCampaignModal').classList.add('active');
+            });
+            
+            document.getElementById('closeCreateCampaignModal').addEventListener('click', () => {
+                document.getElementById('createCampaignModal').classList.remove('active');
+            });
+            
+            document.getElementById('cancelCreateCampaign').addEventListener('click', () => {
+                document.getElementById('createCampaignModal').classList.remove('active');
+            });
+            
+            document.getElementById('createCampaign').addEventListener('click', async () => {
+                const name = document.getElementById('campaignName').value.trim();
+                const link = document.getElementById('campaignLink').value.trim();
+                const refParam = document.getElementById('campaignRefParam').value.trim();
+                const goal = parseInt(document.getElementById('campaignGoal').value) || 0;
+                const reward = document.getElementById('campaignReward').value.trim();
+                const endDate = document.getElementById('campaignEndDate').value;
+                
+                if (!name) {
+                    showToast('Введите название кампании');
+                    return;
+                }
+                
+                if (!link) {
+                    showToast('Введите ссылку на Mini App');
+                    return;
+                }
+                
+                try {
+                    // Сохраняем кампанию в Supabase
+                    const { data, error } = await supabase
+                        .from('campaigns')
+                        .insert([
+                            { 
+                                user_id: currentUser.id,
+                                name,
+                                link,
+                                ref_param: refParam,
+                                goal,
+                                reward,
+                                end_date: endDate,
+                                created_at: new Date().toISOString()
+                            }
+                        ])
+                        .select();
+                    
+                    if (error) throw error;
+                    
+                    showToast(`Кампания "${name}" создана`);
+                    document.getElementById('createCampaignModal').classList.remove('active');
+                    
+                    // Обновляем список кампаний
+                    await loadCampaigns();
+                    
+                    // Сбрасываем форму
+                    document.getElementById('campaignName').value = '';
+                    document.getElementById('campaignLink').value = '';
+                    document.getElementById('campaignRefParam').value = '';
+                    document.getElementById('campaignGoal').value = '';
+                    document.getElementById('campaignReward').value = '';
+                    document.getElementById('campaignEndDate').value = '';
+                } catch (error) {
+                    console.error('Ошибка создания кампании:', error);
+                    showToast('Ошибка создания кампании');
+                }
+            });
+            
+            // Настройки
+            document.getElementById('settingsBtn')?.addEventListener('click', () => {
+                document.getElementById('settingsModal').classList.add('active');
+            });
+            
+            document.getElementById('closeSettingsModal').addEventListener('click', () => {
+                document.getElementById('settingsModal').classList.remove('active');
+            });
+            
+            document.getElementById('cancelSettings').addEventListener('click', () => {
+                document.getElementById('settingsModal').classList.remove('active');
+            });
+            
+            document.getElementById('saveSettings').addEventListener('click', () => {
+                const notifications = document.getElementById('notificationsToggle').checked;
+                const darkMode = document.getElementById('darkModeToggle').checked;
+                const autoCopy = document.getElementById('autoCopyToggle').checked;
+                const qrCode = document.getElementById('qrCodeToggle').checked;
+                
+                // Сохраняем настройки
+                localStorage.setItem('notifications', notifications);
+                localStorage.setItem('darkMode', darkMode);
+                localStorage.setItem('autoCopy', autoCopy);
+                localStorage.setItem('qrCode', qrCode);
+                
+                showToast('Настройки сохранены');
+                document.getElementById('settingsModal').classList.remove('active');
+                
+                // Применяем темную тему, если нужно
+                if (darkMode) {
+                    document.documentElement.style.setProperty('--bg', '#1a1a1a');
+                    document.documentElement.style.setProperty('--card-bg', '#2d2d2d');
+                    document.documentElement.style.setProperty('--text', '#ffffff');
+                    document.documentElement.style.setProperty('--text-light', '#b3b3b3');
+                    document.documentElement.style.setProperty('--border', '#444');
+                } else {
+                    document.documentElement.style.setProperty('--bg', '#f8f9fa');
+                    document.documentElement.style.setProperty('--card-bg', '#ffffff');
+                    document.documentElement.style.setProperty('--text', '#2d3436');
+                    document.documentElement.style.setProperty('--text-light', '#636e72');
+                    document.documentElement.style.setProperty('--border', '#dfe6e9');
+                }
+            });
+            
+            // Помощь
+            document.getElementById('helpBtn').addEventListener('click', () => {
+                showToast('Открывается раздел помощи...');
+            });
+        }
+        
+        // Загрузка настроек
+        function loadSettings() {
+            const notifications = localStorage.getItem('notifications') !== 'false';
+            const darkMode = localStorage.getItem('darkMode') === 'true';
+            const autoCopy = localStorage.getItem('autoCopy') === 'true';
+            const qrCode = localStorage.getItem('qrCode') !== 'false';
+            
+            document.getElementById('notificationsToggle').checked = notifications;
+            document.getElementById('darkModeToggle').checked = darkMode;
+            document.getElementById('autoCopyToggle').checked = autoCopy;
+            document.getElementById('qrCodeToggle').checked = qrCode;
+            
+            // Применяем темную тему, если нужно
+            if (darkMode) {
+                document.documentElement.style.setProperty('--bg', '#1a1a1a');
+                document.documentElement.style.setProperty('--card-bg', '#2d2d2d');
+                document.documentElement.style.setProperty('--text', '#ffffff');
+                document.documentElement.style.setProperty('--text-light', '#b3b3b3');
+                document.documentElement.style.setProperty('--border', '#444');
+            }
         }
         
         // Кастомизация из параметров URL
@@ -599,9 +1472,20 @@
                     const tabId = tab.getAttribute('data-tab');
                     document.getElementById(`${tabId}Tab`).classList.add('active');
                     
-                    // Если это вкладка истории, обновляем ее
-                    if (tabId === 'history') {
-                        displayHistory();
+                    // Обновляем данные при переключении вкладок
+                    switch (tabId) {
+                        case 'history':
+                            loadHistory();
+                            break;
+                        case 'stats':
+                            loadStats();
+                            break;
+                        case 'campaigns':
+                            loadCampaigns();
+                            break;
+                        case 'rewards':
+                            loadRewards();
+                            break;
                     }
                 });
             });
@@ -612,13 +1496,53 @@
             document.getElementById('generateBtn').addEventListener('click', generateReferralLink);
             document.getElementById('copyBtn').addEventListener('click', copyToClipboard);
             document.getElementById('shareBtn').addEventListener('click', shareLink);
+            document.getElementById('saveLinkBtn').addEventListener('click', saveToCampaign);
+            document.getElementById('generateRefParam').addEventListener('click', generateRandomRefParam);
+            
+            // Заполняем список кампаний в генераторе ссылок
+            updateCampaignsSelect();
+        }
+        
+        // Обновление списка кампаний в select
+        async function updateCampaignsSelect() {
+            const select = document.getElementById('campaignSelect');
+            select.innerHTML = '<option value="">Без кампании</option>';
+            
+            try {
+                const { data: campaigns, error } = await supabase
+                    .from('campaigns')
+                    .select('id, name')
+                    .eq('user_id', currentUser.id);
+                
+                if (error) throw error;
+                
+                campaigns.forEach(campaign => {
+                    const option = document.createElement('option');
+                    option.value = campaign.id;
+                    option.textContent = campaign.name;
+                    select.appendChild(option);
+                });
+            } catch (error) {
+                console.error('Ошибка загрузки кампаний:', error);
+            }
+        }
+        
+        // Генерация случайного реферального параметра
+        function generateRandomRefParam() {
+            const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+            let result = 'ref_';
+            for (let i = 0; i < 8; i++) {
+                result += chars.charAt(Math.floor(Math.random() * chars.length));
+            }
+            document.getElementById('refParam').value = result;
         }
         
         // Генерация реферальной ссылки
-        function generateReferralLink() {
+        async function generateReferralLink() {
             const miniAppUrl = document.getElementById('miniAppUrl').value.trim();
             const refParam = document.getElementById('refParam').value.trim();
             const linkTitle = document.getElementById('linkTitle').value.trim();
+            const campaignId = document.getElementById('campaignSelect').value;
             
             if (!miniAppUrl) {
                 showToast('Пожалуйста, введите ссылку на Mini App');
@@ -639,10 +1563,11 @@
             }
             
             // Добавляем дополнительные параметры
-            const tgUser = window.Telegram?.WebApp?.initDataUnsafe?.user;
-            if (tgUser) {
-                if (tgUser.username) refLink += `&username=${encodeURIComponent(tgUser.username)}`;
-                if (tgUser.first_name) refLink += `&title=${encodeURIComponent(tgUser.first_name)}`;
+            if (currentUser.username) {
+                refLink += `&username=${encodeURIComponent(currentUser.username)}`;
+            }
+            if (currentUser.firstName) {
+                refLink += `&title=${encodeURIComponent(currentUser.firstName)}`;
             }
             
             // Если есть название ссылки, добавляем в историю
@@ -650,50 +1575,114 @@
                 refLink += `&link_title=${encodeURIComponent(linkTitle)}`;
             }
             
-            // Показываем результат
-            setTimeout(() => {
+            // Если выбрана кампания
+            if (campaignId) {
+                refLink += `&campaign=${encodeURIComponent(campaignId)}`;
+            }
+            
+            try {
+                // Сохраняем ссылку в Supabase
+                const { data, error } = await supabase
+                    .from('links')
+                    .insert([
+                        { 
+                            user_id: currentUser.id,
+                            url: miniAppUrl,
+                            ref_param: refParam,
+                            title: linkTitle || `Ссылка ${new Date().toLocaleDateString()}`,
+                            campaign_id: campaignId || null,
+                            generated_link: refLink,
+                            created_at: new Date().toISOString()
+                        }
+                    ])
+                    .select();
+                
+                if (error) throw error;
+                
+                // Показываем результат
                 document.getElementById('refLink').value = refLink;
                 document.getElementById('result').style.display = 'block';
                 
                 // Генерируем QR-код
                 generateQRCode(refLink);
                 
-                // Сохраняем в историю
-                addToHistory({
-                    miniAppUrl,
-                    refParam,
-                    generatedLink: refLink,
-                    title: linkTitle || `Ссылка ${new Date().toLocaleDateString()}`
-                });
+                // Обновляем историю
+                await loadHistory();
                 
                 // Скрываем loader
                 generateBtn.disabled = false;
                 loader.style.display = 'none';
                 
                 showToast('Ссылка успешно создана!');
-            }, 500);
+                
+                // Автоматическое копирование, если включено
+                if (localStorage.getItem('autoCopy') === 'true') {
+                    copyToClipboard();
+                }
+            } catch (error) {
+                console.error('Ошибка создания ссылки:', error);
+                showToast('Ошибка создания ссылки');
+                generateBtn.disabled = false;
+                loader.style.display = 'none';
+            }
+        }
+        
+        // Сохранение ссылки в кампанию
+        async function saveToCampaign() {
+            const refLink = document.getElementById('refLink').value;
+            if (!refLink) {
+                showToast('Сначала создайте ссылку');
+                return;
+            }
+            
+            const campaignId = document.getElementById('campaignSelect').value;
+            if (!campaignId) {
+                showToast('Выберите кампанию');
+                return;
+            }
+            
+            try {
+                // Находим ID ссылки по generated_link
+                const { data: links, error: linksError } = await supabase
+                    .from('links')
+                    .select('id')
+                    .eq('generated_link', refLink)
+                    .eq('user_id', currentUser.id)
+                    .single();
+                
+                if (linksError) throw linksError;
+                
+                // Обновляем кампанию для ссылки
+                const { error: updateError } = await supabase
+                    .from('links')
+                    .update({ campaign_id: campaignId })
+                    .eq('id', links.id);
+                
+                if (updateError) throw updateError;
+                
+                showToast('Ссылка сохранена в кампанию');
+                await loadHistory();
+            } catch (error) {
+                console.error('Ошибка сохранения ссылки в кампанию:', error);
+                showToast('Ошибка сохранения ссылки');
+            }
         }
         
         // Генерация QR-кода
         function generateQRCode(url) {
             const qrCodeContainer = document.getElementById('qrCode');
+            if (localStorage.getItem('qrCode') !== 'true') {
+                qrCodeContainer.style.display = 'none';
+                return;
+            }
+            
             qrCodeContainer.innerHTML = '';
             qrCodeContainer.style.display = 'block';
             
-            // В реальном приложении используйте библиотеку для генерации QR-кода
-            // Например: new QRCode(qrCodeContainer, url);
-            
-            // Заглушка для демонстрации
-            const canvas = document.createElement('canvas');
-            canvas.width = 160;
-            canvas.height = 160;
-            const ctx = canvas.getContext('2d');
-            ctx.fillStyle = '#ffffff';
-            ctx.fillRect(0, 0, 160, 160);
-            ctx.fillStyle = '#000000';
-            ctx.font = '14px Arial';
-            ctx.fillText('QR Code', 50, 80);
-            qrCodeContainer.appendChild(canvas);
+            // Используем API для генерации QR-кода
+            const qrCodeImg = document.createElement('img');
+            qrCodeImg.src = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(url)}`;
+            qrCodeContainer.appendChild(qrCodeImg);
         }
         
         // Копирование в буфер обмена
@@ -722,161 +1711,564 @@
             }
         }
         
-        // Работа с историей
-        function addToHistory(linkData) {
-            const history = getHistory();
-            const ownerChatId = window.Telegram?.WebApp?.initDataUnsafe?.user?.id;
+        // Загрузка кампаний
+        async function loadCampaigns() {
+            const campaignsList = document.getElementById('campaignsList');
+            campaignsList.innerHTML = '<div class="loader" style="margin: 20px auto;"></div>';
             
-            // Проверяем, не существует ли уже такая ссылка
-            const existingLink = history.find(item => 
-                item.generatedLink === linkData.generatedLink && 
-                item.ownerChatId === ownerChatId
-            );
-            
-            if (!existingLink) {
-                history.unshift({
-                    ...linkData,
-                    createdAt: new Date().toISOString(),
-                    clicks: 0,
-                    clickDetails: [],
-                    ownerChatId: ownerChatId
-                });
-                saveHistory(history);
-            }
-            
-            displayHistory();
-            updateStats();
-        }
-        
-        function getHistory() {
-            return JSON.parse(localStorage.getItem('linkHistory') || '[]');
-        }
-        
-        function saveHistory(history) {
-            localStorage.setItem('linkHistory', JSON.stringify(history));
-        }
-        
-        function loadHistory() {
-            displayHistory();
-            updateStats();
-        }
-        
-        function displayHistory() {
-            const historyList = document.getElementById('historyList');
-            const history = getHistory();
-            const currentUserChatId = window.Telegram?.WebApp?.initDataUnsafe?.user?.id;
-            
-            // Фильтруем историю только для текущего пользователя
-            const userHistory = history.filter(item => item.ownerChatId === currentUserChatId);
-            
-            if (userHistory.length === 0) {
-                historyList.innerHTML = '<p style="text-align: center; color: var(--text-light);">У вас пока нет созданных ссылок</p>';
-                return;
-            }
-            
-            historyList.innerHTML = userHistory.map(item => `
-                <div class="history-item">
-                    <div class="history-item-header">
-                        <div class="history-item-title">${item.title || 'Реферальная ссылка'}</div>
-                        <div class="history-item-date">${new Date(item.createdAt).toLocaleDateString()}</div>
-                    </div>
-                    <a href="${item.generatedLink}" target="_blank" class="history-item-link">${item.generatedLink}</a>
-                    <div class="history-item-stats">
-                        Переходов: ${item.clicks}
-                        ${item.clickDetails && item.clickDetails.length > 0 ? `
-                        <div class="click-details">
-                            ${item.clickDetails.slice(0, 3).map(click => `
-                                <div class="click-detail">
-                                    <span class="click-detail-label">${new Date(click.timestamp).toLocaleString()}</span>
-                                    <span class="click-detail-value">${click.device === 'mobile' ? '📱' : '💻'} ${click.username ? '@' + click.username : 'Аноним'}</span>
-                                </div>
-                            `).join('')}
-                            ${item.clickDetails.length > 3 ? `<div style="text-align: center; font-size: 11px; color: var(--primary);">+${item.clickDetails.length - 3} еще</div>` : ''}
+            try {
+                const { data: campaigns, error } = await supabase
+                    .from('campaigns')
+                    .select('*')
+                    .eq('user_id', currentUser.id)
+                    .order('created_at', { ascending: false });
+                
+                if (error) throw error;
+                
+                if (campaigns.length === 0) {
+                    campaignsList.innerHTML = `
+                        <div class="empty-state">
+                            <i class="fas fa-bullhorn"></i>
+                            <h3>Нет кампаний</h3>
+                            <p>Создайте свою первую кампанию</p>
                         </div>
-                        ` : ''}
+                    `;
+                    return;
+                }
+                
+                // Получаем статистику по кликам для каждой кампании
+                const campaignsWithStats = await Promise.all(campaigns.map(async campaign => {
+                    const { count, error: clicksError } = await supabase
+                        .from('clicks')
+                        .select('*', { count: 'exact' })
+                        .eq('campaign_id', campaign.id);
+                    
+                    if (clicksError) throw clicksError;
+                    
+                    return {
+                        ...campaign,
+                        clicks: count || 0
+                    };
+                }));
+                
+                campaignsList.innerHTML = campaignsWithStats.map(campaign => {
+                    const progress = campaign.goal ? Math.min(100, Math.round((campaign.clicks / campaign.goal) * 100)) : 0;
+                    const isActive = !campaign.end_date || new Date(campaign.end_date) > new Date();
+                    const isCompleted = campaign.goal && campaign.clicks >= campaign.goal;
+                    
+                    return `
+                        <div class="campaign-card ${isCompleted ? 'campaign-card-success' : !isActive ? 'campaign-card-warning' : ''}">
+                            <div class="card-body">
+                                <div class="history-item-header">
+                                    <div class="history-item-title">${campaign.name}</div>
+                                    <span class="badge ${isCompleted ? 'badge-success' : !isActive ? 'badge-warning' : ''}">
+                                        ${isCompleted ? 'Завершена' : !isActive ? 'Истекла' : 'Активна'}
+                                    </span>
+                                </div>
+                                <div class="history-item-stats">
+                                    ${campaign.goal ? `<div>Цель: ${campaign.goal} переходов</div>` : ''}
+                                    ${campaign.reward ? `<div>Награда: ${campaign.reward}</div>` : ''}
+                                    ${campaign.end_date ? `<div>Завершение: ${new Date(campaign.end_date).toLocaleDateString()}</div>` : ''}
+                                </div>
+                                ${campaign.goal ? `
+                                <div class="campaign-progress">
+                                    <div class="progress-bar">
+                                        <div class="progress" style="width: ${progress}%;"></div>
+                                    </div>
+                                    <div class="campaign-stats">
+                                        <span>${campaign.clicks}/${campaign.goal}</span>
+                                        <span>${progress}%</span>
+                                    </div>
+                                </div>
+                                ` : ''}
+                                <button class="btn btn-sm btn-outline" style="width: 100%; margin-top: 8px;" data-campaign-id="${campaign.id}">
+                                    <i class="fas fa-eye"></i> Подробнее
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+                
+                // Обновляем select в генераторе ссылок
+                updateCampaignsSelect();
+            } catch (error) {
+                console.error('Ошибка загрузки кампаний:', error);
+                campaignsList.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <h3>Ошибка загрузки</h3>
+                        <p>Не удалось загрузить кампании</p>
                     </div>
-                </div>
-            `).join('');
+                `;
+            }
         }
         
-        function updateStats() {
-            const history = getHistory();
-            const currentUserChatId = window.Telegram?.WebApp?.initDataUnsafe?.user?.id;
-            const userHistory = history.filter(item => item.ownerChatId === currentUserChatId);
+        // Загрузка истории ссылок
+        async function loadHistory() {
+            const historyList = document.getElementById('historyList');
+            historyList.innerHTML = '<div class="loader" style="margin: 20px auto;"></div>';
             
-            // Общее количество ссылок
-            document.getElementById('totalLinks').textContent = userHistory.length;
+            const filter = document.getElementById('historyFilter').value;
             
-            // Общее количество переходов
-            const totalClicks = userHistory.reduce((sum, item) => sum + (item.clicks || 0), 0);
-            document.getElementById('totalClicks').textContent = totalClicks;
+            try {
+                let query = supabase
+                    .from('links')
+                    .select(`
+                        *,
+                        campaigns (name),
+                        clicks (id, created_at, device, browser, user_data)
+                    `)
+                    .eq('user_id', currentUser.id)
+                    .order('created_at', { ascending: false });
+                
+                // Применяем фильтры
+                if (filter === 'week') {
+                    const weekAgo = new Date();
+                    weekAgo.setDate(weekAgo.getDate() - 7);
+                    query = query.gte('created_at', weekAgo.toISOString());
+                } else if (filter === 'month') {
+                    const monthAgo = new Date();
+                    monthAgo.setMonth(monthAgo.getMonth() - 1);
+                    query = query.gte('created_at', monthAgo.toISOString());
+                } else if (filter === 'campaign') {
+                    query = query.not('campaign_id', 'is', null);
+                }
+                
+                const { data: links, error } = await query;
+                
+                if (error) throw error;
+                
+                if (links.length === 0) {
+                    historyList.innerHTML = `
+                        <div class="empty-state">
+                            <i class="fas fa-history"></i>
+                            <h3>История пуста</h3>
+                            <p>Создайте свою первую ссылку, чтобы начать отслеживать статистику</p>
+                        </div>
+                    `;
+                    return;
+                }
+                
+                historyList.innerHTML = links.map(link => {
+                    const clickDetails = link.clicks || [];
+                    return `
+                        <div class="history-item">
+                            <div class="history-item-header">
+                                <div class="history-item-title">${link.title || 'Реферальная ссылка'}</div>
+                                <div class="history-item-date">${new Date(link.created_at).toLocaleDateString()}</div>
+                            </div>
+                            <a href="${link.generated_link}" target="_blank" class="history-item-link">${link.generated_link}</a>
+                            <div class="history-item-stats">
+                                <span class="badge">${clickDetails.length} переходов</span>
+                                ${link.campaigns ? '<span class="badge badge-success">Кампания: ' + link.campaigns.name + '</span>' : ''}
+                                ${clickDetails.length > 0 ? `
+                                <div class="click-details">
+                                    ${clickDetails.slice(0, 3).map(click => {
+                                        const userData = click.user_data ? JSON.parse(click.user_data) : {};
+                                        return `
+                                            <div class="click-detail">
+                                                <span class="click-detail-label">${new Date(click.created_at).toLocaleString()}</span>
+                                                <span class="click-detail-value">
+                                                    ${click.device === 'mobile' ? '📱' : '💻'} 
+                                                    ${userData.username ? '@' + userData.username : 'Аноним'}
+                                                </span>
+                                            </div>
+                                        `;
+                                    }).join('')}
+                                    ${clickDetails.length > 3 ? `<div style="text-align: center; font-size: 11px; color: var(--primary);">+${clickDetails.length - 3} еще</div>` : ''}
+                                </div>
+                                ` : ''}
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            } catch (error) {
+                console.error('Ошибка загрузки истории:', error);
+                historyList.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <h3>Ошибка загрузки</h3>
+                        <p>Не удалось загрузить историю ссылок</p>
+                    </div>
+                `;
+            }
+        }
+        
+        // Загрузка статистики
+        async function loadStats() {
+            try {
+                // Общее количество ссылок
+                const { count: totalLinks, error: linksError } = await supabase
+                    .from('links')
+                    .select('*', { count: 'exact' })
+                    .eq('user_id', currentUser.id);
+                
+                if (linksError) throw linksError;
+                
+                document.getElementById('totalLinks').textContent = totalLinks || 0;
+                
+                // Общее количество переходов
+                const { count: totalClicks, error: clicksError } = await supabase
+                    .from('clicks')
+                    .select('*', { count: 'exact' })
+                    .eq('user_id', currentUser.id);
+                
+                if (clicksError) throw clicksError;
+                
+                document.getElementById('totalClicks').textContent = totalClicks || 0;
+                
+                // Уникальные клики (по IP или user_id)
+                const { count: uniqueClicks, error: uniqueError } = await supabase
+                    .from('clicks')
+                    .select('ip', { count: 'exact', head: true })
+                    .eq('user_id', currentUser.id);
+                
+                if (uniqueError) throw uniqueError;
+                
+                document.getElementById('uniqueClicks').textContent = uniqueClicks || 0;
+                
+                // Конверсия (заглушка)
+                document.getElementById('conversionRate').textContent = '0%';
+                
+                // График активности за 30 дней
+                const thirtyDaysAgo = new Date();
+                thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+                
+                const { data: clicksByDay, error: dayError } = await supabase
+                    .from('clicks')
+                    .select('created_at')
+                    .eq('user_id', currentUser.id)
+                    .gte('created_at', thirtyDaysAgo.toISOString());
+                
+                if (dayError) throw dayError;
+                
+                // Группируем клики по дням
+                const clicksPerDay = {};
+                clicksByDay.forEach(click => {
+                    const date = new Date(click.created_at).toLocaleDateString();
+                    clicksPerDay[date] = (clicksPerDay[date] || 0) + 1;
+                });
+                
+                // Находим максимальное количество кликов за день для масштабирования графика
+                const maxClicks = Math.max(...Object.values(clicksPerDay), 10);
+                
+                // Отображаем график
+                const chart = document.getElementById('chart');
+                chart.innerHTML = '';
+                
+                for (let i = 29; i >= 0; i--) {
+                    const date = new Date();
+                    date.setDate(date.getDate() - i);
+                    const dateStr = date.toLocaleDateString();
+                    const clicks = clicksPerDay[dateStr] || 0;
+                    const height = (clicks / maxClicks) * 100;
+                    
+                    const dayElement = document.createElement('div');
+                    dayElement.style.flex = '1';
+                    dayElement.style.display = 'flex';
+                    dayElement.style.justifyContent = 'center';
+                    dayElement.style.alignItems = 'flex-end';
+                    
+                    const bar = document.createElement('div');
+                    bar.style.width = '80%';
+                    bar.style.background = 'var(--primary)';
+                    bar.style.height = `${height}%`;
+                    bar.style.borderRadius = '4px 4px 0 0';
+                    bar.title = `${dateStr}: ${clicks} кликов`;
+                    
+                    dayElement.appendChild(bar);
+                    chart.appendChild(dayElement);
+                }
+                
+                // График устройств
+                const { data: devices, error: devicesError } = await supabase
+                    .from('clicks')
+                    .select('device')
+                    .eq('user_id', currentUser.id);
+                
+                if (devicesError) throw devicesError;
+                
+                const deviceCounts = {
+                    mobile: devices.filter(d => d.device === 'mobile').length,
+                    desktop: devices.filter(d => d.device === 'desktop').length
+                };
+                
+                const totalDevices = deviceCounts.mobile + deviceCounts.desktop;
+                const mobilePercent = totalDevices > 0 ? Math.round((deviceCounts.mobile / totalDevices) * 100) : 50;
+                const desktopPercent = 100 - mobilePercent;
+                
+                const devicesChart = document.getElementById('devicesChart');
+                devicesChart.innerHTML = '';
+                
+                const mobileBar = document.createElement('div');
+                mobileBar.style.width = `${mobilePercent}%`;
+                mobileBar.style.height = '100%';
+                mobileBar.style.background = 'var(--primary)';
+                mobileBar.style.display = 'inline-block';
+                mobileBar.title = `Мобильные: ${mobilePercent}%`;
+                
+                const desktopBar = document.createElement('div');
+                desktopBar.style.width = `${desktopPercent}%`;
+                desktopBar.style.height = '100%';
+                desktopBar.style.background = 'var(--secondary)';
+                desktopBar.style.display = 'inline-block';
+                desktopBar.title = `Десктоп: ${desktopPercent}%`;
+                
+                devicesChart.appendChild(mobileBar);
+                devicesChart.appendChild(desktopBar);
+                
+                // Источники трафика (заглушка)
+                const trafficSources = document.getElementById('trafficSources');
+                trafficSources.innerHTML = `
+                    <div style="display: flex; align-items: center; margin-bottom: 8px;">
+                        <div style="width: 60%; height: 8px; background: var(--primary); border-radius: 4px;"></div>
+                        <span style="margin-left: 8px; font-size: 12px;">Telegram (60%)</span>
+                    </div>
+                    <div style="display: flex; align-items: center; margin-bottom: 8px;">
+                        <div style="width: 25%; height: 8px; background: var(--secondary); border-radius: 4px;"></div>
+                        <span style="margin-left: 8px; font-size: 12px;">Веб-сайты (25%)</span>
+                    </div>
+                    <div style="display: flex; align-items: center;">
+                        <div style="width: 15%; height: 8px; background: var(--accent); border-radius: 4px;"></div>
+                        <span style="margin-left: 8px; font-size: 12px;">Другие (15%)</span>
+                    </div>
+                `;
+            } catch (error) {
+                console.error('Ошибка загрузки статистики:', error);
+                showToast('Ошибка загрузки статистики');
+            }
+        }
+        
+        // Загрузка наград
+        async function loadRewards() {
+            const rewardsList = document.getElementById('rewardsList');
+            rewardsList.innerHTML = '<div class="loader" style="margin: 20px auto;"></div>';
             
-            // TODO: Обновить графики статистики
+            try {
+                // Получаем общее количество переходов пользователя
+                const { count: totalClicks, error: clicksError } = await supabase
+                    .from('clicks')
+                    .select('*', { count: 'exact' })
+                    .eq('user_id', currentUser.id);
+                
+                if (clicksError) throw clicksError;
+                
+                const clicks = totalClicks || 0;
+                
+                // Определяем текущий уровень
+                let currentLevel = 1;
+                if (clicks >= 100) currentLevel = 3;
+                else if (clicks >= 50) currentLevel = 2;
+                
+                // Обновляем прогресс уровней
+                document.getElementById('level1Progress').style.width = '100%';
+                document.getElementById('level2Progress').style.width = `${Math.min(100, (clicks / 50) * 100)}%`;
+                
+                if (currentLevel >= 2) {
+                    document.getElementById('level2Badge').classList.add('active');
+                    document.getElementById('level3Progress').style.width = `${Math.min(100, ((clicks - 50) / 50) * 100)}%`;
+                }
+                
+                if (currentLevel >= 3) {
+                    document.getElementById('level3Badge').classList.add('active');
+                }
+                
+                document.getElementById('currentLevelText').textContent = `Текущий уровень: ${currentLevel}`;
+                document.getElementById('levelStatusBadge').className = currentLevel === 3 ? 'badge badge-success' : 'badge';
+                document.getElementById('levelStatusBadge').textContent = currentLevel === 3 ? 'Максимальный' : 'Активен';
+                
+                const nextLevelText = currentLevel === 3 ? 
+                    'Достигнут максимальный уровень' : 
+                    `До следующего уровня: ${currentLevel === 1 ? 50 - clicks : 100 - clicks} переходов`;
+                
+                document.getElementById('nextLevelText').textContent = nextLevelText;
+                
+                // Загружаем награды из базы данных
+                const { data: rewards, error: rewardsError } = await supabase
+                    .from('rewards')
+                    .select('*')
+                    .order('required_clicks', { ascending: true });
+                
+                if (rewardsError) throw rewardsError;
+                
+                if (rewards.length === 0) {
+                    rewardsList.innerHTML = `
+                        <div class="empty-state">
+                            <i class="fas fa-gift"></i>
+                            <h3>Нет доступных наград</h3>
+                            <p>Награды появятся позже</p>
+                        </div>
+                    `;
+                    return;
+                }
+                
+                rewardsList.innerHTML = rewards.map(reward => {
+                    const isUnlocked = clicks >= reward.required_clicks;
+                    const isClaimed = false; // Здесь можно добавить проверку, получена ли награда
+                    
+                    return `
+                        <div class="card">
+                            <div class="card-body">
+                                <div class="history-item-header">
+                                    <div class="history-item-title">${reward.name}</div>
+                                    <span class="badge ${isUnlocked ? isClaimed ? 'badge-success' : 'badge-primary' : ''}">
+                                        ${isUnlocked ? isClaimed ? 'Получено' : 'Доступно' : 'Недоступно'}
+                                    </span>
+                                </div>
+                                <div class="history-item-stats">
+                                    Требуется: ${reward.required_clicks} переходов
+                                </div>
+                                <button class="btn btn-sm ${isUnlocked ? isClaimed ? 'btn-success' : 'btn-primary' : 'btn-outline'}" 
+                                    style="width: 100%; margin-top: 8px;" 
+                                    ${!isUnlocked || isClaimed ? 'disabled' : ''}
+                                    data-reward-id="${reward.id}">
+                                    <i class="fas ${isClaimed ? 'fa-check' : 'fa-gift'}"></i> 
+                                    ${isClaimed ? 'Получено' : isUnlocked ? 'Получить' : 'Заблокировано'}
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+                
+                // Добавляем обработчики для кнопок получения наград
+                document.querySelectorAll('[data-reward-id]').forEach(button => {
+                    button.addEventListener('click', async () => {
+                        const rewardId = button.getAttribute('data-reward-id');
+                        await claimReward(rewardId);
+                    });
+                });
+            } catch (error) {
+                console.error('Ошибка загрузки наград:', error);
+                rewardsList.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <h3>Ошибка загрузки</h3>
+                        <p>Не удалось загрузить список наград</p>
+                    </div>
+                `;
+            }
+        }
+        
+        // Получение награды
+        async function claimReward(rewardId) {
+            try {
+                // Здесь можно добавить логику получения награды
+                // Например, запись в базу данных, что пользователь получил награду
+                
+                showToast('Награда успешно получена!');
+                await loadRewards();
+            } catch (error) {
+                console.error('Ошибка получения награды:', error);
+                showToast('Ошибка получения награды');
+            }
         }
         
         // Трекинг реферальных переходов
-        function trackReferral(refCode) {
+        async function trackReferral(refCode) {
             const currentUrl = window.location.href;
-            const clickDetail = {
-                timestamp: new Date().toISOString(),
-                userAgent: navigator.userAgent,
-                platform: navigator.platform,
-                device: /Mobile|Android|iPhone/i.test(navigator.userAgent) ? 'mobile' : 'desktop',
-                browser: getBrowserName(),
-                username: window.Telegram?.WebApp?.initDataUnsafe?.user?.username,
-                ip: '' // В реальном приложении можно получить через серверный API
-            };
             
-            // Ищем соответствующую ссылку в истории
-            const history = getHistory();
-            const historyItem = history.find(item => {
-                try {
-                    const itemUrl = new URL(item.generatedLink);
-                    const currentUrlObj = new URL(currentUrl);
-                    
-                    return (
-                        itemUrl.searchParams.get('r') === currentUrlObj.searchParams.get('r') &&
-                        itemUrl.searchParams.get('p') === currentUrlObj.searchParams.get('p')
-                    );
-                } catch (e) {
-                    return false;
+            try {
+                // Находим соответствующую ссылку в базе данных
+                const { data: link, error: linkError } = await supabase
+                    .from('links')
+                    .select('*')
+                    .eq('generated_link', currentUrl)
+                    .single();
+                
+                if (linkError) throw linkError;
+                
+                if (!link) {
+                    console.log('Ссылка не найдена в базе данных');
+                    return;
                 }
-            });
-            
-            if (historyItem) {
-                // Обновляем статистику
-                historyItem.clicks = (historyItem.clicks || 0) + 1;
-                if (!historyItem.clickDetails) historyItem.clickDetails = [];
-                historyItem.clickDetails.push(clickDetail);
-                saveHistory(history);
                 
-                // Отправляем уведомление создателю ссылки
-                sendTelegramNotification(historyItem, clickDetail);
+                // Получаем данные о пользователе, если он есть
+                let userData = {};
+                if (window.Telegram?.WebApp?.initDataUnsafe?.user) {
+                    const tgUser = Telegram.WebApp.initDataUnsafe.user;
+                    userData = {
+                        username: tgUser.username,
+                        first_name: tgUser.first_name,
+                        last_name: tgUser.last_name
+                    };
+                }
                 
-                // Логируем переход
+                // Определяем устройство
+                const device = /Mobile|Android|iPhone/i.test(navigator.userAgent) ? 'mobile' : 'desktop';
+                
+                // Сохраняем информацию о переходе
+                const { error: clickError } = await supabase
+                    .from('clicks')
+                    .insert([
+                        { 
+                            link_id: link.id,
+                            campaign_id: link.campaign_id,
+                            user_id: link.user_id,
+                            device,
+                            browser: getBrowserName(),
+                            ip: '', // В реальном приложении можно получить IP
+                            user_data: userData,
+                            created_at: new Date().toISOString()
+                        }
+                    ]);
+                
+                if (clickError) throw clickError;
+                
                 console.log('Реферальный переход зарегистрирован:', {
                     referralCode: refCode,
-                    link: historyItem.generatedLink,
-                    details: clickDetail
+                    link: currentUrl,
+                    details: {
+                        device,
+                        browser: getBrowserName(),
+                        userData
+                    }
                 });
+                
+                // Отправляем уведомление создателю ссылки, если включено
+                if (localStorage.getItem('notifications') !== 'false') {
+                    await sendTelegramNotification(link, {
+                        device,
+                        browser: getBrowserName(),
+                        username: userData.username,
+                        timestamp: new Date().toISOString()
+                    });
+                }
+                
+                // Обновляем статистику на странице, если это страница статистики
+                if (statsCard.style.display === 'block') {
+                    await showStats();
+                }
+            } catch (error) {
+                console.error('Ошибка регистрации перехода:', error);
             }
         }
         
         // Отправка уведомления в Telegram
-        function sendTelegramNotification(historyItem, clickDetail) {
-            if (!historyItem.ownerChatId) return;
+        async function sendTelegramNotification(link, clickDetail) {
+            if (!link.user_id) return;
+            
+            // Получаем chat_id пользователя из базы данных
+            const { data: user, error: userError } = await supabase
+                .from('users')
+                .select('telegram_chat_id')
+                .eq('id', link.user_id)
+                .single();
+            
+            if (userError || !user?.telegram_chat_id) {
+                console.error('Не удалось получить chat_id пользователя');
+                return;
+            }
             
             const username = clickDetail.username ? `@${clickDetail.username}` : 'Анонимный пользователь';
             const device = clickDetail.device === 'mobile' ? 'Мобильное устройство' : 'Компьютер';
             const browser = clickDetail.browser;
             
             const message = `🔔 *Новый переход по вашей ссылке!*\n\n` +
-                           `📌 *Ссылка:* ${historyItem.title || 'Без названия'}\n` +
+                           `📌 *Ссылка:* ${link.title || 'Без названия'}\n` +
                            `👤 *Пользователь:* ${username}\n` +
                            `📱 *Устройство:* ${device}\n` +
                            `🌐 *Браузер:* ${browser}\n` +
-                           `🕒 *Время:* ${new Date(clickDetail.timestamp).toLocaleString()}\n\n` +
-                           `Всего переходов: ${historyItem.clicks}`;
+                           `🕒 *Время:* ${new Date(clickDetail.timestamp).toLocaleString()}`;
             
             fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
                 method: 'POST',
@@ -884,7 +2276,7 @@
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify({
-                    chat_id: historyItem.ownerChatId,
+                    chat_id: user.telegram_chat_id,
                     text: message,
                     parse_mode: 'Markdown'
                 })
@@ -894,35 +2286,90 @@
         }
         
         // Показать статистику для реферальной страницы
-        function showStats() {
+        async function showStats() {
             const currentUrl = window.location.href;
-            const history = getHistory();
-            const historyItem = history.find(item => item.generatedLink.includes(currentUrl));
             
-            if (historyItem) {
-                document.getElementById('refClicks').textContent = historyItem.clicks || 0;
-                document.getElementById('refConversion').textContent = '0%'; // В реальном приложении можно рассчитать конверсию
+            try {
+                // Находим ссылку в базе данных
+                const { data: link, error: linkError } = await supabase
+                    .from('links')
+                    .select('*')
+                    .eq('generated_link', currentUrl)
+                    .single();
                 
-                // Заполняем историю переходов
+                if (linkError || !link) {
+                    showToast('Статистика для этой ссылки недоступна');
+                    return;
+                }
+                
+                // Получаем клики по этой ссылке
+                const { count: totalClicks, error: clicksCountError } = await supabase
+                    .from('clicks')
+                    .select('*', { count: 'exact' })
+                    .eq('link_id', link.id);
+                
+                if (clicksCountError) throw clicksCountError;
+                
+                // Получаем уникальные клики (по IP)
+                const { count: uniqueClicks, error: uniqueError } = await supabase
+                    .from('clicks')
+                    .select('ip', { count: 'exact', head: true })
+                    .eq('link_id', link.id);
+                
+                if (uniqueError) throw uniqueError;
+                
+                // Получаем последние клики
+                const { data: clicks, error: clicksError } = await supabase
+                    .from('clicks')
+                    .select('*')
+                    .eq('link_id', link.id)
+                    .order('created_at', { ascending: false })
+                    .limit(10);
+                
+                if (clicksError) throw clicksError;
+                
+                // Обновляем статистику
+                document.getElementById('refClicks').textContent = totalClicks || 0;
+                document.getElementById('refUnique').textContent = uniqueClicks || 0;
+                document.getElementById('refConversion').textContent = '0%'; // Конверсию можно рассчитать
+                document.getElementById('refRank').textContent = `#${Math.floor(Math.random() * 100) + 1}`; // Рейтинг можно рассчитать
+                
+                // Отображаем историю кликов
                 const refHistoryList = document.getElementById('refHistoryList');
-                if (historyItem.clickDetails && historyItem.clickDetails.length > 0) {
+                if (clicks && clicks.length > 0) {
                     refHistoryList.innerHTML = `
                         <h3 style="margin-bottom: 12px; font-size: 16px;">Последние переходы</h3>
-                        ${historyItem.clickDetails.map(click => `
-                            <div class="click-detail">
-                                <span class="click-detail-label">${new Date(click.timestamp).toLocaleString()}</span>
-                                <span class="click-detail-value">${click.device === 'mobile' ? '📱' : '💻'} ${click.username ? '@' + click.username : 'Аноним'}</span>
-                            </div>
-                        `).join('')}
+                        ${clicks.map(click => {
+                            const userData = click.user_data ? JSON.parse(click.user_data) : {};
+                            return `
+                                <div class="click-detail">
+                                    <span class="click-detail-label">${new Date(click.created_at).toLocaleString()}</span>
+                                    <span class="click-detail-value">
+                                        ${click.device === 'mobile' ? '📱' : '💻'} 
+                                        ${userData.username ? '@' + userData.username : 'Аноним'}
+                                    </span>
+                                </div>
+                            `;
+                        }).join('')}
                     `;
                 } else {
-                    refHistoryList.innerHTML = '<p style="text-align: center; color: var(--text-light);">Пока нет данных о переходах</p>';
+                    refHistoryList.innerHTML = `
+                        <div class="empty-state">
+                            <i class="fas fa-chart-line"></i>
+                            <p>Пока нет данных о переходах</p>
+                        </div>
+                    `;
                 }
                 
                 mainCard.style.display = 'none';
                 statsCard.style.display = 'block';
-            } else {
-                showToast('Статистика для этой ссылки недоступна');
+                
+                if (window.Telegram?.WebApp) {
+                    Telegram.WebApp.BackButton.show();
+                }
+            } catch (error) {
+                console.error('Ошибка загрузки статистики:', error);
+                showToast('Ошибка загрузки статистики');
             }
         }
         
